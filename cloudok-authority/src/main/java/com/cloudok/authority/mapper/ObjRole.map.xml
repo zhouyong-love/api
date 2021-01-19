@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.authority.mapper.ObjRoleMapper">
+	
+	<select id="queryObjectPage" parameterType="com.cloudok.authority.service.grant.GrantObjectDynaSQL" resultType="map">
+		${dynaSQL}
+	</select>
+	
+	<select id="queryObjectCount" parameterType="com.cloudok.authority.service.grant.GrantObjectDynaSQL" resultType="long">
+		${dynaSQL}
+	</select>
+	
+	<update id="deleteByRole" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="sys_obj_role"/>
+		</include>	
+		<where>
+			role_id in 
+			<foreach collection="list" open="(" close=")" separator="," item="item">#{item}</foreach>
+		</where>
+	</update>
+</mapper>

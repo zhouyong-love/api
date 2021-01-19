@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.core.mybatis.BaseMapper">
+	
+	<resultMap type="com.cloudok.core.po.PO" id="baseMap">
+		<id column="id" property="id"/>
+		<result column="tenant_id" property="tenantId"/>
+		<result column="deleted" property="deleted"/>
+		<result column="create_by" property="createBy"/>
+		<result column="update_by" property="updateBy"/>
+		<result column="create_ts" property="createTs"/>
+		<result column="update_ts" property="updateTs"/>
+	</resultMap>
+	
+	<sql id="baseColumns">
+		t.id,t.tenant_id,t.deleted,t.create_by,t.update_by,t.create_ts,t.update_ts
+	</sql>
+	
+	<sql id="insertBaseColumns">
+		id,tenant_id,deleted,create_by,update_by,create_ts,update_ts
+	</sql>
+	
+	<sql id="insertBaseColumnsValue">
+		#{id},#{tenantId},#{deleted},#{createBy},#{updateBy},#{createTs},#{updateTs}
+	</sql>
+	
+	<sql id="updateBaseColumns">
+		update_by=#{updateBy},update_ts=#{updateTs}
+	</sql>
+	
+	<sql id="byId">
+		t.id=#{id}
+	</sql>
+	
+	<sql id="delete">
+		delete from ${tableName}
+	</sql>
+	
+	<sql id="logicDelete">
+		update ${tableName} set deleted=true
+	</sql>
+	
+	<sql id="byIds">
+		t.id in
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</sql>
+	
+	<sql id="condition">
+		t.deleted=false 
+		<if test="conditions!=null">
+			<foreach collection="conditions" item="condition">
+				${condition.querySymbol} (
+				<foreach collection="condition.properties" item="propertie">
+					 ${propertie.querySymbol} ${propertie.column}
+					<choose>
+						<when test="propertie.operator.name=='EQ'">
+							<![CDATA[= #{propertie.value}]]>
+						</when>
+						<when test="propertie.operator.name=='GT'">
+							<![CDATA[> #{propertie.value}]]>
+						</when>
+						<when test="propertie.operator.name=='GTE'">
+							<![CDATA[>= #{propertie.value}]]>
+						</when>
+						<when test="propertie.operator.name=='LT'">
+							<![CDATA[< #{propertie.value}]]>
+						</when>
+						<when test="propertie.operator.name=='LTE'">
+							<![CDATA[<= #{propertie.value}]]>
+						</when>
+						<when test="propertie.operator.name=='LIKE'">
+							<![CDATA[like CONCAT('%',#{propertie.value},'%')]]>
+						</when>
+						<when test="propertie.operator.name=='LLIKE'">
+							<![CDATA[like CONCAT('%',#{propertie.value})]]>
+						</when>
+						<when test="propertie.operator.name=='RLIKE'">
+							<![CDATA[like CONCAT(#{propertie.value},'%')]]>
+						</when>
+						<when test="propertie.operator.name=='NE'">
+							 IS NOT NULL
+						</when>
+						<when test="propertie.operator.name=='IE'">
+							 IS NULL
+						</when>
+						<when test="propertie.operator.name=='NEO'">
+							<![CDATA[!= #{propertie.value}]]>
+						</when>
+						<when test="propertie.operator.name=='IN'">
+							<foreach collection="propertie.value" item="item" open=" IN(" close=")" separator=",">
+								#{item}
+							</foreach>
+						</when>
+					</choose>
+				</foreach>
+				)
+			</foreach>
+		</if>
+		<if test="sortConditions!=null">
+			<foreach collection="sortConditions" item="sortCondition" separator="," open=" order by ">
+				${sortCondition.column} ${sortCondition.sortType.name}
+			</foreach>
+		</if>
+		
+		<if test="pageCondition!=null">
+			 <choose>
+                <when test="_databaseId=='postgresql'">
+                    limit ${pageCondition.pageSize} offset ${(pageCondition.pageNo-1)*pageCondition.pageSize}
+                </when>
+                <when test="_databaseId=='mysql'">
+                    limit ${(pageCondition.pageNo-1)*pageCondition.pageSize},${pageCondition.pageSize}
+                </when>
+            </choose>
+		</if>
+	</sql>
+</mapper>

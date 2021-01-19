@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.authority.mapper.RoleMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.authority.po.RolePO" id="roleMap">
+		
+		<result property="roleCode" column="role_code"/>
+		
+		<result property="roleName" column="role_name"/>
+		
+		<result property="remark" column="remark"/>
+		
+		<result property="roleType" column="role_type"/>
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.role_code,t.role_name,t.remark,t.role_type,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.authority.po.RolePO">
+		insert into sys_role(role_code,role_name,remark,role_type,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{roleCode},#{roleName},#{remark},#{roleType},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.authority.po.RolePO">
+		update sys_role set role_code=#{roleCode},role_name=#{roleName},remark=#{remark},role_type=#{roleType},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.authority.po.RolePO">
+		update sys_role set 
+			
+			<if test="roleCode != null ">role_code = #{roleCode},</if>
+			
+			<if test="roleName != null ">role_name = #{roleName},</if>
+			
+			<if test="remark != null ">remark = #{remark},</if>
+			
+			<if test="roleType != null ">role_type = #{roleType},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="sys_role"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="roleMap">
+		select
+		<include refid="columns"></include>
+		from sys_role  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from sys_role t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

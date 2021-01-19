@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.authority.mapper.ResourceMapper">
+	
+	<select id="queryRoleRes" parameterType="list" resultMap="resourceMap">
+		select 
+		t.id,t.parent_id,t.remark,t.resource_code,t.resource_icon,t.resource_name,
+		t.resource_path,t.resource_type,t.resource_url,t.sn,t.deleted,
+		t1.update_by,t1.update_ts
+		from sys_resource t
+		left join sys_role_res t1 on t.id=t1.res_id
+		where t.deleted=false and t1.deleted=false
+		and t1.role_id in
+		<foreach collection="list" open="(" close=")" separator="," item="item">#{item}</foreach>
+		order by t.sn desc
+	</select>
+</mapper>

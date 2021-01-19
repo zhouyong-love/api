@@ -1,0 +1,43 @@
+debug: true
+logging:
+  level:
+    com.itechchoice: debug
+spring:
+  datasource:
+    name: druidDataSource
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ircam?autoReconnect=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=true&serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+    druid:
+      initial-size: 2
+      min-idle: 2
+      maxActive: 10
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      web-stat-filter:
+        enabled: false
+        url-pattern: "/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet: 
+        url-pattern: "/druid/*"
+        enabled: false
+        reset-enable: false
+        login-username: root
+        login-password: cloudok
+        
+security: 
+  token: 
+    secret: 7olodZvQcq8DHiI165oJEPNs53ZkRPhc
+    expired: 1800
+    signature-secret: lfP2OQ6hlJLhgRPflsLmZv3NZuJJvGLr
+    signature-expired: 300

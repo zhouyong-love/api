@@ -1,0 +1,47 @@
+server: 
+  port: 8081
+  servlet:
+    context-path: /api
+    session:
+      timeout: 1800s
+      
+spring:
+  profiles:
+    include:
+      -local
+      -dev
+      -prod
+    active: local
+    
+  flyway: 
+    encoding: utf-8
+    enabled: false
+    baselineOnMigrate: true
+    locations: classpath:db/migration/mysql
+    
+  jackson: 
+    default-property-inclusion: non-null 
+    date-format: yyyy-MM-dd HH:mm:ss
+  
+  cache:
+    ehcache:
+      config: classpath:ehcache.xml
+  mvc: 
+    throw-exception-if-no-handler-found: true 
+    static-path-pattern : /swagger-ui.html
+    
+  swagger: 
+    enable: true
+    basePackage: com
+    title: cloudok
+    description: Online interface documentation
+    termsOfServiceUrl: https://www.cloudok.com
+    version: 1.0.0
+
+mybatis: 
+  mapper-locations:         
+    - classpath*:com/cloudok/*/mapper/*.xml
+    - classpath*:com/cloudok/**/mapper/*.xml
+    - classpath*:mapper/auto/*/*.xml
+    - classpath*:com/cloudok/core/mapper/*.xml
+  executorType: BATCH

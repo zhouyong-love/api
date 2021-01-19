@@ -80,7 +80,7 @@ public class DictApi {
 	@PreAuthorize("hasAuthority('interface.dict.write') or hasAuthority('interface.dict.read')")
 	@GetMapping("/{dictCode}")
 	@ApiOperation(value = "获取字典值列表", notes = "获取字典值列表")
-	public Response searchData(@RequestParam("dictCode")String dictCode) {
+	public Response searchData(@PathVariable("dictCode")String dictCode) {
 		return Response.buildSuccess(dictDataService.findAll(dictCode));
 	}
 

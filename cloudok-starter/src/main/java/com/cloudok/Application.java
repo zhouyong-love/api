@@ -13,9 +13,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import com.cloudok.base.enums.san.EnumSan;
+
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = { "com.cloudok" })
 @MapperScan("com.cloudok.**.mapper")
+@EnumSan(basePackages = "com.cloudok")
 public class Application {
 
 	private CorsConfiguration buildConfig() {

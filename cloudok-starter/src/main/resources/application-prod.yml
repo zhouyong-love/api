@@ -1,7 +1,7 @@
 debug: true
 logging:
   level:
-    com.itechchoice: debug
+    com.cloudok: debug
 spring:
   datasource:
     name: druidDataSource

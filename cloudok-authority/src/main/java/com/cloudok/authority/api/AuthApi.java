@@ -90,18 +90,15 @@ public class AuthApi {
 	@ApiOperation(value = "修改用户", notes = "修改用户")
 	public Response set(@RequestBody UserVO vo) {
 		vo.setId(SecurityContextHelper.getCurrentUserId());
-		if (!StringUtils.isEmpty(vo.getPasswdHash())) {
-			vo.setPasswdHash(passwordEncoder.encode(vo.getPasswdHash()));
+		if (!StringUtils.isEmpty(vo.getPassword())) {
+			vo.setPassword(passwordEncoder.encode(vo.getPassword()));
 		}
 		if (vo.getAvatar() != null) {
 			AttachRWHandle.used(vo.getAvatar(), vo.getId(), null);
 		}
 		vo.setEmail(null);
-		vo.setPhoneNum(null);
-		vo.setFirstName(null);
-		vo.setLastName(null);
+		vo.setTelphone(null);
 		vo.setFreeze(null);
-		vo.setStatus(null);
 		vo.setUserName(null);
 		return Response.buildSuccess(userService.merge(vo));
 	}

@@ -6,46 +6,39 @@
 		
 		<result property="userName" column="user_name"/>
 		
-		<result property="passwdHash" column="passwd_hash"/>
+		<result property="userFullName" column="user_full_name"/>
 		
-		<result property="firstName" column="first_name"/>
-		
-		<result property="lastName" column="last_name"/>
-		
-		<result property="email" column="email"/>
-
-		<result property="userType" column="user_type"/>
-
-		<result property="phoneNum" column="phone_num"/>
-		
-		<result property="country" column="country"/>
-		
-		<result property="status" column="status"/>
-		
-		<result property="avatar" column="avatar"/>
-		
-		<result property="freeze" column="freeze"/>
+		<result property="password" column="password"/>
 		
 		<result property="sex" column="sex"/>
 		
-		<result property="birthDate" column="birth_date"/>
+		<result property="birthDay" column="birth_day"/>
+		
+		<result property="telphone" column="telphone"/>
+		
+		<result property="email" column="email"/>
+		
+		<result property="freeze" column="freeze"/>
+		
+		<result property="avatar" column="avatar"/>
+		
+		<result property="lastLoginTime" column="last_login_time"/>
+		
+		<result property="lastLoginAddr" column="last_login_addr"/>
 		
 	</resultMap>
 
 	<sql id="columns">
-		t.user_name,t.passwd_hash,t.first_name,t.last_name,t.email,t.user_type,t.phone_num,t.country,t.status,t.avatar,t.freeze 
-		,t.sex,t.birth_date,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.user_name,t.user_full_name,t.password,t.sex,t.birth_day,t.telphone,t.email,t.freeze,t.avatar,t.last_login_time,t.last_login_addr,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.authority.po.UserPO">
-		insert into sys_user(user_name,passwd_hash,first_name,last_name,email,user_type,phone_num,country,status,avatar,freeze 
-		,sex,birth_date,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{userName},#{passwdHash},#{firstName},#{lastName},#{email},#{userType},#{phoneNum},#{country},#{status},#{avatar},#{freeze},#{sex},#{birthDate},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into sys_user(user_name,user_full_name,password,sex,birth_day,telphone,email,freeze,avatar,last_login_time,last_login_addr,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{userName},#{userFullName},#{password},#{sex},#{birthDay},#{telphone},#{email},#{freeze},#{avatar},#{lastLoginTime},#{lastLoginAddr},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.authority.po.UserPO">
-		update sys_user set user_name=#{userName},passwd_hash=#{passwdHash},first_name=#{firstName},last_name=#{lastName},email=#{email},user_type=#{userType},phone_num=#{phoneNum},country=#{country},status=#{status},avatar=#{avatar},
-              freeze=#{freeze},sex=#{sex},birth_date=#{birthDate},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update sys_user set user_name=#{userName},user_full_name=#{userFullName},password=#{password},sex=#{sex},birth_day=#{birthDay},telphone=#{telphone},email=#{email},freeze=#{freeze},avatar=#{avatar},last_login_time=#{lastLoginTime},last_login_addr=#{lastLoginAddr},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -56,28 +49,25 @@
 			
 			<if test="userName != null ">user_name = #{userName},</if>
 			
-			<if test="passwdHash != null ">passwd_hash = #{passwdHash},</if>
+			<if test="userFullName != null ">user_full_name = #{userFullName},</if>
 			
-			<if test="firstName != null ">first_name = #{firstName},</if>
+			<if test="password != null ">password = #{password},</if>
 			
-			<if test="lastName != null ">last_name = #{lastName},</if>
+			<if test="sex != null ">sex = #{sex},</if>
+			
+			<if test="birthDay != null ">birth_day = #{birthDay},</if>
+			
+			<if test="telphone != null ">telphone = #{telphone},</if>
 			
 			<if test="email != null ">email = #{email},</if>
-
-			<if test="userType != null ">user_type = #{userType},</if>
-
-			<if test="phoneNum != null ">phone_num = #{phoneNum},</if>
 			
-			<if test="country != null ">country = #{country},</if>
-			
-			<if test="status != null ">status = #{status},</if>
+			<if test="freeze != null ">freeze = #{freeze},</if>
 			
 			<if test="avatar != null ">avatar = #{avatar},</if>
 			
-			<if test="freeze != null ">freeze= #{freeze}, </if>
-			<if test="sex != null ">sex = #{sex},</if>
+			<if test="lastLoginTime != null ">last_login_time = #{lastLoginTime},</if>
 			
-			<if test="birthDate != null ">birth_date = #{birthDate},</if>
+			<if test="lastLoginAddr != null ">last_login_addr = #{lastLoginAddr},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

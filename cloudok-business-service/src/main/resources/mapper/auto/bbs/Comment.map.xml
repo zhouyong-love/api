@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.bbs.mapper.CommentMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.bbs.po.CommentPO" id="commentMap">
+		
+		<result property="content" column="content"/>
+		
+		<result property="thumbsUpCount" column="thumbs_up_count"/>
+		
+		<result property="replyCount" column="reply_count"/>
+		
+		<result property="collectCount" column="collect_count"/>
+		
+		<result property="postId" column="post_id"/>
+		
+		<result property="path" column="path"/>
+		
+		<result property="parentId" column="parent_id"/>
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.content,t.thumbs_up_count,t.reply_count,t.collect_count,t.post_id,t.path,t.parent_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.bbs.po.CommentPO">
+		insert into bbs_comment(content,thumbs_up_count,reply_count,collect_count,post_id,path,parent_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{content},#{thumbsUpCount},#{replyCount},#{collectCount},#{postId},#{path},#{parentId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.bbs.po.CommentPO">
+		update bbs_comment set content=#{content},thumbs_up_count=#{thumbsUpCount},reply_count=#{replyCount},collect_count=#{collectCount},post_id=#{postId},path=#{path},parent_id=#{parentId},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.bbs.po.CommentPO">
+		update bbs_comment set 
+			
+			<if test="content != null ">content = #{content},</if>
+			
+			<if test="thumbsUpCount != null ">thumbs_up_count = #{thumbsUpCount},</if>
+			
+			<if test="replyCount != null ">reply_count = #{replyCount},</if>
+			
+			<if test="collectCount != null ">collect_count = #{collectCount},</if>
+			
+			<if test="postId != null ">post_id = #{postId},</if>
+			
+			<if test="path != null ">path = #{path},</if>
+			
+			<if test="parentId != null ">parent_id = #{parentId},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="bbs_comment"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="commentMap">
+		select
+		<include refid="columns"></include>
+		from bbs_comment  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from bbs_comment t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

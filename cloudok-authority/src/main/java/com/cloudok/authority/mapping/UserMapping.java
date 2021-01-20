@@ -6,30 +6,26 @@ public class UserMapping extends Mapping{
 
 	private static final long serialVersionUID = 0L;
 	
-	public static final Mapping USERNAME=new Mapping("userName", "t.user_name");
+	public static final Mapping USERNAME=new Mapping("userName", "user_name");
 	
-	public static final Mapping PASSWDHASH=new Mapping("passwdHash", "t.passwd_hash");
+	public static final Mapping USERFULLNAME=new Mapping("userFullName", "user_full_name");
 	
-	public static final Mapping FIRSTNAME=new Mapping("firstName", "t.first_name");
+	public static final Mapping PASSWORD=new Mapping("password", "password");
 	
-	public static final Mapping LASTNAME=new Mapping("lastName", "t.last_name");
+	public static final Mapping SEX=new Mapping("sex", "sex");
 	
-	public static final Mapping EMAIL=new Mapping("email", "t.email");
-
-	public static final Mapping USERTYPE=new Mapping("userType", "t.user_type");
-
-	public static final Mapping PHONENUM=new Mapping("phoneNum", "t.phone_num");
+	public static final Mapping BIRTHDAY=new Mapping("birthDay", "birth_day");
 	
-	public static final Mapping COUNTRY=new Mapping("country", "t.country");
+	public static final Mapping TELPHONE=new Mapping("telphone", "telphone");
 	
-	public static final Mapping STATUS=new Mapping("status", "t.status");
+	public static final Mapping EMAIL=new Mapping("email", "email");
+	
+	public static final Mapping FREEZE=new Mapping("freeze", "freeze");
 	
 	public static final Mapping AVATAR=new Mapping("avatar", "avatar");
 	
-	public static final Mapping FREEZE=new Mapping("freeze", "t.freeze");
+	public static final Mapping LASTLOGINTIME=new Mapping("lastLoginTime", "last_login_time");
 	
-	public static final Mapping SEX=new Mapping("sex", "t.sex");
-	
-	public static final Mapping BIRTHDATE=new Mapping("birthDate", "t.birth_date");
+	public static final Mapping LASTLOGINADDR=new Mapping("lastLoginAddr", "last_login_addr");
 	
 }

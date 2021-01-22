@@ -35,11 +35,17 @@ public class MemberApi {
 	@Autowired
 	private MemberService memberService;
 
-	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping("/register")
-	@ApiOperation(value = "注册", notes = "添加会员表")
-	public Response create(@RequestBody @Valid MemberVO vo) {
-		return Response.buildSuccess(memberService.create(vo));
+	@ApiOperation(value = "注册", notes = "注册")
+	public Response create(@RequestBody @Valid SingupVO vo) {
+		return Response.buildSuccess(memberService.signup(vo));
+	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@PostMapping("/fill")
+	@ApiOperation(value = "补充账号消息", notes = "补充账号消息")
+	public Response fillAccountInfo(@RequestBody @Valid MemberVO vo) {
+		return Response.buildSuccess(memberService.fillAccountInfo(vo));
 	}
 	
 	@PostMapping("/login")

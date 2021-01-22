@@ -1,5 +1,7 @@
 package com.cloudok.uc.service;
 
+import javax.validation.Valid;
+
 import com.cloudok.core.service.IService;
 import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.vo.BindRequest;
@@ -24,7 +26,7 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	Boolean resetPwd(ForgotVO vo);
 
-	Boolean signup(SingupVO vo);
+	TokenVO signup(SingupVO vo);
 
 	Boolean sendVerifycode(VerifyCodeRequest vo);
 
@@ -35,5 +37,7 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	Boolean changePassword(ChangePasswordRequest vo);
 
 	Boolean bind(BindRequest vo);
+
+	MemberVO fillAccountInfo(@Valid MemberVO vo);
 
 }

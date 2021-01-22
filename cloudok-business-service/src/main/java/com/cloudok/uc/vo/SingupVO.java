@@ -19,19 +19,11 @@ public class SingupVO implements Serializable{
 
 	private String registerType;
 	
-	private String tenantName;
-	
 	private String email;
 	
 	private String phone;
 	
-	private String country;
-	
-	private String password;
-	
 	private String code;
 	
-	private boolean receiveAlarm;
 	
-	private boolean receiveReport;
 }

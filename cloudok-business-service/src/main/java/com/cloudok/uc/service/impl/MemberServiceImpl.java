@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.validation.Valid;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,9 +173,65 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	}
 
 	@Override
-	public Boolean signup(SingupVO vo) {
-		// TODO Auto-generated method stub
-		return null;
+	public TokenVO signup(SingupVO vo) {
+		boolean isSms =  "0".equalsIgnoreCase(vo.getRegisterType());
+		if(StringUtils.isEmpty(vo.getPhone()) && !StringUtils.isEmpty(vo.getEmail())) { //fixed data, front-end may be error
+			vo.setRegisterType("1"); //force set to email
+			isSms = false;
+			boolean isExits = checkEmailExists(vo.getEmail());
+			if(isExits) {
+				throw new SystemException(CloudOKExceptionMessage.EMAIL_ALREADY_EXISTS);
+			}
+		}
+		if(!StringUtils.isEmpty(vo.getPhone()) && StringUtils.isEmpty(vo.getEmail())) { //fixed data, front-end may be error
+			vo.setRegisterType("0"); //force set to phone
+			isSms = true;
+			boolean  isExits = checkPhoneExists(vo.getPhone());
+			if(isExits) {
+				throw new SystemException(CloudOKExceptionMessage.PHONE_ALREADY_EXISTS);
+			}
+		}
+		if(isSms) {
+			vo.setEmail(null);
+		}else {
+			vo.setPhone(null);
+		}
+		String cacheKey = buildKey("signup",isSms ? "sms":"email",isSms ? vo.getPhone() : vo.getEmail());
+		String code = cacheService.get(CacheType.VerifyCode, cacheKey,String.class);
+		if(StringUtils.isEmpty(code)) {
+			throw new SystemException("verify code is wrong",CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+		}
+		if(!code.equals(vo.getCode())) {
+			throw new SystemException("verify code is wrong",CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+		}
+		 
+		MemberVO member = new MemberVO();
+		member.setEmail(vo.getEmail());
+		member.setPhone(vo.getPhone());
+		this.create(member);
+		 
+		MemberVO sysUser = this.get(member.getId());
+		cacheService.evict(CacheType.Member, sysUser.getId().toString());
+		User user = this.loadUserInfo(sysUser.getId());
+		TokenVO token = TokenVO.build(JWTUtil.genToken(user, TokenType.ACCESS), JWTUtil.genToken(user, TokenType.REFRESH), user);
+		
+		return token;
+	}
+	
+	@Override
+	public MemberVO fillAccountInfo(@Valid MemberVO vo) {
+		MemberVO member = new MemberVO();
+		boolean isExits = checkUserNameExists(vo.getUserName());
+		if(isExits) {
+			throw new SystemException(CloudOKExceptionMessage.USERNAME_ALREADY_EXISTS);
+		}
+		member.setId(SecurityContextHelper.getCurrentUserId());
+		member.setNickName(vo.getNickName());
+		member.setAvatar(vo.getAvatar());
+		member.setUserName(vo.getUserName());
+		member.setPassword(passwordEncoder.encode(vo.getPassword()));
+		this.merge(member);
+		return this.get(member.getId());
 	}
 
 	@Override

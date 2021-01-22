@@ -25,6 +25,16 @@
 			<artifactId>cloudok-security</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.cloudok</groupId>
+			<artifactId>cloudok-message</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.cloudok</groupId>
+			<artifactId>cloudok-cache</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

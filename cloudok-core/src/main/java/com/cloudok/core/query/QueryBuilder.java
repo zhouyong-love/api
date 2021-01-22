@@ -323,4 +323,15 @@ public class QueryBuilder {
 		pageCondition = null;
 		return this;
 	}
+	
+	/**
+	 * 排除排序以及分页，用于统计sql
+	 * 夏志坚 2020-06-06
+	 * @return
+	 */
+	public QueryBuilder excludeSortPage() {
+		QueryBuilder qb=QueryBuilder.create(this.clazz);
+		qb.conditions=this.conditions;
+		return qb;
+	}
 }

@@ -8,6 +8,7 @@ import com.cloudok.core.context.SpringApplicationContext;
 import com.cloudok.core.exception.SystemException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -72,6 +73,20 @@ public class JSON {
 			return mapper().readValue(reader, typeReference);
 		} catch (IOException e) {
 			throw new SystemException("json convert exception");
+		}
+	}
+	
+	/**
+	 * 
+	 * @param json
+	 * @return
+	 */
+	public static JsonNode parseJSONTree(String json) {
+		try {
+			return mapper().readTree(json);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new SystemException("json转换失败");
 		}
 	}
 }

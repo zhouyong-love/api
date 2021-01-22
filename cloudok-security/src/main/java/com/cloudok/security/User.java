@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class User implements UserDetails {
 
 	private static final long serialVersionUID = 2918707302559225925L;
-
+	
 	private Long id;
 	
 	private String username;
@@ -33,7 +33,7 @@ public class User implements UserDetails {
 
 	private String userType;
 
-	private String phoneNum;
+	private String phone;
 	
 	private boolean provisionalAuthority;
 	
@@ -146,11 +146,15 @@ public class User implements UserDetails {
 		this.userType = userType;
 	}
 
-	public String getPhoneNum() {
-		return phoneNum;
+	public String getPhone() {
+		return phone;
 	}
 
-	public void setPhoneNum(String phoneNum) {
-		this.phoneNum = phoneNum;
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
+	
+	
+
+	 
 }

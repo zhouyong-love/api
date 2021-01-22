@@ -18,7 +18,6 @@ public class OSSConfigure {
 
 	@Bean
 	public OSS ossClient() {
-		return new OSSClientBuilder().build(ossProperties.getEndpoint(), ossProperties.getAccessKey(),
-				ossProperties.getAccessSecret());
+		return new OSSClientBuilder().build(ossProperties.getEndpoint(), ossProperties.getAccessKey(),ossProperties.getAccessSecret());
 	}
 }

@@ -1,7 +1,7 @@
-debug: true
+debug: false
 logging:
   level:
-    com.cloudok: debug
+    com.cloudok: info
 spring:
   datasource:
     name: druidDataSource
@@ -53,3 +53,28 @@ security:
     expired: 1800
     signature-secret: lfP2OQ6hlJLhgRPflsLmZv3NZuJJvGLr
     signature-expired: 300
+    
+    
+com:
+  cloudok:
+    channel:
+      aliyun:
+        oss:
+          endpoint: oss-cn-hangzhou.aliyuncs.com
+          bucket: test
+          baseDir: /dev
+          sign-timeout: 1000
+          access-key:  LTAI4BJLwRNBjOA1
+          access-secret: ecdiWiAj5t9TVcbWuCJ2p26s0qQar2
+        sms:
+          access-key:  LTAI4BJLwRNBjOA1
+          access-secret: ecdiWiAj5t9TVcbWuCJ2p26s0qQar2
+          region-id: cn-hangzhou
+        voice:
+          access-key:  LTAI4BJLwRNBjOA1
+          access-secret: ecdiWiAj5t9TVcbWuCJ2p26s0qQar2
+          region-id: cn-hangzhou
+      jpush:
+         app-key: 77c3663080c5754ac8ed7171
+         master-secret: 51ca783be1568b5c45ce7c32
+        

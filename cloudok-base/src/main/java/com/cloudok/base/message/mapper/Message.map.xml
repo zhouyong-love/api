@@ -30,7 +30,7 @@
 		</where>	
 	</select>
 
-	<update id="readDetail" parameterType="com.cloudok.message.po.ReadMessage">
+	<update id="readDetail" parameterType="com.cloudok.base.message.po.ReadMessage">
 		update base_message_details set 
 			status='99'
 		<where>
@@ -43,7 +43,7 @@
 			</if>
 		</where>
 	</update>
-	<update id="read" parameterType="com.cloudok.message.po.ReadMessage">
+	<update id="read" parameterType="com.cloudok.base.message.po.ReadMessage">
 		update base_message set
 			status='99'
 		<where>

@@ -43,9 +43,9 @@
     <logger name="spring" level="INFO" />
     <logger name="io" level="INFO" />
     <logger name="net" level="INFO" />
-    <logger name="com.cloudok" level="DEBUG" />
+    <logger name="com.cloudok" level="INFO" />
     <!-- 日志输出级别 -->
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root> 

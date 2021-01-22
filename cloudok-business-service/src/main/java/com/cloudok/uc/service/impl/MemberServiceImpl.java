@@ -30,6 +30,7 @@ import com.cloudok.core.service.AbstractService;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.User;
+import com.cloudok.security.UserInfoHandler;
 import com.cloudok.security.exception.SecurityExceptionMessage;
 import com.cloudok.security.token.JWTTokenInfo;
 import com.cloudok.security.token.JWTUtil;
@@ -49,7 +50,7 @@ import com.cloudok.uc.vo.UserCheckRequest;
 import com.cloudok.uc.vo.VerifyCodeRequest;
 
 @Service
-public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> implements MemberService{
+public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> implements MemberService,UserInfoHandler{
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -364,5 +365,19 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			this.merge(user);
 		}
 		return true;
+	}
+
+	@Override
+	public User loadUserInfoByToken(JWTTokenInfo info) {
+		return getSessionFromCache(info.getKey());
+	}
+
+	private User getSessionFromCache(String key) {
+		return cacheService.get(CacheType.Member, key, User.class);
+	}
+	
+	@Override
+	public UserType getUserType() {
+		return UserType.MEMBER;
 	}
 }

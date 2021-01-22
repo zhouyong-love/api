@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import com.cloudok.core.context.SpringApplicationContext;
+import com.cloudok.core.enums.UserType;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.security.SecurityContextHelper;
@@ -45,7 +46,11 @@ public class JWTUtil {
 			} catch (Exception e) {
 				throw new SystemException(SecurityExceptionMessage.ACCESS_TOKEN_EXP);
 			}
-			tokenInfo = new JWTTokenInfo(claims.getBody().getSubject(), claims.getBody().get("username").toString(),claims.getBody().get("tokenType").toString().equals("0")?TokenType.ACCESS:TokenType.REFRESH);
+			tokenInfo = new JWTTokenInfo(
+					claims.getBody().getSubject(), 
+					claims.getBody().get("username").toString(),
+					UserType.MEMBER.getType().equals(claims.getBody().get("userType").toString())?UserType.MEMBER:UserType.SYS_USER,
+					claims.getBody().get("tokenType").toString().equals("0")?TokenType.ACCESS:TokenType.REFRESH);
 		} catch (Exception e) {
 			if (e instanceof SystemException) {
 				throw e;
@@ -79,6 +84,7 @@ public class JWTUtil {
 		String token = Jwts.builder().setId(UUID.randomUUID().toString())
 				.setExpiration(Date.from(Instant.now().plusSeconds(tokenType == TokenType.ACCESS ? expored : expored*2)))
 				.claim("tokenType", tokenType.getType())
+				.claim("userType", user.getUserType())
 				.claim("username", user.getUsername())
 				.setSubject(user.getId().toString())
 				.setIssuer(ISSUER)
@@ -106,6 +112,7 @@ public class JWTUtil {
 											Jwts.builder().setId(UUID.randomUUID().toString())
 													.setExpiration(Date.from(Instant.now().plusSeconds(timeout)))
 													.claim("tokenType", TokenType.ACCESS.getType())
+													.claim("userType", user.getUserType())
 													.claim("username", user.getUsername())
 													.setSubject(user.getId().toString()).setIssuer(ISSUER)
 													.signWith(SignatureAlgorithm.HS256, tokenProperties.getSecret()).compact().getBytes(),

@@ -24,6 +24,7 @@ import com.cloudok.authority.vo.UserVO;
 import com.cloudok.cache.Cache;
 import com.cloudok.cache.CacheNameSpace;
 import com.cloudok.core.context.SpringApplicationContext;
+import com.cloudok.core.enums.UserType;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.User;
@@ -54,6 +55,7 @@ public class AuthServiceImpl implements AuthService, UserInfoHandler {
 		if(user==null) {
 			throw new SystemException(SecurityExceptionMessage.ACCESS_INCORRECT_CERTIFICATE);
 		}
+		user.setUserType(UserType.SYS_USER.getType());
 		user.setPassword(null);
 		user.setAuthorities(getAuthorities(user.getId()));
 		TokenVO token = TokenVO.build(JWTUtil.genToken(user, TokenType.ACCESS),
@@ -114,6 +116,7 @@ public class AuthServiceImpl implements AuthService, UserInfoHandler {
 		User securityUser=new User();
 		BeanUtils.copyProperties(user, securityUser);
 		securityUser.setUsername(user.getUserName());
+		securityUser.setUserType(UserType.SYS_USER.getType());
 		return securityUser;
 	}
 
@@ -130,6 +133,11 @@ public class AuthServiceImpl implements AuthService, UserInfoHandler {
 	@Override
 	public void cacheSession(User user) {
 		cache.put(SESSIONCACHE, String.valueOf(user.getId()), user, properties.getExpired(), TimeUnit.SECONDS);
+	}
+	
+	@Override
+	public UserType getUserType() {
+		return UserType.SYS_USER;
 	}
 
 }

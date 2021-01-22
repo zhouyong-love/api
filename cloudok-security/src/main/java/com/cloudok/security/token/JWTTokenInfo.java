@@ -2,6 +2,8 @@ package com.cloudok.security.token;
 
 import java.io.Serializable;
 
+import com.cloudok.core.enums.UserType;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,10 +23,13 @@ public class JWTTokenInfo implements Serializable{
 	
 	private TokenType tokenType;  //0 access 1 reflash
 	
-	public JWTTokenInfo(String key, String name, TokenType tokenType) {
+	private UserType userType;
+	
+	public JWTTokenInfo(String key, String name,UserType userType, TokenType tokenType) {
 		super();
 		this.key = key;
 		this.name = name;
+		this.userType = userType;
 		this.tokenType = tokenType;
 	}
 }

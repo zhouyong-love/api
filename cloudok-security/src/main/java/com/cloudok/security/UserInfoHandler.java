@@ -1,6 +1,7 @@
 package com.cloudok.security;
 
 
+import com.cloudok.core.enums.UserType;
 import com.cloudok.security.token.JWTTokenInfo;
 
 /**
@@ -10,4 +11,8 @@ import com.cloudok.security.token.JWTTokenInfo;
 public interface UserInfoHandler {
 
 	User loadUserInfoByToken(JWTTokenInfo info);
+	
+	UserType getUserType();
+	
+	
 }

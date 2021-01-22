@@ -1,20 +1,26 @@
 package com.cloudok.security;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.cloudok.core.enums.UserType;
 import com.cloudok.security.token.JWTTokenInfo;
 import com.cloudok.security.token.JWTUtil;
 
@@ -24,10 +30,12 @@ import com.cloudok.security.token.JWTUtil;
  * @date 2020年6月17日 下午11:25:30
  */
 @Component
-public class AuthenticationTokenFilter extends OncePerRequestFilter {
+public class AuthenticationTokenFilter extends OncePerRequestFilter implements InitializingBean{
 
+	private Map<UserType,UserInfoHandler> userInfoHandlerMap = new HashMap<UserType, UserInfoHandler>();
+	
 	@Autowired
-	private UserInfoHandler userInfoHandler;
+	private List<UserInfoHandler> userInfoHandlerList;
 	
 	@Override
 	protected void doFilterInternal(HttpServletRequest arg0, HttpServletResponse arg1, FilterChain arg2)
@@ -63,6 +71,15 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
 	}
 		
 	private User loadUserInfo(HttpServletRequest arg0,JWTTokenInfo t) {
-		return userInfoHandler.loadUserInfoByToken(t);
+		return userInfoHandlerMap.get(t.getUserType()).loadUserInfoByToken(t);
+	}
+	@Override
+	public void afterPropertiesSet() throws ServletException {
+		super.afterPropertiesSet();
+		if(!CollectionUtils.isEmpty(userInfoHandlerList)) {
+			userInfoHandlerList.stream().forEach(item -> {
+				userInfoHandlerMap.put(item.getUserType(), item);
+			});
+		}
 	}
 }

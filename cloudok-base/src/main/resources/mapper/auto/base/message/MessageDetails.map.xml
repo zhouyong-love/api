@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.base.message.mapper.MessageDetailsMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.base.message.po.MessageDetailsPO" id="messageDetailsMap">
+		
+		<result property="messageId" column="message_id"/>
+		
+		<result property="userId" column="user_id"/>
+		
+		<result property="userName" column="user_name"/>
+		
+		<result property="receiver" column="receiver"/>
+		
+		<result property="receiverType" column="receiver_type"/>
+		
+		<result property="resendCount" column="resend_count"/>
+		
+		<result property="status" column="status"/>
+		
+		<result property="callMessage" column="call_message"/>
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.message_id,t.user_id,t.user_name,t.receiver,t.receiver_type,t.resend_count,t.status,t.call_message,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.base.message.po.MessageDetailsPO">
+		insert into base_message_details(message_id,user_id,user_name,receiver,receiver_type,resend_count,status,call_message,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{messageId},#{userId},#{userName},#{receiver},#{receiverType},#{resendCount},#{status},#{callMessage},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.base.message.po.MessageDetailsPO">
+		update base_message_details set message_id=#{messageId},user_id=#{userId},user_name=#{userName},receiver=#{receiver},receiver_type=#{receiverType},resend_count=#{resendCount},status=#{status},call_message=#{callMessage},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.base.message.po.MessageDetailsPO">
+		update base_message_details set 
+			
+			<if test="messageId != null ">message_id = #{messageId},</if>
+			
+			<if test="userId != null ">user_id = #{userId},</if>
+			
+			<if test="userName != null ">user_name = #{userName},</if>
+			
+			<if test="receiver != null ">receiver = #{receiver},</if>
+			
+			<if test="receiverType != null ">receiver_type = #{receiverType},</if>
+			
+			<if test="resendCount != null ">resend_count = #{resendCount},</if>
+			
+			<if test="status != null ">status = #{status},</if>
+			
+			<if test="callMessage != null ">call_message = #{callMessage},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="base_message_details"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="messageDetailsMap">
+		select
+		<include refid="columns"></include>
+		from base_message_details  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from base_message_details t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

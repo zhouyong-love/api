@@ -27,7 +27,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.cloudok</groupId>
-			<artifactId>cloudok-message</artifactId>
+			<artifactId>cloudok-base</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -3,7 +3,7 @@ package com.cloudok.base.attach.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.cloudok.base.vo.AttachVO;
+import com.cloudok.base.attach.vo.AttachVO;
 
 
 /**
@@ -51,5 +51,9 @@ public interface AttachIoHandle {
 	 * @throws IOException
 	 */
 	public InputStream read(AttachVO vo) throws IOException;
+	
+	public String getStorageType();
+	
+	public String url(String path);
 
 }

@@ -1,8 +1,8 @@
 package com.cloudok.authority.enums;
 
-import com.cloudok.base.enums.EnumInfo;
-import com.cloudok.base.enums.annotation.Enum;
-import com.cloudok.base.enums.annotation.EnumValue;
+import com.cloudok.base.dict.enums.annotation.Enum;
+import com.cloudok.base.dict.enums.EnumInfo;
+import com.cloudok.base.dict.enums.annotation.EnumValue;
 
 /**
  * @author zhijian.xia@foxmail.com

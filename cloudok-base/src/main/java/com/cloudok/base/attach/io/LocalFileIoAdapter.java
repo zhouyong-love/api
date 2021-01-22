@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.cloudok.base.vo.AttachVO;
+import com.cloudok.base.attach.vo.AttachVO;
 import com.cloudok.security.token.JWTUtil;
 
 import lombok.Getter;
@@ -30,6 +30,8 @@ import lombok.Setter;
  */
 @Component("localIoHandle") //local 存储类型 必须以IoHandle结尾
 public class LocalFileIoAdapter implements AttachIoHandle {
+	
+	private static final String STORAGETYPE = "local";
 	
 	@ConfigurationProperties(prefix = "attach.local")
 	@Getter @Setter
@@ -123,5 +125,15 @@ public class LocalFileIoAdapter implements AttachIoHandle {
 	@Override
 	public String sign(AttachVO vo) {
 		return new StringBuffer(localAttachPropterties.getAddress()).append("/").append(vo.getId()).append("?sign=").append(JWTUtil.getProvisionalPass(localAttachPropterties.getSignatureExpires())).toString();
+	}
+
+	@Override
+	public String getStorageType() {
+		return STORAGETYPE;
+	}
+
+	@Override
+	public String url(String path) {
+		return localAttachPropterties.getAddress()+"/"+path;
 	}
 }

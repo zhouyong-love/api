@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.cloudok.base.message.utils.MessageUtil;
+import com.cloudok.base.message.vo.MessageReceive;
 import com.cloudok.cache.Cache;
 import com.cloudok.common.CacheType;
 import com.cloudok.common.Constants;
@@ -26,8 +28,6 @@ import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.exception.CloudOKExceptionMessage;
-import com.cloudok.message.utils.MessageUtil;
-import com.cloudok.message.vo.MessageReceive;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.User;
 import com.cloudok.security.exception.SecurityExceptionMessage;

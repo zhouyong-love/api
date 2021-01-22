@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.base.dict.mapper.DictDataMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.base.dict.po.DictDataPO" id="dictDataMap">
+		
+		<result property="dictCode" column="dict_code"/>
+		
+		<result property="dictShowName" column="dict_show_name"/>
+		
+		<result property="dictValue" column="dict_value"/>
+		
+		<result property="remark" column="remark"/>
+		
+		<result property="sn" column="sn"/>
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.dict_id,t.dict_show_name,t.dict_value,t.remark,t.sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.base.dict.po.DictDataPO">
+		insert into sys_dict_data(dict_code,dict_show_name,dict_value,remark,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{dictCode},#{dictShowName},#{dictValue},#{remark},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.base.dict.po.DictDataPO">
+		update sys_dict_data set dict_code=#{dictCode},dict_show_name=#{dictShowName},dict_value=#{dictValue},remark=#{remark},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.base.dict.po.DictDataPO">
+		update sys_dict_data set 
+			
+			<if test="dictCode != null ">dict_code = #{dictCode},</if>
+			
+			<if test="dictShowName != null ">dict_show_name = #{dictShowName},</if>
+			
+			<if test="dictValue != null ">dict_value = #{dictValue},</if>
+			
+			<if test="remark != null ">remark = #{remark},</if>
+			
+			<if test="sn != null ">sn = #{sn},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="sys_dict_data"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="dictDataMap">
+		select
+		<include refid="columns"></include>
+		from sys_dict_data  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from sys_dict_data t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

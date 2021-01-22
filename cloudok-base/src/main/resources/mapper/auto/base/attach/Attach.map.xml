@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.base.attach.mapper.AttachMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.base.attach.po.AttachPO" id="attachMap">
+		
+		<result property="storageModel" column="storage_model"/>
+		
+		<result property="address" column="address"/>
+		
+		<result property="businessId" column="business_id"/>
+		
+		<result property="businessKey" column="business_key"/>
+		
+		<result property="used" column="used"/>
+		
+		<result property="fileName" column="file_name"/>
+		
+		<result property="suffix" column="suffix"/>
+		
+		<result property="fileSize" column="file_size"/>
+		
+		<result property="fileType" column="file_type"/>
+		
+		<result property="businessRemark" column="business_remark"/>
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.storage_model,t.address,t.business_id,t.business_key,t.used,t.file_name,t.suffix,t.file_size,t.file_type,t.business_remark,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.base.attach.po.AttachPO">
+		insert into sys_attach(storage_model,address,business_id,business_key,used,file_name,suffix,file_size,file_type,business_remark,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{storageModel},#{address},#{businessId},#{businessKey},#{used},#{fileName},#{suffix},#{fileSize},#{fileType},#{businessRemark},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.base.attach.po.AttachPO">
+		update sys_attach set storage_model=#{storageModel},address=#{address},business_id=#{businessId},business_key=#{businessKey},used=#{used},file_name=#{fileName},suffix=#{suffix},file_size=#{fileSize},file_type=#{fileType},business_remark=#{businessRemark},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.base.attach.po.AttachPO">
+		update sys_attach set 
+			
+			<if test="storageModel != null ">storage_model = #{storageModel},</if>
+			
+			<if test="address != null ">address = #{address},</if>
+			
+			<if test="businessId != null ">business_id = #{businessId},</if>
+			
+			<if test="businessKey != null ">business_key = #{businessKey},</if>
+			
+			<if test="used != null ">used = #{used},</if>
+			
+			<if test="fileName != null ">file_name = #{fileName},</if>
+			
+			<if test="suffix != null ">suffix = #{suffix},</if>
+			
+			<if test="fileSize != null ">file_size = #{fileSize},</if>
+			
+			<if test="fileType != null ">file_type = #{fileType},</if>
+			
+			<if test="businessRemark != null ">business_remark = #{businessRemark},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="sys_attach"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="attachMap">
+		select
+		<include refid="columns"></include>
+		from sys_attach  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from sys_attach t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

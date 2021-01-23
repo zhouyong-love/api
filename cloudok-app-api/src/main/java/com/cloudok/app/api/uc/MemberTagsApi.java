@@ -1,6 +1,5 @@
 package com.cloudok.app.api.uc;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
-import com.cloudok.uc.mapping.MemberTagsMapping;
+import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.MemberTagsService;
 import com.cloudok.uc.vo.MemberTagsVO;
 
@@ -41,8 +39,8 @@ public class MemberTagsApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询用户标签列表", notes = "查询用户标签列表")
-	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(memberTagsService.page(QueryBuilder.create(MemberTagsMapping.class).with(request)));
+	public Response search() {
+		return Response.buildSuccess(memberTagsService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

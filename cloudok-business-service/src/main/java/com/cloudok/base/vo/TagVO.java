@@ -17,13 +17,13 @@ public class TagVO extends VO {
 	private String name;
 	
 	
-	private Integer type;
+	private String type;
 	
 	
 	private String category;
 	
 	
-	private Long icon;
+	private String icon;
 	
 	
 	private String color;

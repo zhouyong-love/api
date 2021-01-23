@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
-import com.cloudok.uc.mapping.ProjectExperienceMapping;
+import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.ProjectExperienceService;
 import com.cloudok.uc.vo.ProjectExperienceVO;
 
@@ -42,7 +41,7 @@ public class ProjectExperienceApi {
 	@GetMapping
 	@ApiOperation(value = "查询项目实践列表", notes = "查询项目实践列表")
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(projectExperienceService.page(QueryBuilder.create(ProjectExperienceMapping.class).with(request)));
+		return Response.buildSuccess(projectExperienceService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

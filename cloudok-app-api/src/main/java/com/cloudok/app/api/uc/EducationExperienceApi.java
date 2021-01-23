@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
-import com.cloudok.uc.mapping.EducationExperienceMapping;
+import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.EducationExperienceService;
 import com.cloudok.uc.vo.EducationExperienceVO;
 
@@ -34,7 +33,7 @@ public class EducationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加教育经历", notes = "添加教育经历")
-	public Response create(@RequestBody @Valid EducationExperienceVO vo) {
+	public Response create(@PathVariable("memberId") Long memberId, @RequestBody @Valid EducationExperienceVO vo) {
 		return Response.buildSuccess(educationExperienceService.create(vo));
 	}
 
@@ -42,22 +41,23 @@ public class EducationExperienceApi {
 	@GetMapping
 	@ApiOperation(value = "查询教育经历列表", notes = "查询教育经历列表")
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(educationExperienceService.page(QueryBuilder.create(EducationExperienceMapping.class).with(request)));
+		return Response.buildSuccess(educationExperienceService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改教育经历", notes = "修改教育经历")
-	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid EducationExperienceVO vo) {
+	public Response modify(@PathVariable("memberId") Long memberId, @PathVariable("id") Long id,
+			@RequestBody @Valid EducationExperienceVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(educationExperienceService.update(vo));
 	}
- 
+
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "删除教育经历", notes = "删除教育经历")
-	public Response remove(@PathVariable("id") Long id) {
+	public Response remove(@PathVariable("memberId") Long memberId, @PathVariable("id") Long id) {
 		return Response.buildSuccess(educationExperienceService.remove(id));
 	}
- 
+
 }

@@ -3,10 +3,12 @@ package com.cloudok.base.vo;
 import com.cloudok.core.vo.VO;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class SpecialismVO extends VO {
 
 	private static final long serialVersionUID = 240116797552618620L;
@@ -17,5 +19,9 @@ public class SpecialismVO extends VO {
 	
 	private String category;
 	
+
+	public SpecialismVO(Long id) {
+		this.setId(id);
+	}
 	
 }

@@ -28,6 +28,8 @@ public class CoreExceptionMessage extends ExceptionMessage{
 	
 	public static final CoreExceptionMessage NOTFOUND_ERR = new CoreExceptionMessage("CORE.NOUNTFOUND_ERR", "Not found");
 	
+	public static final CoreExceptionMessage NO_PERMISSION = new CoreExceptionMessage("CORE.NO_PERMISSION", "No permission");
+	
 
 	public static CoreExceptionMessage build(String code, String message) {
 		return new CoreExceptionMessage(code,message);

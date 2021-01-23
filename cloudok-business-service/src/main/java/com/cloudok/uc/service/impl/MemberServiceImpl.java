@@ -172,11 +172,20 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	private String buildKey(String module,String type,String key) {
 		return module+":"+type+":"+key;
 	}
-
+	
+	private boolean isEduEmail(String email) {
+		if(StringUtils.isEmpty(email)) {
+			return false;
+		}
+		return email.toLowerCase().endsWith("edu");
+	}
 	@Override
 	public TokenVO signup(SingupVO vo) {
 		boolean isSms =  "0".equalsIgnoreCase(vo.getRegisterType());
 		if(StringUtils.isEmpty(vo.getPhone()) && !StringUtils.isEmpty(vo.getEmail())) { //fixed data, front-end may be error
+			if(!isEduEmail(vo.getEmail())) {
+				throw new SystemException(CloudOKExceptionMessage.INVALID_EMAIL_ADDRESS);
+			}
 			vo.setRegisterType("1"); //force set to email
 			isSms = false;
 			boolean isExits = checkEmailExists(vo.getEmail());
@@ -280,6 +289,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				throw new SystemException(CloudOKExceptionMessage.PHONE_NOT_FOUND);
 			}
 		}else if("email".equalsIgnoreCase(vo.getType())) {
+			if(!isEduEmail(vo.getKey())) {
+				throw new SystemException(CloudOKExceptionMessage.INVALID_EMAIL_ADDRESS);
+			}
 			boolean  exists =this.checkEmailExists(vo.getKey());
 			if(checkType == 1 && exists) {
 				if(vo.getModule().toLowerCase().equals("signup")) {
@@ -308,6 +320,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	}
 
 	private boolean checkEmailExists(String email) {
+		if(!isEduEmail(email)) {
+			throw new SystemException(CloudOKExceptionMessage.INVALID_EMAIL_ADDRESS);
+		}
 		return  !CollectionUtils.isEmpty(this.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.EMAIL, email).end()));
 	}
 	

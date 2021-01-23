@@ -55,7 +55,7 @@ public abstract class AbstractService<D extends VO, E extends PO>
 	}
 
 	@Override
-	public final E convert2PO(D d) {
+	public  E convert2PO(D d) {
 		try {
 			E e = getPOClass().getDeclaredConstructor().newInstance();
 			BeanUtils.copyProperties(d, e);
@@ -68,7 +68,7 @@ public abstract class AbstractService<D extends VO, E extends PO>
 	}
 
 	@Override
-	public final List<E> convert2PO(List<D> d) {
+	public  List<E> convert2PO(List<D> d) {
 		List<E> es = new ArrayList<E>();
 		if (d != null && d.size() > 0) {
 			d.forEach(item -> es.add(convert2PO(item)));
@@ -77,7 +77,7 @@ public abstract class AbstractService<D extends VO, E extends PO>
 	}
 
 	@Override
-	public final D convert2VO(E e) {
+	public  D convert2VO(E e) {
 		try {
 			D d = getVOClass().getDeclaredConstructor().newInstance();
 			BeanUtils.copyProperties(e, d);
@@ -90,7 +90,7 @@ public abstract class AbstractService<D extends VO, E extends PO>
 	}
 
 	@Override
-	public final List<D> convert2VO(List<E> e) {
+	public  List<D> convert2VO(List<E> e) {
 		List<D> ds = new ArrayList<D>();
 		if (e != null && e.size() > 0) {
 			e.forEach(item -> ds.add(convert2VO(item)));

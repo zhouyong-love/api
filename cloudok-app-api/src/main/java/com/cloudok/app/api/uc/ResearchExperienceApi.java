@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
-import com.cloudok.uc.mapping.ResearchExperienceMapping;
+import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.ResearchExperienceService;
 import com.cloudok.uc.vo.ResearchExperienceVO;
 
@@ -42,7 +41,7 @@ public class ResearchExperienceApi {
 	@GetMapping
 	@ApiOperation(value = "查询科研经历列表", notes = "查询科研经历列表")
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(researchExperienceService.page(QueryBuilder.create(ResearchExperienceMapping.class).with(request)));
+		return Response.buildSuccess(researchExperienceService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

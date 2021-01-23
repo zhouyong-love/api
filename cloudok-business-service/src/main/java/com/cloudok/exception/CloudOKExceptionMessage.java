@@ -31,6 +31,8 @@ public class CloudOKExceptionMessage extends ExceptionMessage{
 	public static final CloudOKExceptionMessage VERIFY_CODE_WRONG =new CloudOKExceptionMessage("BUS.VERIFY_CODE_ERROR", "Verify code is wrong");
 	
 	public static final CloudOKExceptionMessage EMAIL_ALREADY_EXISTS =new CloudOKExceptionMessage("BUS.EMAIL_ALREADY_EXISTS", "Email is already register");
+	
+	public static final CloudOKExceptionMessage INVALID_EMAIL_ADDRESS =new CloudOKExceptionMessage("BUS.EMAIL_ALREADY_EXISTS", "invalid email address");
 
 	public static final CloudOKExceptionMessage USERNAME_ALREADY_EXISTS =new CloudOKExceptionMessage("BUS.USERNAME_ALREADY_EXISTS", "User name is already register");
 

@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
-import com.cloudok.uc.mapping.InternshipExperienceMapping;
+import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.InternshipExperienceService;
 import com.cloudok.uc.vo.InternshipExperienceVO;
 
@@ -42,7 +41,7 @@ public class InternshipExperienceApi {
 	@GetMapping
 	@ApiOperation(value = "查询实习经历列表", notes = "查询实习经历列表")
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(internshipExperienceService.page(QueryBuilder.create(InternshipExperienceMapping.class).with(request)));
+		return Response.buildSuccess(internshipExperienceService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

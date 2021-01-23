@@ -99,12 +99,6 @@ public class MemberApi {
 	public Response sendVerifycode(@RequestBody VerifyCodeRequest vo) {
 		return Response.buildSuccess(memberService.sendVerifycode(vo));
 	}
-	 
-	@PostMapping("/signup")
-	@ApiOperation(value = "user register", notes = "user register")
-	public Response signup(@RequestBody SingupVO vo) {
-			return Response.buildSuccess(memberService.signup(vo));
-	}
 	
 	@PostMapping("/reset")
 	@ApiOperation(value = "user reset password", notes = "user reset password")

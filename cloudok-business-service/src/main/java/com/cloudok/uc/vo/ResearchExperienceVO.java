@@ -1,5 +1,6 @@
 package com.cloudok.uc.vo;
 
+import com.cloudok.base.vo.ResearchDomainVO;
 import com.cloudok.core.vo.VO;
 
 import lombok.Getter;
@@ -15,7 +16,7 @@ public class ResearchExperienceVO extends VO {
 	private Long memberId;
 	
 	
-	private Long domainId;
+	private ResearchDomainVO domain;
 	
 	
 	private String name;

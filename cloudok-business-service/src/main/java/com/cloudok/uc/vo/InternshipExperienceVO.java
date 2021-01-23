@@ -1,5 +1,8 @@
 package com.cloudok.uc.vo;
 
+import com.cloudok.base.vo.CompanyVO;
+import com.cloudok.base.vo.IndustryVO;
+import com.cloudok.base.vo.JobVO;
 import com.cloudok.core.vo.VO;
 
 import lombok.Getter;
@@ -10,21 +13,15 @@ import lombok.Setter;
 public class InternshipExperienceVO extends VO {
 
 	private static final long serialVersionUID = 53458632939655140L;
-	
-	
+
 	private Long memberId;
-	
-	
-	private Long companyId;
-	
-	
-	private Long jobId;
-	
-	
-	private Long industryId;
-	
-	
+
+	private CompanyVO company;
+
+	private JobVO job;
+
+	private IndustryVO industry;
+
 	private String description;
-	
-	
+
 }

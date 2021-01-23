@@ -4,12 +4,16 @@ import com.cloudok.base.vo.SchoolVO;
 import com.cloudok.base.vo.SpecialismVO;
 import com.cloudok.core.vo.VO;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class EducationExperienceVO extends VO {
 

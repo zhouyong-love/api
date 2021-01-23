@@ -1,8 +1,11 @@
 package com.cloudok.uc.service;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import com.cloudok.core.service.IService;
+import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.vo.BindRequest;
 import com.cloudok.uc.vo.ChangePasswordRequest;
@@ -39,5 +42,9 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	Boolean bind(BindRequest vo);
 
 	MemberVO fillAccountInfo(@Valid MemberVO vo);
+	
+	WholeMemberDTO  getWholeMemberInfo(Long memberId);
+	 
+	List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList);
 
 }

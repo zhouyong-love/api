@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -26,6 +27,7 @@ import com.cloudok.core.enums.UserType;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
+import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
@@ -35,15 +37,34 @@ import com.cloudok.security.exception.SecurityExceptionMessage;
 import com.cloudok.security.token.JWTTokenInfo;
 import com.cloudok.security.token.JWTUtil;
 import com.cloudok.security.token.TokenType;
+import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.mapper.MemberMapper;
+import com.cloudok.uc.mapping.EducationExperienceMapping;
+import com.cloudok.uc.mapping.InternshipExperienceMapping;
 import com.cloudok.uc.mapping.MemberMapping;
+import com.cloudok.uc.mapping.MemberTagsMapping;
+import com.cloudok.uc.mapping.ProjectExperienceMapping;
+import com.cloudok.uc.mapping.RecognizedMapping;
+import com.cloudok.uc.mapping.ResearchExperienceMapping;
 import com.cloudok.uc.po.MemberPO;
+import com.cloudok.uc.service.EducationExperienceService;
+import com.cloudok.uc.service.InternshipExperienceService;
 import com.cloudok.uc.service.MemberService;
+import com.cloudok.uc.service.MemberTagsService;
+import com.cloudok.uc.service.ProjectExperienceService;
+import com.cloudok.uc.service.RecognizedService;
+import com.cloudok.uc.service.ResearchExperienceService;
 import com.cloudok.uc.vo.BindRequest;
 import com.cloudok.uc.vo.ChangePasswordRequest;
+import com.cloudok.uc.vo.EducationExperienceVO;
 import com.cloudok.uc.vo.ForgotVO;
+import com.cloudok.uc.vo.InternshipExperienceVO;
 import com.cloudok.uc.vo.LoginVO;
+import com.cloudok.uc.vo.MemberTagsVO;
 import com.cloudok.uc.vo.MemberVO;
+import com.cloudok.uc.vo.ProjectExperienceVO;
+import com.cloudok.uc.vo.RecognizedVO;
+import com.cloudok.uc.vo.ResearchExperienceVO;
 import com.cloudok.uc.vo.SingupVO;
 import com.cloudok.uc.vo.TokenVO;
 import com.cloudok.uc.vo.UserCheckRequest;
@@ -394,5 +415,90 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Override
 	public UserType getUserType() {
 		return UserType.MEMBER;
+	}
+	
+	
+	private EducationExperienceService educationExperienceService;
+	private InternshipExperienceService internshipExperienceService;
+	private MemberTagsService memberTagsService;
+	private ProjectExperienceService projectExperienceService;
+	private RecognizedService recognizedService;
+	private ResearchExperienceService researchExperienceService;
+	
+	
+	@Override
+	public List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList) {
+		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
+		List<WholeMemberDTO> memberList = this.get(memberIdList).stream().map(item ->{
+			WholeMemberDTO dto = new WholeMemberDTO();
+			BeanUtils.copyProperties(item, dto);
+			return dto;
+		}).collect(Collectors.toList());
+		
+		if(!CollectionUtils.isEmpty(memberList)) {
+			educationExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class).and(EducationExperienceMapping.MEMBERID, QueryOperator.IN,memberIdList).end())
+			.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
+			.forEach((memberId,valueList)->{
+				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+					item.setEducationList(valueList);
+				});
+			});
+			
+			internshipExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class).and(InternshipExperienceMapping.MEMBERID, QueryOperator.IN,memberIdList).end())
+			.stream().collect(Collectors.groupingBy(InternshipExperienceVO::getMemberId))
+			.forEach((memberId,valueList)->{
+				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+					item.setInternshipList(valueList);
+				});
+			});
+			
+			memberTagsService.list(QueryBuilder.create(EducationExperienceMapping.class).and(MemberTagsMapping.MEMBERID, QueryOperator.IN,memberIdList).end())
+			.stream().collect(Collectors.groupingBy(MemberTagsVO::getMemberId))
+			.forEach((memberId,valueList)->{
+				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+					item.setTagsList(valueList);
+				});
+			});
+			
+			projectExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class).and(ProjectExperienceMapping.MEMBERID, QueryOperator.IN,memberIdList).end())
+			.stream().collect(Collectors.groupingBy(ProjectExperienceVO::getMemberId))
+			.forEach((memberId,valueList)->{
+				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+					item.setProjectList(valueList);
+				});
+			});
+			
+
+			researchExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class).and(ResearchExperienceMapping.MEMBERID, QueryOperator.IN,memberIdList).end())
+			.stream().collect(Collectors.groupingBy(ResearchExperienceVO::getMemberId))
+			.forEach((memberId,valueList)->{
+				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+					item.setResearchList(valueList);
+				});
+			});
+			
+			recognizedService.list(QueryBuilder.create(EducationExperienceMapping.class).and(RecognizedMapping.SOURCEID, QueryOperator.IN,memberIdList).end())
+			.stream().collect(Collectors.groupingBy(RecognizedVO::getSourceId))
+			.forEach((memberId,valueList)->{
+				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+					item.setRecognizedMemberList(valueList.stream().map(i -> i.getTargetId()).distinct().collect(Collectors.toList()));
+				});
+			});
+			
+			recognizedService.list(QueryBuilder.create(EducationExperienceMapping.class).and(RecognizedMapping.TARGETID, QueryOperator.IN,memberIdList).end())
+			.stream().collect(Collectors.groupingBy(RecognizedVO::getSourceId))
+			.forEach((memberId,valueList)->{
+				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+					item.setRecognizedByList(valueList.stream().map(i -> i.getSourceId()).distinct().collect(Collectors.toList()));
+				});
+			});
+			 
+		}
+		return memberList;
+	}	
+	@Override
+	public WholeMemberDTO getWholeMemberInfo(Long memberId) {
+		List<WholeMemberDTO> list = this.getWholeMemberInfo(java.util.Collections.singletonList(memberId));
+		return CollectionUtils.isEmpty(list) ? null : list.get(0);
 	}
 }

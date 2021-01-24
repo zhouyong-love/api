@@ -3,6 +3,9 @@ logging:
   level:
     com.cloudok: debug
 spring:
+  data:
+    mongodb:
+#      uri: mongodb://user:pwd@ip1:port1,ip2:port2/database
   datasource:
     name: druidDataSource
     type: com.alibaba.druid.pool.DruidDataSource

@@ -13,6 +13,9 @@ public class TagMapping extends Mapping{
 	
 	public static final Mapping CATEGORY=new Mapping("category", "t.category",QueryOperator.EQ);
 	
+	public static final Mapping SUBCATEGORY=new Mapping("subCategory", "t.sub_category",QueryOperator.EQ);
+	
+	
 	public static final Mapping ICON=new Mapping("icon", "t.icon");
 	
 	public static final Mapping COLOR=new Mapping("color", "t.color");

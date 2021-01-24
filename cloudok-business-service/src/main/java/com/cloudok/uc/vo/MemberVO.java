@@ -38,5 +38,7 @@ public class MemberVO extends VO {
 	
 	private Long avatar;
 	
+	private String description;
+	
 	
 }

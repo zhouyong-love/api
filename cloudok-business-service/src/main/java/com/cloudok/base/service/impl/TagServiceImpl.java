@@ -5,14 +5,18 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cloudok.core.exception.CoreExceptionMessage;
+import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.enums.TagType;
+import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.base.mapper.TagMapper;
 import com.cloudok.base.po.TagPO;
 import com.cloudok.base.service.TagService;
 import com.cloudok.base.vo.TagVO;
 
 @Service
-public class TagServiceImpl extends AbstractService<TagVO, TagPO> implements TagService{
+public class TagServiceImpl extends AbstractService<TagVO, TagPO> implements TagService {
 
 	@Autowired
 	public TagServiceImpl(TagMapper repository) {
@@ -21,19 +25,30 @@ public class TagServiceImpl extends AbstractService<TagVO, TagPO> implements Tag
 
 	@Override
 	public TagVO createByMember(@Valid TagVO vo) {
-		// TODO Auto-generated method stub
-		return null;
+		vo.setParentId(0L);
+		vo.setType(TagType.CUSTOM.getValue());
+		return this.create(vo);
 	}
 
 	@Override
 	public TagVO updateByMember(@Valid TagVO vo) {
-		// TODO Auto-generated method stub
-		return null;
+		TagVO dbTag = this.get(vo.getId());
+
+		if (dbTag == null || !dbTag.getCreateBy().equals(SecurityContextHelper.getCurrentUserId())
+				|| !TagType.CUSTOM.getValue().equals(dbTag.getType())) {
+			throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
+		}
+
+		return this.update(vo);
 	}
 
 	@Override
 	public int removeByMember(Long id) {
-		// TODO Auto-generated method stub
-		return 0;
+		TagVO dbTag = this.get(id);
+		if (dbTag == null || !dbTag.getCreateBy().equals(SecurityContextHelper.getCurrentUserId())
+				|| !TagType.CUSTOM.getValue().equals(dbTag.getType())) {
+			throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
+		}
+		return this.remove(id);
 	}
 }

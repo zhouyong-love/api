@@ -43,5 +43,6 @@ mybatis:
     - classpath*:com/cloudok/*/mapper/*.xml
     - classpath*:com/cloudok/**/mapper/*.xml
     - classpath*:mapper/auto/*/*.xml
+    - classpath*:mapper/auto/**/*.xml
     - classpath*:com/cloudok/core/mapper/*.xml
   executorType: BATCH

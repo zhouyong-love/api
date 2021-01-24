@@ -6,7 +6,7 @@
 		parameterType="com.cloudok.core.query.QueryBuilder"
 		resultMap="messageMap">
 		select
-		t1.id, t.message_content,t.message_type,t.params,t1.status,t.title,t.user_name,<include refid="com.cloudok.core.plugin.BaseMapper.baseColumns"></include>
+		t1.id, t.message_content,t.message_type,t.params,t1.status,t.title,t.user_name,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"></include>
 		from base_message t left join base_message_details t1 on t.id=t1.message_id
 		<where>
 		t.deleted=false

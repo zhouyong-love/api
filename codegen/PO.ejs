@@ -1,0 +1,18 @@
+package <%-package%>.<%-modular%>.po;
+
+import com.cloudok.core.po.PO;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class <%-className%>PO extends PO {
+
+	private static final long serialVersionUID = <%-Math.ceil(Math.random()*999999999999999999)%>L;
+
+	<%propertys.filter(item => item.exclude != 'Y').forEach(item=>{%>
+	private <%-item.type%> <%-item.propertyName%>;
+	
+	<%});%>
+}

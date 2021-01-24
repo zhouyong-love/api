@@ -1,0 +1,19 @@
+package <%-package%>.<%-modular%>.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cloudok.core.service.AbstractService;
+import <%-package%>.<%-modular%>.mapper.<%-className%>Mapper;
+import <%-package%>.<%-modular%>.po.<%-className%>PO;
+import <%-package%>.<%-modular%>.service.<%-className%>Service;
+import <%-package%>.<%-modular%>.vo.<%-className%>VO;
+
+@Service
+public class <%-className%>ServiceImpl extends AbstractService<<%-className%>VO, <%-className%>PO> implements <%-className%>Service{
+
+	@Autowired
+	public <%-className%>ServiceImpl(<%-className%>Mapper repository) {
+		super(repository);
+	}
+}

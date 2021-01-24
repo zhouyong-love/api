@@ -1,0 +1,89 @@
+[
+{
+	"code": "dc3y5i.mu7vo",
+	"name": "cloudok code template",
+	"version": "V1",
+	"describe": "cloudok 代码模板",
+	"templateFiles": [{
+		"name": "VO",
+		"template": "VO.ejs",
+		"path": "<%-backBasePath%>/src/main/java/<%-packagePath%>/<%-modular%>/vo/<%-className%>VO.java"
+	}, {
+		"name": "PO",
+		"template": "PO.ejs",
+		"path": "<%-backBasePath%>/src/main/java/<%-packagePath%>/<%-modular%>/po/<%-className%>PO.java"
+	}, {
+		"name": "MAPPING",
+		"template": "mapping.ejs",
+		"path": "<%-backBasePath%>/src/main/java/<%-packagePath%>/<%-modular%>/mapping/<%-className%>Mapping.java"
+	}, {
+		"name": "API",
+		"template": "api.ejs",
+		"path": "<%-backBasePath%>/src/main/java/<%-packagePath%>/<%-modular%>/api/<%-className%>Api.java"
+	}, {
+		"name": "SERVICE",
+		"template": "Service.ejs",
+		"path": "<%-backBasePath%>/src/main/java/<%-packagePath%>/<%-modular%>/service/<%-className%>Service.java"
+	}, {
+		"name": "SERVICEIMPL",
+		"template": "ServiceImpl.ejs",
+		"path": "<%-backBasePath%>/src/main/java/<%-packagePath%>/<%-modular%>/service/impl/<%-className%>ServiceImpl.java"
+	}, {
+		"name": "IDAO",
+		"template": "Mapper.ejs",
+		"path": "<%-backBasePath%>/src/main/java/<%-packagePath%>/<%-modular%>/mapper/<%-className%>Mapper.java"
+	}, {
+		"name": "AUTOMAP",
+		"template": "map.ejs",
+		"path": "<%-backBasePath%>/src/main/java/<%-packagePath%>/<%-modular%>/mapper/<%-className%>.map.xml"
+	}, {
+		"name": "CUSTOMMAP",
+		"template": "autoMap.ejs",
+		"path": "<%-backBasePath%>/src/main/resources/mapper/auto/<%-modular%>/<%-className%>.map.xml"
+	}],
+	"basicFields": [{
+		"name": "id",
+		"type": "bigint"
+	}, {
+		"name": "deleted",
+		"type": "tinyint"
+	}, {
+		"name": "create_by",
+		"type": "bigint"
+	}, {
+		"name": "create_ts",
+		"type": "timestamp"
+	}, {
+		"name": "update_by",
+		"type": "bigint"
+	}, {
+		"name": "update_ts",
+		"type": "timestamp"
+	}, {
+		"name": "tenant_id",
+		"type": "bigint"
+	}],
+	"extend": {
+		"base": [{
+			"key": "modular",
+			"title": "模块",
+			"type": "text"
+		}, {
+			"key": "apiPath",
+			"title": "API名称",
+			"type": "text",
+			"describe": "为前端开放API的路径（模块名称+API路径）"
+		}],
+		"property": [{
+			"key": "exclude",
+			"title": "排除",
+			"type": "select",
+			"describe": "生成VO以及Entity时排除该字段（Y是N否）",
+			"value": {
+				"defaultValue": "<%let flg=['id', 'deleted', 'create_by', 'create_ts', 'update_by', 'update_ts', 'tenant_id'].filter(item => item == columnName).length>0;%><%if(flg==true){%>Y<%}else{%>N<%}%>",
+				"params": ["Y", "N"],
+				"calculate": true
+			}
+		}]
+	}
+}]

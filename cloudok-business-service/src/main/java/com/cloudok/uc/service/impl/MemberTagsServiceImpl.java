@@ -39,6 +39,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 		if(d.getTag().getId() == null) {
 			d.setTag(this.tagService.create(d.getTag()));;
 		}
+		d.setType(Integer.parseInt(TaggedType.CUSTOM.getValue()));
 		return super.create(d);
 	}
 
@@ -53,6 +54,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 		if(d.getTag().getId() == null) {
 			d.setTag(this.tagService.create(d.getTag()));;
 		}
+		d.setType(Integer.parseInt(TaggedType.CUSTOM.getValue()));
 		return super.update(d);
 	}
 

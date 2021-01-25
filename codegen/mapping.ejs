@@ -1,0 +1,11 @@
+package <%-package%>.<%-modular%>.mapping;
+
+import com.cloudok.core.mapping.Mapping;
+
+public class <%-className%>Mapping extends Mapping{
+
+	private static final long serialVersionUID = 0L;
+	<%propertys.filter(item => item.exclude != 'Y').forEach(item=>{%>
+	public static final Mapping <%-item.propertyName.toUpperCase()%>=new Mapping("<%-item.propertyName%>", "t.<%-item.columnName%>");
+	<%});%>
+}

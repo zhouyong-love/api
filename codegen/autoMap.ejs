@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="<%-package%>.<%-modular%>.mapper.<%-className%>Mapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="<%-package%>.<%-modular%>.po.<%-className%>PO" id="<%-propertyName%>Map">
+		<%propertys.filter(item => item.exclude != 'Y').forEach(item=>{%>
+		<result property="<%-item.propertyName%>" column="<%-item.columnName%>"/>
+		<%});%>
+	</resultMap>
+
+	<sql id="columns">
+		<%propertys.filter(item => item.exclude != 'Y').forEach(item=>{%>t.<%-item.columnName%>,<%});%><include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="<%-package%>.<%-modular%>.po.<%-className%>PO">
+		insert into <%-tableName%>(<%propertys.filter(item => item.exclude != 'Y').forEach(item=>{%><%-item.columnName%>,<%});%><include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(<%propertys.filter(item => item.exclude != 'Y').forEach(item=>{%>#{<%-item.propertyName%>},<%});%><include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="<%-package%>.<%-modular%>.po.<%-className%>PO">
+		update <%-tableName%> set <%propertys.filter(item => item.exclude != 'Y').forEach(item=>{%><%-item.columnName%>=#{<%-item.propertyName%>},<%});%><include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="<%-package%>.<%-modular%>.po.<%-className%>PO">
+		update <%-tableName%> set 
+			<%propertys.filter(item => item.exclude != 'Y').forEach(item=>{%>
+			<if test="<%-item.propertyName%> != null "><%-item.columnName%> = #{<%-item.propertyName%>},</if>
+			<%});%>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="<%-tableName%>"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="<%-propertyName%>Map">
+		select
+		<include refid="columns"></include>
+		from <%-tableName%>  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from <%-tableName%> t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

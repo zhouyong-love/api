@@ -38,5 +38,7 @@ public class MemberPO extends PO {
 	
 	private Long avatar;
 	
+	private String description;
+	
 	
 }

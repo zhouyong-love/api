@@ -22,19 +22,21 @@
 		
 		<result property="avatar" column="avatar"/>
 		
+		<result property="description" column="description"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.user_name,t.email,t.password,t.nick_name,t.real_name,t.birth_date,t.sex,t.phone,t.avatar,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.user_name,t.email,t.password,t.nick_name,t.real_name,t.birth_date,t.sex,t.phone,t.avatar,t.description,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.MemberPO">
-		insert into uc_member(user_name,email,password,nick_name,real_name,birth_date,sex,phone,avatar,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{userName},#{email},#{password},#{nickName},#{realName},#{birthDate},#{sex},#{phone},#{avatar},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_member(user_name,email,password,nick_name,real_name,birth_date,sex,phone,avatar,description,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{userName},#{email},#{password},#{nickName},#{realName},#{birthDate},#{sex},#{phone},#{avatar},#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.MemberPO">
-		update uc_member set user_name=#{userName},email=#{email},password=#{password},nick_name=#{nickName},real_name=#{realName},birth_date=#{birthDate},sex=#{sex},phone=#{phone},avatar=#{avatar},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_member set user_name=#{userName},email=#{email},password=#{password},nick_name=#{nickName},real_name=#{realName},birth_date=#{birthDate},sex=#{sex},phone=#{phone},avatar=#{avatar},description=#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -60,6 +62,8 @@
 			<if test="phone != null ">phone = #{phone},</if>
 			
 			<if test="avatar != null ">avatar = #{avatar},</if>
+			
+			<if test="description != null ">description = #{description},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

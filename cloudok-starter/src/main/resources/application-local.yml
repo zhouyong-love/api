@@ -56,25 +56,50 @@ security:
     
     
 com:
-  cloudok:
-    channel:
-      aliyun:
-        oss:
-          endpoint: oss-cn-hangzhou.aliyuncs.com
-          bucket: test
-          baseDir: /dev
-          sign-timeout: 1000
-          access-key:  LTAI4BJLwRNBjOA1
-          access-secret: ecdiWiAj5t9TVcbWuCJ2p26s0qQar2
+  cloudok: 
+    message: 
+      register:
+        name: "用户注册"
+        channel:
+          sms:
+            template:
+              param: classpath*:message/template/user/regsiter/param.flt
+              title: classpath*:message/template/user/regsiter/title.flt
+              text: classpath*:message/template/user/regsiter/text.flt
+            retry:
+              enable: false
+            parameters:    # 渠道所需参数
+              sign-name: 云可    #短信签名
+              template-code: SMS_197611035         #短信模板
+      login:
+        name: "验证码登录"
+        channel:
+          sms:
+            template:
+              param: classpath*:message/template/user/login/param.flt
+              title: classpath*:message/template/user/login/title.flt
+              text: classpath*:message/template/user/login/text.flt
+            retry:
+              enable: false
+            parameters:    # 渠道所需参数
+              sign-name: 云可    #短信签名
+              template-code: SMS_197611035         #短信模板
+    channel: 
+      aliyun: 
         sms:
-          access-key:  LTAI4BJLwRNBjOA1
-          access-secret: ecdiWiAj5t9TVcbWuCJ2p26s0qQar2
-          region-id: cn-hangzhou
+          access-key:
+          access-secret:
+          region-id: 
+        oss:
+          endpoint:
+          bucket:
+          base-dir:
+          sign-timeout:
+          access-key:
+          access-secret:
         voice:
-          access-key:  LTAI4BJLwRNBjOA1
-          access-secret: ecdiWiAj5t9TVcbWuCJ2p26s0qQar2
-          region-id: cn-hangzhou
-      jpush:
-         app-key: 77c3663080c5754ac8ed7171
-         master-secret: 51ca783be1568b5c45ce7c32
+          access-key:
+          access-secret:
+          region-id: 
+          
         

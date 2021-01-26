@@ -29,7 +29,7 @@
 	</sql>
 	
 	<sql id="byId">
-		t.id=#{id}
+		id=#{id}
 	</sql>
 	
 	<sql id="delete">

@@ -92,6 +92,12 @@ public class MemberApi {
 	public Response checkEmail(@RequestBody UserCheckRequest request) {
 		return Response.buildSuccess(memberService.checkEmail(request));
 	}
+	
+	@PostMapping("/exists/phone")
+	@ApiOperation(value = "check user phone exists or not", notes = "check user phone exists or not")
+	public Response checkPhone(@RequestBody UserCheckRequest request) {
+		return Response.buildSuccess(memberService.checkPhone(request));
+	}
 	 
 	
 	@PostMapping("/verifycode")

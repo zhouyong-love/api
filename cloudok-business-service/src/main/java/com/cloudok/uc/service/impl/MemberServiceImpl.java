@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -28,6 +29,7 @@ import com.cloudok.base.message.vo.MessageReceive;
 import com.cloudok.cache.Cache;
 import com.cloudok.common.CacheType;
 import com.cloudok.common.Constants;
+import com.cloudok.core.convert.Convert;
 import com.cloudok.core.enums.UserType;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
@@ -67,6 +69,7 @@ import com.cloudok.uc.vo.InternshipExperienceVO;
 import com.cloudok.uc.vo.LoginVO;
 import com.cloudok.uc.vo.MemberTagsVO;
 import com.cloudok.uc.vo.MemberVO;
+import com.cloudok.uc.vo.MemberVO.UserState;
 import com.cloudok.uc.vo.ProjectExperienceVO;
 import com.cloudok.uc.vo.RecognizedVO;
 import com.cloudok.uc.vo.ResearchExperienceVO;
@@ -82,6 +85,60 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> implements MemberService,UserInfoHandler{
 
+	@Component
+	public static class MemberConvert implements Convert<MemberVO, MemberPO>{
+
+		
+		@Override
+		public MemberPO convert2PO(MemberVO d) {
+			MemberPO po = new MemberPO();
+			BeanUtils.copyProperties(d, po);
+			if(d.getState() != null) {
+				long state = 0;
+				if(d.getState().isCheckEmail()) {
+					state = state|(1<<2);
+				}
+				if(d.getState().isFillEduInfo()) {
+					state = state|(1<<1);
+				}
+				if(d.getState().isFillUserInfo()) {
+					state = state|1;
+				}
+				po.setState(state);
+			}
+			return po;
+		}
+		
+		@Override
+		public List<MemberPO> convert2PO(List<MemberVO> d) {
+			List<MemberPO> es = new ArrayList<MemberPO>();
+			if (d != null && d.size() > 0) {
+				d.forEach(item -> es.add(convert2PO(item)));
+			}
+			return es;
+		}
+
+		@Override
+		public MemberVO convert2VO(MemberPO e) {
+			MemberVO vo = new MemberVO();
+			BeanUtils.copyProperties(e, vo);
+			if(e.getState()!=null) {
+				vo.setState(UserState.build(e.getState()));
+			}
+			return vo;
+		}
+
+		@Override
+		public List<MemberVO> convert2VO(List<MemberPO> e) {
+			List<MemberVO> es = new ArrayList<MemberVO>();
+			if (e != null && e.size() > 0) {
+				e.forEach(item -> es.add(convert2VO(item)));
+			}
+			return es;
+		}
+		
+	}
+	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
@@ -92,8 +149,8 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
     private MongoTemplate mongoTemplate;
     
 	@Autowired
-	public MemberServiceImpl(MemberMapper repository) {
-		super(repository);
+	public MemberServiceImpl(MemberMapper repository,MemberConvert convert) {
+		super(repository,convert);
 	}
 
 	@Override
@@ -103,34 +160,62 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.or(MemberMapping.PHONE,vo.getUserName()) // phone
 				.or(MemberMapping.USERNAME,vo.getUserName()) // userName
 				.end());
-		if (CollectionUtils.isEmpty(memberList)) {
-			throw new SystemException(SecurityExceptionMessage.ACCESS_INCORRECT_CERTIFICATE);
-		}
-		MemberVO sysUser = memberList.get(0);
-		if (!passwordEncoder.matches(vo.getPassword(), sysUser.getPassword())) {
-			throw new SystemException(SecurityExceptionMessage.ACCESS_INCORRECT_CERTIFICATE);
+		
+		MemberVO sysUser = null;
+		if(!StringUtils.isEmpty(vo.getCode())) {
+			boolean isSms =  "0".equalsIgnoreCase(vo.getLoginType());
+			String cacheKey = buildKey("login",isSms ? "sms":"email",vo.getUserName());
+			String code = cacheService.get(CacheType.VerifyCode, cacheKey,String.class);
+			if(StringUtils.isEmpty(code)) {
+				throw new SystemException("verify code is wrong",CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+			}
+			if(!code.equals(vo.getCode())) {
+				throw new SystemException("verify code is wrong",CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+			}
+			//如果通过验证码登录，且用户不存在时直接创建用户
+			if(CollectionUtils.isEmpty(memberList)) {
+				MemberVO member = new MemberVO();
+				if("0".equalsIgnoreCase(vo.getLoginType())) {
+					member.setPhone(vo.getUserName());
+				}else {
+					member.setEmail(vo.getUserName());
+				}
+				this.create(member);
+				sysUser = this.get(member.getId());
+			}
+		}else {
+			sysUser=memberList.get(0);
+			if (CollectionUtils.isEmpty(memberList)) {
+				throw new SystemException(SecurityExceptionMessage.ACCESS_INCORRECT_CERTIFICATE);
+			}
+			
+			if (!passwordEncoder.matches(vo.getPassword(), sysUser.getPassword())) {
+				throw new SystemException(SecurityExceptionMessage.ACCESS_INCORRECT_CERTIFICATE);
+			}
 		}
 //		if (sysUser.getFreeze().equals(Boolean.TRUE)) {
 //			throw new SystemException(SecurityExceptionMessage.ACCESS_ACCOUNT_FROZEN);
 //		}
 		cacheService.evict(CacheType.Member, sysUser.getId().toString());
-		User user = this.loadUserInfo(sysUser.getId());
+		User user = this.loadUserInfo(sysUser.getId(),sysUser);
 		TokenVO token = TokenVO.build(JWTUtil.genToken(user, TokenType.ACCESS),
 				JWTUtil.genToken(user, TokenType.REFRESH), user);
 		return token;
 	}
 
-	private User loadUserInfo(Long userId) {
+	private User loadUserInfo(Long userId,MemberVO sysUser) {
 		User user = cacheService.get(CacheType.Member, userId.toString(),User.class);
 		if(user != null) {
 			return user;
 		}
-		MemberVO sysUser = this.get(userId);
-		 user = new User();
+		user = new User();
 		BeanUtils.copyProperties(sysUser, user);
 		user.setUsername(sysUser.getUserName());
 		user.setFullName(sysUser.getNickName());
 		user.setUserType(UserType.MEMBER.getType());
+		
+		user.setAttributes(sysUser.getState());
+		
 		fillAuthorities(user);
 		cacheService.put(CacheType.Member, userId.toString(),user);
 		return user;
@@ -239,7 +324,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}else {
 			vo.setPhone(null);
 		}
-		String cacheKey = buildKey("signup",isSms ? "sms":"email",isSms ? vo.getPhone() : vo.getEmail());
+		String cacheKey = buildKey("register",isSms ? "sms":"email",isSms ? vo.getPhone() : vo.getEmail());
 		String code = cacheService.get(CacheType.VerifyCode, cacheKey,String.class);
 		if(StringUtils.isEmpty(code)) {
 			throw new SystemException("verify code is wrong",CloudOKExceptionMessage.VERIFY_CODE_WRONG);
@@ -251,11 +336,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		MemberVO member = new MemberVO();
 		member.setEmail(vo.getEmail());
 		member.setPhone(vo.getPhone());
+//		member.setUserName(StringUtils.isEmpty(vo.getEmail())?vo.getPhone():vo.getEmail());
 		this.create(member);
 		 
 		MemberVO sysUser = this.get(member.getId());
 		cacheService.evict(CacheType.Member, sysUser.getId().toString());
-		User user = this.loadUserInfo(sysUser.getId());
+		User user = this.loadUserInfo(sysUser.getId(),sysUser);
 		TokenVO token = TokenVO.build(JWTUtil.genToken(user, TokenType.ACCESS), JWTUtil.genToken(user, TokenType.REFRESH), user);
 		
 		return token;
@@ -283,22 +369,26 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		if(cacheService.exist(CacheType.VerifyCode, "S:"+cacheKey)) { //防止重复发送
 			return null;
 		}
-		String count = cacheService.get(CacheType.VerifyCodeCount, cacheKey,String.class);
-        int _c = count == null ? 0 : Integer.parseInt(count);
-        if (_c <= 10) { //每小时最多10次
+		Integer count = cacheService.get(CacheType.VerifyCodeCount, cacheKey,Integer.class);
+        int _c = count == null ? 0 : count;
+        if (_c > 10) { //每小时最多10次
         	throw new SystemException(CloudOKExceptionMessage.TOO_MANY_VERIFY_CODE);
         }
         
 		String code = RandomStringUtils.random(6, false, true);
 		int checkType = 0;
 		switch (vo.getModule().toLowerCase()) {
-			case "signup":
+			case "register":
 				//check unique
 				checkType = 1;
 				break;
 			case "forgot":
 				//check exists
 				checkType = 2;
+				break;
+			case "login":
+				//check exists
+				checkType = 3;
 				break;
 			case "bind":
 				//check unique
@@ -310,13 +400,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		if("sms".equalsIgnoreCase(vo.getType())) {
 			boolean  exists =this.checkPhoneExists(vo.getKey());
 			if(checkType == 1 && exists) {
-				if(vo.getModule().toLowerCase().equals("signup")) {
+				if(vo.getModule().toLowerCase().equals("register")) {
 					throw new SystemException(CloudOKExceptionMessage.PHONE_ALREADY_EXISTS);
 				} 
 				if(vo.getModule().toLowerCase().equals("bind")) {
 					throw new SystemException("Phone number is bound",CloudOKExceptionMessage.PHONE_ALREADY_EXISTS);
 				} 
-				
 			}
 			if(checkType == 2 && !exists) {
 				throw new SystemException(CloudOKExceptionMessage.PHONE_NOT_FOUND);
@@ -327,13 +416,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			}
 			boolean  exists =this.checkEmailExists(vo.getKey());
 			if(checkType == 1 && exists) {
-				if(vo.getModule().toLowerCase().equals("signup")) {
+				if(vo.getModule().toLowerCase().equals("register")) {
 					throw new SystemException(CloudOKExceptionMessage.EMAIL_ALREADY_EXISTS);
 				} 
 				if(vo.getModule().toLowerCase().equals("bind")) {
 					throw new SystemException("Email is bound",CloudOKExceptionMessage.EMAIL_ALREADY_EXISTS);
 				} 
-				
 			}
 			if(checkType == 2 && !exists) {
 				throw new SystemException(CloudOKExceptionMessage.EMAIL_NOT_FOUND);
@@ -343,9 +431,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 		 Map<String, String> params = new HashMap<String, String>();
          params.put("code", code);
-		MessageUtil.send(vo.getModule()+"_"+vo.getType(), params, new MessageReceive.DirectMessageReceive(vo.getKey()));
-		 
-		//code 10 minutes
+		MessageUtil.send(vo.getModule(), params, new MessageReceive.DirectMessageReceive(vo.getKey()));
+
+		// code 10 minutes
 		cacheService.put(CacheType.VerifyCode, cacheKey, code, 12, TimeUnit.MINUTES);
 		cacheService.put(CacheType.VerifyCode, "S:"+cacheKey, code, 30, TimeUnit.SECONDS);
 		cacheService.put(CacheType.VerifyCodeCount, cacheKey, _c+1, 1, TimeUnit.HOURS);
@@ -534,5 +622,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		mongoTemplate.getConverter().write(member, doc);
 		mongoTemplate.save(doc, Constants.MONGODB_MEMBER_COLLECTION_NAME);
 		log.info("add member[{}] info to mongodb,effect rows={}", memberId);
+	}
+
+	@Override
+	public Boolean checkPhone(UserCheckRequest request) {
+		return  !CollectionUtils.isEmpty(this.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.PHONE, request.getPhone()).end()));
 	}
 }

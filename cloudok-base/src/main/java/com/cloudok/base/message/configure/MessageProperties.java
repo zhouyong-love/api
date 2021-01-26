@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-@ConfigurationProperties(prefix = "com.cloudok.message")
+@ConfigurationProperties(prefix = "com.cloudok")
 public class MessageProperties {
 
 	private Map<String, MessageBusiness> message;

@@ -19,4 +19,7 @@ public class LoginVO implements Serializable{
 	private String password;
 	
 	private String loginType;
+	
+	private String code;
+	
 }

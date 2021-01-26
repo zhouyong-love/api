@@ -34,6 +34,8 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	Boolean sendVerifycode(VerifyCodeRequest vo);
 
 	Boolean checkEmail(UserCheckRequest request);
+	
+	Boolean checkPhone(UserCheckRequest request);
 
 	Boolean checkUserName(UserCheckRequest request);
 

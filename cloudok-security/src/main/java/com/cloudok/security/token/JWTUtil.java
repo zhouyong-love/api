@@ -48,13 +48,14 @@ public class JWTUtil {
 			}
 			tokenInfo = new JWTTokenInfo(
 					claims.getBody().getSubject(), 
-					claims.getBody().get("username").toString(),
+					String.valueOf(claims.getBody().get("username")),
 					UserType.MEMBER.getType().equals(claims.getBody().get("userType").toString())?UserType.MEMBER:UserType.SYS_USER,
 					claims.getBody().get("tokenType").toString().equals("0")?TokenType.ACCESS:TokenType.REFRESH);
 		} catch (Exception e) {
 			if (e instanceof SystemException) {
 				throw e;
 			}
+			e.printStackTrace();
 			throw new SystemException(CoreExceptionMessage.UNDEFINED_ERROR);
 		}
 		return tokenInfo;

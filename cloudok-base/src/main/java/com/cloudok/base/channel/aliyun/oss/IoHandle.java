@@ -32,7 +32,7 @@ import com.cloudok.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
+@Component("ossIoHandle")
 public class IoHandle implements AttachIoHandle {
 
     @Autowired

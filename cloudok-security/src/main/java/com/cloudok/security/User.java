@@ -37,10 +37,20 @@ public class User implements UserDetails {
 	
 	private boolean provisionalAuthority;
 	
+	private Object attributes;
+	
 	private List<SimpleGrantedAuthority> authorities;
 	
 	public boolean isProvisionalAuthority() {
 		return provisionalAuthority;
+	}
+
+	public Object getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(Object attributes) {
+		this.attributes = attributes;
 	}
 
 	public void setProvisionalAuthority(boolean provisionalAuthority) {

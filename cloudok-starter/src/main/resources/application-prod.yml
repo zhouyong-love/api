@@ -37,11 +37,22 @@ spring:
         reset-enable: false
         login-username: root
         login-password: cloudok
+  redis:
+      host: 127.0.0.1
+      port: 6379
+      timeout: 20000
+      password: 123456
+      lettuce:
+        pool:
+          max-idle: 10
+          min-idle:  10
+          max-active:  100
+          max-wait: -1ms
         
 security: 
   token:
     secret: FxdaQYwfBmJXeIwFxZAdPGono0PW333r
-    expired: 604800 #7 days
+    expired: 604800
     signature-secret: mESA6AB1N7iclAOM41EKhxreXXfNWP1X
     signature-expired: 300
 

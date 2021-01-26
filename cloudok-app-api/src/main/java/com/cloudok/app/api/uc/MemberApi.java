@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.vo.Response;
+import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.exception.SecurityExceptionMessage;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.vo.BindRequest;
@@ -79,6 +80,13 @@ public class MemberApi {
 	@ApiOperation(value="get current user info",notes="get current user info")
 	public Response userInfo() {
 		return Response.buildSuccess(memberService.getCurrentUserInfo());
+	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/fullUserInfo")
+	@ApiOperation(value="get current full user info",notes="get current full user info")
+	public Response fullUserInfo() {
+		return Response.buildSuccess(memberService.getWholeMemberInfo(SecurityContextHelper.getCurrentUserId()));
 	}
 	
 	@PostMapping("/exists/username")

@@ -24,6 +24,9 @@ public class MemberPO extends PO {
 	private String nickName;
 	
 	
+	private String remark;
+	
+	
 	private String realName;
 	
 	

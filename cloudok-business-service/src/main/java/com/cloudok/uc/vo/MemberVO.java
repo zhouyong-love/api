@@ -3,6 +3,7 @@ package com.cloudok.uc.vo;
 import java.io.Serializable;
 
 import com.cloudok.core.vo.VO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,7 @@ public class MemberVO extends VO {
 	
 	private String email;
 	
+	private String remark;
 	
 	private String password;
 	
@@ -32,7 +34,7 @@ public class MemberVO extends VO {
 	
 	private String realName;
 	
-	
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private java.sql.Date birthDate;
 	
 	

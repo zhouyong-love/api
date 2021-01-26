@@ -9,4 +9,5 @@ import com.cloudok.core.service.IService;
 public interface DictDataService extends IService<DictDataVO,DictDataPO>{
 
 	List<DictDataVO> findAll(String dictCode);
+	
 }

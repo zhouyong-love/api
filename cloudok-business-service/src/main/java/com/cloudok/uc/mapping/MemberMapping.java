@@ -24,5 +24,9 @@ public class MemberMapping extends Mapping {
 	public static final Mapping PHONE = new Mapping("phone", "t.phone", QueryOperator.LIKE);
 
 	public static final Mapping AVATAR = new Mapping("avatar", "t.avatar");
+	
+	public static final Mapping REMARK = new Mapping("remark", "t.remark");
+
+	public static final Mapping STATE = new Mapping("state", "t.state");
 
 }

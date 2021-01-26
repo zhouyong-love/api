@@ -70,4 +70,5 @@ public class DictDataServiceImpl extends AbstractService<DictDataVO, DictDataPO>
 		});
 		return list;
 	}
+
 }

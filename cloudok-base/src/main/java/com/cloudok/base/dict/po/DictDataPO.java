@@ -14,6 +14,7 @@ public class DictDataPO extends PO {
 	
 	private String dictCode;
 	
+	private Long dictId;
 	
 	private String dictShowName;
 	

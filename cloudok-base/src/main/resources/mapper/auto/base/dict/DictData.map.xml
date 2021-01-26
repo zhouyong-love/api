@@ -4,7 +4,7 @@
 	
 	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.base.dict.po.DictDataPO" id="dictDataMap">
 		
-		<result property="dictCode" column="dict_code"/>
+		<result property="dictId" column="dict_id"/>
 		
 		<result property="dictShowName" column="dict_show_name"/>
 		
@@ -14,19 +14,21 @@
 		
 		<result property="sn" column="sn"/>
 		
+		<result property="dictCode" column="dict_code"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.dict_id,t.dict_show_name,t.dict_value,t.remark,t.sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.dict_id,t.dict_show_name,t.dict_value,t.remark,t.sn,t.dict_code,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.base.dict.po.DictDataPO">
-		insert into sys_dict_data(dict_code,dict_show_name,dict_value,remark,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{dictCode},#{dictShowName},#{dictValue},#{remark},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into sys_dict_data(dict_id,dict_code,dict_show_name,dict_value,remark,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{dictId},#{dictCode},#{dictShowName},#{dictValue},#{remark},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.base.dict.po.DictDataPO">
-		update sys_dict_data set dict_code=#{dictCode},dict_show_name=#{dictShowName},dict_value=#{dictValue},remark=#{remark},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update sys_dict_data set dict_id = #{dictId}, dict_code=#{dictCode},dict_show_name=#{dictShowName},dict_value=#{dictValue},remark=#{remark},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -36,6 +38,8 @@
 		update sys_dict_data set 
 			
 			<if test="dictCode != null ">dict_code = #{dictCode},</if>
+			
+			<if test="dictId != null ">dict_id = #{dictId},</if>
 			
 			<if test="dictShowName != null ">dict_show_name = #{dictShowName},</if>
 			

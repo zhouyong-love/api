@@ -9,9 +9,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.cloudok.base.dict.enums.EnumHandler;
+import com.cloudok.base.dict.enums.vo.EnumVO;
 import com.cloudok.base.dict.mapper.DictMapper;
 import com.cloudok.base.dict.mapping.DictDataMapping;
 import com.cloudok.base.dict.mapping.DictMapping;
@@ -86,16 +88,19 @@ public class DictServiceImpl extends AbstractService<DictVO, DictPO> implements 
 	@Override
 	public List<DictDataVO> findAllFromCache(String dictCode) {
 		List<DictDataVO> list=new ArrayList<DictDataVO>();
-		EnumHandler.getEnum(dictCode).getValues().forEach(item->{
-			DictDataVO dataVO=new DictDataVO();
-			dataVO.setDictCode(dictCode);
-			dataVO.setDictShowName(item.getDescribe());
-			dataVO.setDictValue(item.getValue());
-			dataVO.setRemark(item.getDescribe());
-			dataVO.setSn(item.getSn());
-			dataVO.setBuiltInSystem(true);
-			list.add(dataVO);
-		});
+		EnumVO e = EnumHandler.getEnum(dictCode);
+		if(e!=null && !CollectionUtils.isEmpty(e.getValues())) {
+			e.getValues().forEach(item->{
+				DictDataVO dataVO=new DictDataVO();
+				dataVO.setDictCode(dictCode);
+				dataVO.setDictShowName(item.getDescribe());
+				dataVO.setDictValue(item.getValue());
+				dataVO.setRemark(item.getDescribe());
+				dataVO.setSn(item.getSn());
+				dataVO.setBuiltInSystem(true);
+				list.add(dataVO);
+			});
+		}
 		@SuppressWarnings("unchecked")
 		List<DictDataVO> cacheData= cache.get(DICTCACHE, dictCode, ArrayList.class);
 		if(cacheData!=null) {
@@ -104,9 +109,24 @@ public class DictServiceImpl extends AbstractService<DictVO, DictPO> implements 
 		list.sort(new Comparator<DictDataVO>() {
 			@Override
 			public int compare(DictDataVO o1, DictDataVO o2) {
+				if(o1.getSn()==null) {
+					o1.setSn(0L);
+				}
+				if(o2.getSn()==null) {
+					o2.setSn(0L);
+				}
 				return o1.getSn()>o2.getSn()?1:-1;
 			}
 		});
 		return list;
+	}
+
+
+
+	@Override
+	public void reflashCache() {
+		this.list(QueryBuilder.create(DictMapping.class)).forEach(item->{
+			this.reflashCache(item.getDictCode());
+		});
 	}
 }

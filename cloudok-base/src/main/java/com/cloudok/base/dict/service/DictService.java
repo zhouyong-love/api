@@ -16,5 +16,7 @@ public interface DictService extends IService<DictVO, DictPO> {
 	void removeCache(String dictCode);
 	
 	List<DictDataVO> findAllFromCache(String dictCode);
+	
+	void reflashCache();
 
 }

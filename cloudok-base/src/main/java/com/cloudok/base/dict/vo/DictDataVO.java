@@ -14,6 +14,7 @@ public class DictDataVO extends VO {
 	
 	private String dictCode;
 	
+	private Long dictId;
 	
 	private String dictShowName;
 	

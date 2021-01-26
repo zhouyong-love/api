@@ -41,6 +41,14 @@ public class DictApi {
 		return Response.buildSuccess(dictService.create(vo));
 	}
 	
+	@PreAuthorize("hasAuthority('interface.dict.write')")
+	@PostMapping("/reflashCache")
+	@ApiOperation(value = "刷新缓存", notes = "刷新缓存")
+	public Response reflashCache() {
+		dictService.reflashCache();
+		return Response.buildSuccess();
+	}
+	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/{dictCode}/values")
 	@ApiOperation(value = "拉取字典值列表(从缓存)", notes = "拉取字典值列表(从缓存)")

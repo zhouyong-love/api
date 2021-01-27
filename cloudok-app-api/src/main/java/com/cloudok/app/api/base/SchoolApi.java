@@ -28,7 +28,6 @@ public class SchoolApi {
 	@GetMapping
 	@ApiOperation(value = "查询学校基础数据列表", notes = "查询学校基础数据列表")
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(schoolService.page(QueryBuilder.create(SchoolMapping.class).with(request)));
+		return Response.buildSuccess(schoolService.list(QueryBuilder.create(SchoolMapping.class).with(request)));
 	}
-
 }

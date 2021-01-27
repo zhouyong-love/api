@@ -1,16 +1,13 @@
 package com.cloudok.app.api.base;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudok.base.mapping.SpecialismMapping;
 import com.cloudok.base.service.SpecialismService;
-import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
 
 import io.swagger.annotations.Api;
@@ -25,9 +22,9 @@ public class SpecialismApi {
 	private SpecialismService specialismService;
 
 	@PreAuthorize("isFullyAuthenticated()")
-	@GetMapping
+	@GetMapping("/{schoolId}/school")
 	@ApiOperation(value = "查询专业列表", notes = "查询专业列表")
-	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(specialismService.page(QueryBuilder.create(SpecialismMapping.class).with(request)));
+	public Response search(@PathVariable("schoolId")Long schoolId) {
+		return Response.buildSuccess(specialismService.listBySchool(schoolId));
 	} 
 }

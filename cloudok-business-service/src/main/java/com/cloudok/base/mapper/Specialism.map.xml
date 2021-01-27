@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.base.mapper.SpecialismMapper">
-	
+	<select id="listBySchool"
+		resultMap="specialismMap">
+		select
+		<include refid="columns"></include>
+		from base_specialism  t
+		left join base_school_specialities t1 on t.id = t1.specialism_id
+		<where>
+			t1.school_id = #{schoolId}
+		</where>
+	</select>
 </mapper>

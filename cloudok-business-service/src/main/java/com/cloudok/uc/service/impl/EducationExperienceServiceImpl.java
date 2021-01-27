@@ -105,4 +105,10 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 		return this.list(QueryBuilder.create(EducationExperienceMapping.class)
 				.and(EducationExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).end());
 	}
+
+	@Override
+	public EducationExperienceVO getByMember(Long currentUserId, Long educationId) {
+		return this.list(QueryBuilder.create(EducationExperienceMapping.class)
+				.and(EducationExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).and(EducationExperienceMapping.ID, educationId).end()).get(0);
+	}
 }

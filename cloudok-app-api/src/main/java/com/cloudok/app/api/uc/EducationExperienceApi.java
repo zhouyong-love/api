@@ -23,7 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController("AppEducationExperienceApi")
-@RequestMapping("/v1/uc/member/{memberId}/educationExperience")
+@RequestMapping("/v1/uc/educationExperience")
 @Api(tags = "教育经历")
 public class EducationExperienceApi {
 
@@ -33,7 +33,7 @@ public class EducationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加教育经历", notes = "添加教育经历")
-	public Response create(@PathVariable("memberId") Long memberId, @RequestBody @Valid EducationExperienceVO vo) {
+	public Response create(@RequestBody @Valid EducationExperienceVO vo) {
 		return Response.buildSuccess(educationExperienceService.create(vo));
 	}
 
@@ -47,7 +47,7 @@ public class EducationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改教育经历", notes = "修改教育经历")
-	public Response modify(@PathVariable("memberId") Long memberId, @PathVariable("id") Long id,
+	public Response modify(@PathVariable("id") Long id,
 			@RequestBody @Valid EducationExperienceVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(educationExperienceService.update(vo));
@@ -56,8 +56,15 @@ public class EducationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "删除教育经历", notes = "删除教育经历")
-	public Response remove(@PathVariable("memberId") Long memberId, @PathVariable("id") Long id) {
+	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(educationExperienceService.remove(id));
+	}
+
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/{id}")
+	@ApiOperation(value = "获取教育经历", notes = "获取教育经历")
+	public Response get(@PathVariable("id") Long id) {
+		return Response.buildSuccess(educationExperienceService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}
 
 }

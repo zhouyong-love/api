@@ -10,4 +10,6 @@ public interface EducationExperienceService extends IService<EducationExperience
 
 	List<EducationExperienceVO> getByMember(Long currentUserId);
 
+	EducationExperienceVO getByMember(Long currentUserId,Long educationId);
+
 }

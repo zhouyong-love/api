@@ -59,4 +59,10 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 		return this.list(QueryBuilder.create(ProjectExperienceMapping.class)
 				.and(ProjectExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).end());
 	}
+
+	@Override
+	public ProjectExperienceVO getByMember(Long currentUserId, Long id) {
+		return this.list(QueryBuilder.create(ProjectExperienceMapping.class)
+				.and(ProjectExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).and(ProjectExperienceMapping.ID, id).end()).get(0);
+	}
 }

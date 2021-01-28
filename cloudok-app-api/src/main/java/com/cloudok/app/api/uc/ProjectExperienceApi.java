@@ -23,7 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController("AppProjectExperienceApi")
-@RequestMapping("/v1/uc/memebr/{memberId}/project")
+@RequestMapping("/v1/uc/project")
 @Api(tags = "项目实践")
 public class ProjectExperienceApi {
 
@@ -42,6 +42,13 @@ public class ProjectExperienceApi {
 	@ApiOperation(value = "查询项目实践列表", notes = "查询项目实践列表")
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(projectExperienceService.getByMember(SecurityContextHelper.getCurrentUserId()));
+	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/{id}")
+	@ApiOperation(value = "查询项目实践列表", notes = "查询项目实践列表")
+	public Response get(@PathVariable("id")Long id) {
+		return Response.buildSuccess(projectExperienceService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

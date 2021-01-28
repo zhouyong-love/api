@@ -464,10 +464,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	}
 
 	private boolean checkUserNameExists(String userName,Long userId) {
-		return this.count(QueryBuilder.create(MemberMapping.class).and(MemberMapping.USERNAME,userName).and(MemberMapping.ID,QueryOperator.NEQ, userId).end())==0;
+		return this.count(QueryBuilder.create(MemberMapping.class).and(MemberMapping.USERNAME,userName).and(MemberMapping.ID,QueryOperator.NEQ, userId).end())!=0;
 	}
 	private boolean checkUserNameExists(String userName) {
-		return this.count(QueryBuilder.create(MemberMapping.class).and(MemberMapping.USERNAME,userName).end())==0;
+		return this.count(QueryBuilder.create(MemberMapping.class).and(MemberMapping.USERNAME,userName).end())!=0;
 	}
 	
 	@Override

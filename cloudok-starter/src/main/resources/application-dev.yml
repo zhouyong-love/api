@@ -41,7 +41,7 @@ spring:
       host: r-2ze8hw6gfmpgd0zfvy.redis.rds.aliyuncs.com
       port: 6379
       timeout: 20000
-      password: MF2jnPt6nD7nei3Zsi3S3ygWoBZaK3rY
+      password: r-2ze8hw6gfmpgd0zfvy:MF2jnPt6nD7nei3Zsi3S3ygWoBZaK3rY
       lettuce:
         pool:
           max-idle: 10

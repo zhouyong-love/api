@@ -10,9 +10,9 @@ spring:
     name: druidDataSource
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/cloudok?autoReconnect=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=true&serverTimezone=GMT%2B8
-    username: root
-    password: 123456
+    url: jdbc:mysql://rm-2zeua31462586x7m7125010.mysql.rds.aliyuncs.com:3306/cloudok?autoReconnect=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=true&serverTimezone=GMT%2B8
+    username: cloudok
+    password: uUl8iRI7dJsFGrDXf3Gp3jO4toY4dYbk
     druid:
       initial-size: 2
       min-idle: 2
@@ -38,10 +38,10 @@ spring:
         login-username: root
         login-password: cloudok
   redis:
-      host: 127.0.0.1
+      host: r-2ze8hw6gfmpgd0zfvy.redis.rds.aliyuncs.com
       port: 6379
       timeout: 20000
-      password: 123456
+      password: MF2jnPt6nD7nei3Zsi3S3ygWoBZaK3rY
       lettuce:
         pool:
           max-idle: 10

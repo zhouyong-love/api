@@ -123,4 +123,10 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 		return this.list(QueryBuilder.create(InternshipExperienceMapping.class)
 				.and(InternshipExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).end());
 	}
+
+	@Override
+	public InternshipExperienceVO getByMember(Long currentUserId, Long id) {
+		return this.list(QueryBuilder.create(InternshipExperienceMapping.class)
+				.and(InternshipExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).and(InternshipExperienceMapping.ID, id).end()).get(0);
+	}
 }

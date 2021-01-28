@@ -23,7 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController("AppResearchExperienceApi")
-@RequestMapping("/v1/uc/member/{memberId}/research")
+@RequestMapping("/v1/uc/research")
 @Api(tags = "科研经历")
 public class ResearchExperienceApi {
 
@@ -50,6 +50,13 @@ public class ResearchExperienceApi {
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid ResearchExperienceVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(researchExperienceService.update(vo));
+	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/{id}")
+	@ApiOperation(value = "查询科研经历", notes = "查询科研经历")
+	public Response modify(@PathVariable("id") Long id) {
+		return Response.buildSuccess(researchExperienceService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

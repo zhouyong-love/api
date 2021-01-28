@@ -28,6 +28,6 @@ public class IndustryApi {
 	@GetMapping
 	@ApiOperation(value = "查询行业信息列表", notes = "查询行业信息列表")
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(industryService.page(QueryBuilder.create(IndustryMapping.class).with(request)));
+		return Response.buildSuccess(industryService.list(QueryBuilder.create(IndustryMapping.class).with(request)));
 	} 
 }

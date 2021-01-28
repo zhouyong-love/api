@@ -9,5 +9,8 @@ import com.cloudok.uc.vo.ResearchExperienceVO;
 public interface ResearchExperienceService extends IService<ResearchExperienceVO,ResearchExperiencePO>{
 
 	List<ResearchExperienceVO> getByMember(Long currentUserId);
+	
+	ResearchExperienceVO getByMember(Long currentUserId,Long id);
+
 
 }

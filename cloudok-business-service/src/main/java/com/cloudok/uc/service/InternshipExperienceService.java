@@ -9,5 +9,8 @@ import com.cloudok.uc.vo.InternshipExperienceVO;
 public interface InternshipExperienceService extends IService<InternshipExperienceVO,InternshipExperiencePO>{
 
 	List<InternshipExperienceVO> getByMember(Long currentUserId);
+	
+	InternshipExperienceVO getByMember(Long currentUserId,Long id);
+
 
 }

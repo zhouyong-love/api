@@ -20,7 +20,9 @@ import com.cloudok.uc.mapper.EducationExperienceMapper;
 import com.cloudok.uc.mapping.EducationExperienceMapping;
 import com.cloudok.uc.po.EducationExperiencePO;
 import com.cloudok.uc.service.EducationExperienceService;
+import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.vo.EducationExperienceVO;
+import com.cloudok.uc.vo.MemberVO;
 
 @Service
 public class EducationExperienceServiceImpl extends AbstractService<EducationExperienceVO, EducationExperiencePO>
@@ -31,6 +33,9 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 	private SpecialismService specialismService;
 
 	@Autowired
+	private MemberService memberService;
+	
+	@Autowired
 	public EducationExperienceServiceImpl(EducationExperienceMapper repository) {
 		super(repository);
 	}
@@ -38,6 +43,11 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 	@Override
 	public EducationExperienceVO create(EducationExperienceVO d) {
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
+		MemberVO member = new MemberVO();
+		member.setState(memberService.get(d.getMemberId()).getState());
+		member.getState().setFillEduInfo(true);
+		member.setId(d.getMemberId());
+		memberService.merge(member);
 		return super.create(d);
 	}
 

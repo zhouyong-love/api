@@ -46,6 +46,7 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
 		}
+		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		d.setDomain(researchDomainService.createOrGet(d.getDomain().getName()));
 		return super.update(d);
 	}
@@ -95,5 +96,11 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 	public List<ResearchExperienceVO> getByMember(Long currentUserId) {
 		return this.list(QueryBuilder.create(ResearchExperienceMapping.class)
 				.and(ResearchExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).end());
+	}
+
+	@Override
+	public ResearchExperienceVO getByMember(Long currentUserId, Long id) {
+		return this.list(QueryBuilder.create(ResearchExperienceMapping.class)
+				.and(ResearchExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).and(ResearchExperienceMapping.ID, id).end()).get(0);
 	}
 }

@@ -23,7 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController("AppInternshipExperienceApi")
-@RequestMapping("/v1/uc/member/{memberId}/internshipExperience")
+@RequestMapping("/v1/uc/internshipExperience")
 @Api(tags = "实习经历")
 public class InternshipExperienceApi {
 
@@ -50,6 +50,13 @@ public class InternshipExperienceApi {
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid InternshipExperienceVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(internshipExperienceService.update(vo));
+	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/{id}")
+	@ApiOperation(value = "获取实习经历", notes = "获取实习经历")
+	public Response get(@PathVariable("id") Long id) {
+		return Response.buildSuccess(internshipExperienceService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}
  
 

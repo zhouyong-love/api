@@ -72,8 +72,8 @@ com:
             retry:
               enable: false
             parameters:    # 渠道所需参数
-              sign-name: 云可    #短信签名
-              template-code: SMS_210775314         #短信模板
+              sign-name: 狮码科技    #短信签名
+              template-code: SMS_41610390         #短信模板
       login:
         name: "验证码登录"
         channel:
@@ -85,8 +85,8 @@ com:
             retry:
               enable: false
             parameters:    # 渠道所需参数
-              sign-name: 云可   #短信签名
-              template-code: SMS_210775314         #短信模板
+              sign-name: 狮码科技   #短信签名
+              template-code: SMS_41610390         #短信模板
     channel: 
       aliyun: 
         sms:

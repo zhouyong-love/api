@@ -64,7 +64,6 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 		return super.update(d);
 	}
 	
-
 	@Override
 	public InternshipExperiencePO convert2PO(InternshipExperienceVO d) {
 		InternshipExperiencePO po = super.convert2PO(d);

@@ -37,7 +37,8 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 	public MemberTagsVO create(MemberTagsVO d) {
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		if(d.getTag().getId() == null) {
-			d.setTag(this.tagService.create(d.getTag()));;
+			d.getTag().setType(TaggedType.CUSTOM.getValue());
+			d.setTag(this.tagService.create(d.getTag()));
 		}
 		d.setType(Integer.parseInt(TaggedType.CUSTOM.getValue()));
 		return super.create(d);
@@ -52,9 +53,11 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 			}
 		}
 		if(d.getTag().getId() == null) {
+			d.setType(Integer.parseInt(TaggedType.CUSTOM.getValue()));
 			d.setTag(this.tagService.create(d.getTag()));;
 		}
 		d.setType(Integer.parseInt(TaggedType.CUSTOM.getValue()));
+		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		return super.update(d);
 	}
 
@@ -104,5 +107,12 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 		//只查用户给自己打的标签
 		return this.list(QueryBuilder.create(MemberTagsMapping.class)
 				.and(MemberTagsMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).and(MemberTagsMapping.TYPE, TaggedType.CUSTOM.getValue()).end());
+	}
+
+
+	@Override
+	public MemberTagsVO getByMember(Long currentUserId, Long id) {
+		return this.list(QueryBuilder.create(MemberTagsMapping.class)
+				.and(MemberTagsMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).and(MemberTagsMapping.ID, id).end()).get(0);
 	}
 }

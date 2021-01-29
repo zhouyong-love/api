@@ -22,7 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController("AppMemberTagsApi")
-@RequestMapping("/v1/uc/member/{memberId}/tags")
+@RequestMapping("/v1/uc/tags")
 @Api(tags = "用户标签")
 public class MemberTagsApi {
 
@@ -41,6 +41,13 @@ public class MemberTagsApi {
 	@ApiOperation(value = "查询用户标签列表", notes = "查询用户标签列表")
 	public Response search() {
 		return Response.buildSuccess(memberTagsService.getByMember(SecurityContextHelper.getCurrentUserId()));
+	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/{id}")
+	@ApiOperation(value = "查询用户标签列表", notes = "查询用户标签列表")
+	public Response get(@PathVariable("id")Long id) {
+		return Response.buildSuccess(memberTagsService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

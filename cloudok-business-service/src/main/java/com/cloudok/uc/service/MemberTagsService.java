@@ -9,5 +9,7 @@ import com.cloudok.uc.vo.MemberTagsVO;
 public interface MemberTagsService extends IService<MemberTagsVO,MemberTagsPO>{
 
 	List<MemberTagsVO> getByMember(Long currentUserId);
+	
+	MemberTagsVO getByMember(Long currentUserId,Long id);
 
 }

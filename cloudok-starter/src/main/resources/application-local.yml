@@ -41,7 +41,7 @@ spring:
       host: 127.0.0.1
       port: 6379
       timeout: 20000
-      password: 
+      password: 123456
       lettuce:
         pool:
           max-idle: 10

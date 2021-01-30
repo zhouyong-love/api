@@ -41,7 +41,7 @@ public class DictApi {
 		return Response.buildSuccess(dictService.create(vo));
 	}
 	
-	@PreAuthorize("hasAuthority('interface.dict.write')")
+//	@PreAuthorize("hasAuthority('interface.dict.write')")
 	@PostMapping("/reflashCache")
 	@ApiOperation(value = "刷新缓存", notes = "刷新缓存")
 	public Response reflashCache() {

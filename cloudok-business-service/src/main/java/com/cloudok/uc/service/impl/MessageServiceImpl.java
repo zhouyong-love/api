@@ -1,5 +1,6 @@
 package com.cloudok.uc.service.impl;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,12 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		p.setFromId(d.getFrom().getId());
 		p.setToId(d.getTo().getId());
 		return p;
+	}
+	@Override
+	public MessageVO create(MessageVO d) {
+		d.setStatus(0);
+		d.setStatusTs(new Timestamp(System.currentTimeMillis()));
+		return super.create(d);
 	}
 	
 	@Override

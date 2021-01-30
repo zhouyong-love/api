@@ -31,7 +31,7 @@ public class PostApi {
 
 	@Autowired
 	private PostService postService;
-
+	
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加动态、帖子等", notes = "添加动态、帖子等")

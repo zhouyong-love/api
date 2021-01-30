@@ -665,7 +665,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		result.setPageSize(page.getPageSize());
 		result.setTotalCount(page.getTotalCount());
 		if(!CollectionUtils.isEmpty(page.getData())) {
-			result.setData(getWholeMemberInfo(page.getData().stream().map(MemberVO::getId).collect(Collectors.toList())));
+			result.setData(getWholeMemberInfo(page.getData().stream().map(MemberVO::getId).collect(Collectors.toList()),true));
 		}
 		return result;
 	}

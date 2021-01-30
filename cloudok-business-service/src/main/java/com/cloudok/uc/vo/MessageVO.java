@@ -1,6 +1,7 @@
 package com.cloudok.uc.vo;
 
 import com.cloudok.core.vo.VO;
+import com.cloudok.uc.dto.SimpleMemberInfo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,19 +13,21 @@ public class MessageVO extends VO {
 	private static final long serialVersionUID = 106756808253635420L;
 	
 	
-	private Boolean type;
+	private Integer type;
+	
+	private Long threadId;
 	
 	
-	private Long fromId;
+	private SimpleMemberInfo from;
 	
 	
-	private Long toId;
+	private SimpleMemberInfo to;
 	
 	
 	private String content;
 	
 	
-	private Boolean status;
+	private Integer status;
 	
 	
 	private java.sql.Timestamp statusTs;

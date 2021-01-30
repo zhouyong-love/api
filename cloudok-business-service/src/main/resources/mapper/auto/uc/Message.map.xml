@@ -6,6 +6,8 @@
 		
 		<result property="type" column="type"/>
 		
+		<result property="threadId" column="thread_id"/>
+		
 		<result property="fromId" column="from_id"/>
 		
 		<result property="toId" column="to_id"/>
@@ -19,16 +21,16 @@
 	</resultMap>
 
 	<sql id="columns">
-		t.type,t.from_id,t.to_id,t.content,t.status,t.status_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.type,t.thread_id,t.from_id,t.to_id,t.content,t.status,t.status_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.MessagePO">
-		insert into uc_message(type,from_id,to_id,content,status,status_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{type},#{fromId},#{toId},#{content},#{status},#{statusTs},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_message(type,thread_id,from_id,to_id,content,status,status_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{type},#{threadId},#{fromId},#{toId},#{content},#{status},#{statusTs},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.MessagePO">
-		update uc_message set type=#{type},from_id=#{fromId},to_id=#{toId},content=#{content},status=#{status},status_ts=#{statusTs},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_message set type=#{type},thread_id=#{threadId},from_id=#{fromId},to_id=#{toId},content=#{content},status=#{status},status_ts=#{statusTs},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -38,6 +40,8 @@
 		update uc_message set 
 			
 			<if test="type != null ">type = #{type},</if>
+			
+			<if test="threadId != null ">thread_id=#{threadId},</if>
 			
 			<if test="fromId != null ">from_id = #{fromId},</if>
 			

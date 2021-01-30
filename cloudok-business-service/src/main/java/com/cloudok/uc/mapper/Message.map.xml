@@ -2,4 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.uc.mapper.MessageMapper">
 	
+	<select id="searchInteractionMessages"
+		parameterType="Map" resultType="Long">
+		select distinct thread_id from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (3,4) and deleted=false limit #{start},#{end}
+	</select>
+
+	<select id="searchInteractionMessagesCount"
+		parameterType="Map" resultType="Long">
+		select count( distinct thread_id ) from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (3,4)  and deleted=false limit #{start},#{end}
+	</select>
+	
+	<select id="searchPrivateMessages"
+		parameterType="Map" resultType="Long">
+		select distinct thread_id from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (1,2) and deleted=false limit #{start},#{end}
+		 
+	</select>
+
+	<select id="searchPrivateMessagesCount"
+		parameterType="Map" resultType="Long">
+		 select count( distinct thread_id ) from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (1,2)  and deleted=false limit #{start},#{end}
+	</select>
+	 
 </mapper>

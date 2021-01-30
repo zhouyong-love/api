@@ -12,7 +12,9 @@ public class MessagePO extends PO {
 	private static final long serialVersionUID = 7364957682101325L;
 
 	
-	private Boolean type;
+	private Integer type;
+	
+	private Long threadId;
 	
 	
 	private Long fromId;

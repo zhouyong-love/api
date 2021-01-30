@@ -42,7 +42,7 @@ public class TopicApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{topicId}/bbs")
-	@ApiOperation(value = "发现", notes = "发现")
+	@ApiOperation(value = "指定话题下的动态", notes = "指定话题下的动态")
 	public Response searchByTopic(@PathVariable("topicId") Long topicId,@RequestParam(name = "pageNo",defaultValue="0") Integer pageNo,
 			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
 		return Response.buildSuccess(postService.searchByTopic(Collections.singletonList(topicId),pageNo,pageSize));

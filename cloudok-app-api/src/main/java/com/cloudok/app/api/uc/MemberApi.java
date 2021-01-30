@@ -159,7 +159,7 @@ public class MemberApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/collect/posts")
 	@ApiOperation(value = "我收藏的动态", notes = "我收藏的动态")
-	public Response getMyCollects(@RequestParam(name = "pageNo",defaultValue="0") Integer pageNo,
+	public Response getMyCollects(@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
 			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
 		return Response.buildSuccess(collectService.getMyCollectPosts(SecurityContextHelper.getCurrentUserId(),pageNo,pageSize));
 	}

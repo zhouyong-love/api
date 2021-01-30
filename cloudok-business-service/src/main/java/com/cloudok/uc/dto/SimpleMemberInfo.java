@@ -19,4 +19,10 @@ public class SimpleMemberInfo {
 	private Long avatar;
 	private String sex;
 	private EducationExperienceVO education;
+	
+	public SimpleMemberInfo(Long id) {
+		this.setId(id);
+	}
+	
+	
 }

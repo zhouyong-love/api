@@ -8,6 +8,8 @@ public class MessageMapping extends Mapping{
 	
 	public static final Mapping TYPE=new Mapping("type", "t.type");
 	
+	public static final Mapping THREADID=new Mapping("threadId", "t.thread_id");
+	
 	public static final Mapping FROMID=new Mapping("fromId", "t.from_id");
 	
 	public static final Mapping TOID=new Mapping("toId", "t.to_id");
@@ -17,5 +19,6 @@ public class MessageMapping extends Mapping{
 	public static final Mapping STATUS=new Mapping("status", "t.status");
 	
 	public static final Mapping STATUSTS=new Mapping("statusTs", "t.status_ts");
+	
 	
 }

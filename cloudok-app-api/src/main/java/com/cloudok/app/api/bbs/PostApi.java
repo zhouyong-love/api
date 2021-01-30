@@ -94,7 +94,8 @@ public class PostApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/discover")
 	@ApiOperation(value = "发现", notes = "发现")
-	public Response searchByTopic(@RequestParam("topicIdList") String topicIdList,@RequestParam(name = "pageNo",defaultValue="0") Integer pageNo,
+	public Response searchByTopic(@RequestParam("topicIdList") String topicIdList,
+			@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
 			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
 		return Response.buildSuccess(postService.searchByTopic(
 				Arrays.asList(topicIdList.split(",")).stream().map(item -> Long.parseLong(item)).collect(Collectors.toList()),

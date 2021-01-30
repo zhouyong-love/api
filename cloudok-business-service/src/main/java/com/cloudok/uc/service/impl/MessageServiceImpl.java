@@ -9,7 +9,8 @@ import com.cloudok.uc.po.MessagePO;
 import com.cloudok.uc.service.MessageService;
 import com.cloudok.uc.vo.MessageVO;
 
-@Service
+
+@Service("UCMessageServiceImpl")
 public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> implements MessageService{
 
 	@Autowired

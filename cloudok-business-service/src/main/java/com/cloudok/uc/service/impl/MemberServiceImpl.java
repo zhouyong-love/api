@@ -551,13 +551,13 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	
 	@Override
 	public List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList) {
-		return getWholeMemberInfo(memberIdList, false);
+		return getWholeMemberInfo(this.get(memberIdList), false);
 	}
 	
 	@Override
-	public List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList,boolean ignoreRecognized) {
-		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
-		List<WholeMemberDTO> memberList = this.get(memberIdList).stream().map(item ->{
+	public List<WholeMemberDTO> getWholeMemberInfo(List<MemberVO> memberIdList,boolean ignoreRecognized) {
+//		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
+		List<WholeMemberDTO> memberList = memberIdList.stream().map(item ->{
 			WholeMemberDTO dto = new WholeMemberDTO();
 			BeanUtils.copyProperties(item, dto);
 			return dto;
@@ -667,7 +667,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		result.setPageSize(page.getPageSize());
 		result.setTotalCount(page.getTotalCount());
 		if(!CollectionUtils.isEmpty(page.getData())) {
-			result.setData(getWholeMemberInfo(page.getData().stream().map(MemberVO::getId).collect(Collectors.toList()),true));
+			result.setData(getWholeMemberInfo(page.getData(),true));
 		}
 		return result;
 	}
@@ -705,4 +705,5 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.newApplyCount(recognizedService.getNewApplyCount())
 				.build();
 	}
+ 
 }

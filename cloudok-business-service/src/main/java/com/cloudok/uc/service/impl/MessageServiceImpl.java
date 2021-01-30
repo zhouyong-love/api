@@ -22,7 +22,6 @@ import com.cloudok.core.vo.Page;
 import com.cloudok.enums.UCMessageType;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.dto.SimpleMemberInfo;
-import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.event.RecognizedCreateEvent;
 import com.cloudok.uc.event.RecognizedDeleteEvent;
 import com.cloudok.uc.mapper.MessageMapper;

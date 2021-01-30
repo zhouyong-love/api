@@ -41,7 +41,6 @@ import com.cloudok.core.vo.Page;
 import com.cloudok.enums.CollectType;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.dto.SimpleMemberInfo;
-import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.service.MemberService;
 
 @Service

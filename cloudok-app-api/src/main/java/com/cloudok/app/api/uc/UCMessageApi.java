@@ -29,7 +29,7 @@ public class UCMessageApi {
 	@Autowired
 	private MessageService messageService;
 
-	@PreAuthorize("hasAuthority('interface.message.write')")
+	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping("/thread/{threadId}/message")
 	@ApiOperation(value = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 匿名互动 4 实名互动, threadId为空时，后端自动生成", notes = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 匿名互动 4 实名互动，threadId为空时，后端自动生成")
 	public Response create(@PathVariable("memberId") Long memberId, @PathVariable("threadId") Long threadId,
@@ -38,7 +38,7 @@ public class UCMessageApi {
 		return Response.buildSuccess(messageService.createByMember(vo));
 	}
 
-	@PreAuthorize("hasAuthority('interface.message.write')")
+	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/thread/{threadId}/message/{id}")
 	@ApiOperation(value = "修改消息", notes = "修改消息")
 	public Response modify(@PathVariable("memberId") Long memberId, @PathVariable("threadId") Long threadId,
@@ -47,21 +47,21 @@ public class UCMessageApi {
 		return Response.buildSuccess(messageService.updateByMember(vo));
 	}
 
-	@PreAuthorize("hasAuthority('interface.message.write')")
+	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("thread/{threadId}/message/{id}")
 	@ApiOperation(value = "删除消息", notes = "删除消息")
 	public Response remove(@PathVariable("memberId") Long memberId, @PathVariable("id") Long id) {
 		return Response.buildSuccess(messageService.removeByMember(id));
 	}
 
-	@PreAuthorize("hasAuthority('interface.message.write')")
+	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/thread/{threadId}")
 	@ApiOperation(value = "修改消息", notes = "修改消息")
 	public Response getByThreadId(@PathVariable("memberId") Long memberId, @PathVariable("id") Long id) {
 		return Response.buildSuccess(messageService.getByThreadId(id));
 	}
 
-	@PreAuthorize("hasAuthority('interface.message.write') or hasAuthority('interface.message.read')")
+	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/interaction")
 	@ApiOperation(value = "查询member的互动消息列表", notes = "查询member的互动消息列表")
 	public Response searchInteractionMessages(@PathVariable("memberId") Long memberId,
@@ -70,9 +70,9 @@ public class UCMessageApi {
 		return Response.buildSuccess(messageService.searchInteractionMessages(memberId, pageNo, pageSize));
 	}
 
-	@PreAuthorize("hasAuthority('interface.message.write') or hasAuthority('interface.message.read')")
+	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/private")
-	@ApiOperation(value = "查询member的互动消息列表", notes = "查询member的互动消息列表")
+	@ApiOperation(value = "查询member的私信消息列表", notes = "查询member的私信消息列表")
 	public Response searchPrivateMessages(@PathVariable("memberId") Long memberId,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {

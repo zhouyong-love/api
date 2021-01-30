@@ -8,9 +8,11 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
@@ -21,6 +23,8 @@ import com.cloudok.enums.UCMessageType;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.dto.WholeMemberDTO;
+import com.cloudok.uc.event.RecognizedCreateEvent;
+import com.cloudok.uc.event.RecognizedDeleteEvent;
 import com.cloudok.uc.mapper.MessageMapper;
 import com.cloudok.uc.mapping.MessageMapping;
 import com.cloudok.uc.po.MessagePO;
@@ -28,10 +32,11 @@ import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.service.MessageService;
 import com.cloudok.uc.vo.MessageThreadVO;
 import com.cloudok.uc.vo.MessageVO;
+import com.cloudok.uc.vo.RecognizedVO;
 
 
 @Service("UCMessageServiceImpl")
-public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> implements MessageService{
+public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> implements MessageService, ApplicationListener<BusinessEvent<?>>{
 
 	@Autowired
 	private MemberService memberService;
@@ -208,5 +213,28 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			page.setData(this.getMessageThread(repository.searchPrivateMessages(memberId,(pageNo-1)*pageSize,pageNo*pageSize),2));
 		}
 		return page;
+	}
+
+	@Override
+	public void onApplicationEvent(BusinessEvent<?> arg0) {
+		if(arg0 instanceof RecognizedCreateEvent) {
+			RecognizedCreateEvent event = RecognizedCreateEvent.class.cast(arg0);
+			RecognizedVO vo = event.getEventData();
+			MessageVO message = new MessageVO();
+			message.setContent("认可消息");
+			message.setFrom(new SimpleMemberInfo(vo.getSourceId()));
+			message.setTo(new SimpleMemberInfo(vo.getTargetId()));
+			this.createByRecognized(message);
+		}else if(arg0 instanceof RecognizedDeleteEvent) {
+			RecognizedDeleteEvent event = RecognizedDeleteEvent.class.cast(arg0);
+			RecognizedVO vo = event.getEventData();
+			List<MessagePO> list = this.repository.select(QueryBuilder.create(MessageMapping.class).and(MessageMapping.FROMID, vo.getSourceId()).and(MessageMapping.TOID, vo.getTargetId())
+					.and(MessageMapping.TYPE, UCMessageType.recognized.getValue()).end());
+			if(!CollectionUtils.isEmpty(list)) {
+				this.remove(list.stream().map(item -> item.getId()).collect(Collectors.toList()));
+			}
+			
+		}
+		
 	}
 }

@@ -33,7 +33,7 @@ public class CommentVO extends VO {
 	
 	private Long parentId;
 	
-	private SimpleMemberInfo memberInfo;
-	
+	private SimpleMemberInfo member;
+ 
 	
 }

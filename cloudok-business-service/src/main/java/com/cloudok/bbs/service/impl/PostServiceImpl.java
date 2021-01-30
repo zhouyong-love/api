@@ -154,8 +154,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 					}
 				});
 			}
-			List<WholeMemberDTO> members = memberService.getWholeMemberInfo(list.stream().map(item -> item.getCreateBy()).distinct().collect(Collectors.toList()));
-			List<SimpleMemberInfo> simpleList =  members.stream().map(item -> item.toSampleInfo()).collect(Collectors.toList());
+			List<SimpleMemberInfo> simpleList = memberService.getSimpleMemberInfo(list.stream().map(item -> item.getCreateBy()).distinct().collect(Collectors.toList()));
 			list.stream().forEach(item -> {
 				simpleList.stream().filter(mem -> mem.getId().equals(item.getCreateBy())).findAny().ifPresent(mem -> {
 					item.setMember(mem);

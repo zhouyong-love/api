@@ -8,6 +8,7 @@ import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.IService;
 import com.cloudok.core.vo.Page;
 import com.cloudok.uc.dto.SimpleMemberDTO;
+import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.vo.BindRequest;
@@ -51,6 +52,8 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	WholeMemberDTO  getWholeMemberInfo(Long memberId);
 	 
 	List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList);
+	
+	List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList);
 	
 	List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList,boolean ignoreRecognized);
 	

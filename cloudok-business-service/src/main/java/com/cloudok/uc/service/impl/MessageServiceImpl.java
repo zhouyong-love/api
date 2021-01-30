@@ -101,8 +101,7 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			idList.addAll(fromIdList);
 			idList.addAll(toIdList);
 			idList = idList.stream().distinct().collect(Collectors.toList());
-			List<WholeMemberDTO> members = memberService.getWholeMemberInfo(idList);
-			List<SimpleMemberInfo> simpleList =  members.stream().map(item -> item.toSampleInfo()).collect(Collectors.toList());
+			List<SimpleMemberInfo> simpleList =  memberService.getSimpleMemberInfo(idList);
 			list.stream().filter(item -> !item.getType().toString().equals(UCMessageType.privateInteraction.getValue())).forEach(item -> {
 				simpleList.stream()
 				.filter(mem -> mem.getId().equals(item.getFrom().getId())).findAny().ifPresent(mem -> {

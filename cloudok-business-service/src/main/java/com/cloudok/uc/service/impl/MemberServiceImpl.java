@@ -42,6 +42,7 @@ import com.cloudok.security.token.JWTTokenInfo;
 import com.cloudok.security.token.JWTUtil;
 import com.cloudok.security.token.TokenType;
 import com.cloudok.uc.dto.SimpleMemberDTO;
+import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.event.MemberCreateEvent;
 import com.cloudok.uc.event.MemberUpdateEvent;
@@ -671,6 +672,28 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		return result;
 	}
 	
+	@Override
+	public List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList) {
+		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
+		List<SimpleMemberInfo> memberList = this.get(memberIdList).stream().map(item ->{
+			SimpleMemberInfo dto = new SimpleMemberInfo();
+			BeanUtils.copyProperties(item, dto);
+			return dto;
+		}).collect(Collectors.toList());
+		
+		if(!CollectionUtils.isEmpty(memberList)) {
+			educationExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class)
+					.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN,memberIdList).end()
+					.sort(EducationExperienceMapping.GRADE).desc())
+			.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
+			.forEach((memberId,valueList)->{
+				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+					item.setEducation(valueList.get(0));
+				});
+			});
+		}
+		return null;
+	}
 	@Override
 	public SimpleMemberDTO getSimpleMemberInfo() {
 		List<EducationExperienceVO> edu = educationExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class)

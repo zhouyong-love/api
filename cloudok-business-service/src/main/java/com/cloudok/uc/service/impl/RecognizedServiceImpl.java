@@ -53,4 +53,15 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return r;
 	}
+	@Override
+	public int getFriendCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getNewApplyCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.cloudok.core.context.SecurityContextAdapter;
 import com.cloudok.core.context.SpringApplicationContext;
@@ -235,5 +236,17 @@ public abstract class AbstractService<D extends VO, E extends PO>
 	public Long getTenantId() {
 		SecurityContextAdapter context=SpringApplicationContext.getBean(SecurityContextAdapter.class);
 		return context!=null?context.getTenantId():0L;
+	}
+
+	@Override
+	public D get(QueryBuilder queryStream) {
+		List<E> es = repository.select(queryStream);
+		if(CollectionUtils.isEmpty(es)) {
+			return null;
+		}
+		if(es.size()>1) {
+			throw new SystemException(CoreExceptionMessage.GET_MULTIPLE);
+		}
+		return convert2VO(es.get(0));
 	}
 }

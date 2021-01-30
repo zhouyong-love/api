@@ -20,6 +20,7 @@ import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.exception.SecurityExceptionMessage;
+import com.cloudok.uc.mapping.MemberMapping;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.vo.BindRequest;
 import com.cloudok.uc.vo.ChangePasswordRequest;
@@ -163,4 +164,17 @@ public class MemberApi {
 		return Response.buildSuccess(collectService.getMyCollectPosts(SecurityContextHelper.getCurrentUserId(),pageNo,pageSize));
 	}
  
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/link")
+	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
+	public Response link(HttpServletRequest request) {
+		return Response.buildSuccess(memberService.link(QueryBuilder.create(MemberMapping.class).with(request)));
+	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/simpleInfo")
+	@ApiOperation(value="查询登录用户的简要信息",notes="查询登录用户的简要信息")
+	public Response simpleInfo() {
+		return Response.buildSuccess(memberService.getSimpleMemberInfo());
+	}
 }

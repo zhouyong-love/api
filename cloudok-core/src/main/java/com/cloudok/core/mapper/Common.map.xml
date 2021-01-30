@@ -85,7 +85,7 @@
 						<when test="propertie.operator.name=='IE'">
 							 IS NULL
 						</when>
-						<when test="propertie.operator.name=='NEO'">
+						<when test="propertie.operator.name=='NEQ'">
 							<![CDATA[!= #{propertie.value}]]>
 						</when>
 						<when test="propertie.operator.name=='IN'">

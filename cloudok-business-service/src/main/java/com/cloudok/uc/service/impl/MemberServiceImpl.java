@@ -32,6 +32,7 @@ import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.core.vo.Page;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.User;
@@ -40,6 +41,7 @@ import com.cloudok.security.exception.SecurityExceptionMessage;
 import com.cloudok.security.token.JWTTokenInfo;
 import com.cloudok.security.token.JWTUtil;
 import com.cloudok.security.token.TokenType;
+import com.cloudok.uc.dto.SimpleMemberDTO;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.event.MemberCreateEvent;
 import com.cloudok.uc.event.MemberUpdateEvent;
@@ -648,5 +650,29 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Override
 	public Boolean checkPhone(UserCheckRequest request) {
 		return  !CollectionUtils.isEmpty(this.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.PHONE, request.getPhone()).end()));
+	}
+
+	@Override
+	public Page<WholeMemberDTO> link(QueryBuilder builder) {
+		Page<MemberVO> page = this.page(builder);
+		Page<WholeMemberDTO> result = new Page<WholeMemberDTO>();
+		result.setPageNo(page.getPageNo());
+		result.setPageSize(page.getPageSize());
+		result.setTotalCount(page.getTotalCount());
+		if(!CollectionUtils.isEmpty(page.getData())) {
+			result.setData(getWholeMemberInfo(page.getData().stream().map(MemberVO::getId).collect(Collectors.toList())));
+		}
+		return result;
+	}
+	
+	@Override
+	public SimpleMemberDTO getSimpleMemberInfo() {
+		return SimpleMemberDTO.builder()
+				.member(this.get(getCurrentUserId()))
+				.eduExperience(educationExperienceService.get(QueryBuilder.create(EducationExperienceMapping.class)
+						.and(EducationExperienceMapping.MEMBERID, getCurrentUserId()).end().sort(EducationExperienceMapping.GRADE).desc().enablePaging().pageNo(1).pageNo(1).end()))
+				.friendCount(recognizedService.getFriendCount())
+				.newApplyCount(recognizedService.getNewApplyCount())
+				.build();
 	}
 }

@@ -56,9 +56,10 @@ public class UCMessageApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/thread/{threadId}")
-	@ApiOperation(value = "修改消息", notes = "修改消息")
-	public Response getByThreadId(@PathVariable("memberId") Long memberId, @PathVariable("id") Long id) {
-		return Response.buildSuccess(messageService.getByThreadId(id));
+	@ApiOperation(value = "根据threadId获取聊天内容", notes = "根据threadId获取聊天内容")
+	public Response getByThreadId(@PathVariable("memberId") Long memberId, @PathVariable("id") Long id,@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+		return Response.buildSuccess(messageService.getByThreadId(id,pageNo,pageSize));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

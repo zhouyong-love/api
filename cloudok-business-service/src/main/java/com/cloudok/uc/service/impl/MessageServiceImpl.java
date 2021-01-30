@@ -189,10 +189,10 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		return result;
 	}
 	@Override
-	public MessageThreadVO getByThreadId(Long id) {
-		MessageThreadVO vo = new MessageThreadVO();
-		List<MessageVO> messageList = this.list(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, id).end().sort(MessageMapping.ID).desc());
-		vo.setThreadId(id);
+	public Page<MessageVO> getByThreadId(Long id,Integer pageNo, Integer pageSize) {
+		Page<MessageVO> page = this.page(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, id).end()
+				.sort(MessageMapping.ID).desc().enablePaging().page(pageNo, pageSize).end());
+		List<MessageVO> messageList = page.getData();
 		//防止数据越权 查看了私聊信息
 		if(!CollectionUtils.isEmpty(messageList)) {
 			messageList.stream().filter(item -> item.getType().toString().equals(UCMessageType.privateMessage.getValue())
@@ -205,8 +205,7 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 					throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 				});
 		}
-		vo.setMessageList(messageList);
-		return vo;
+		return page;
 	}
 	@Override
 	public Page<MessageThreadVO> searchPrivateMessages(Long memberId, Integer pageNo, Integer pageSize) {

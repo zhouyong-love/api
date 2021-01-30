@@ -22,6 +22,6 @@ public interface MessageService extends IService<MessageVO,MessagePO>{
 
 	Page<MessageThreadVO> searchPrivateMessages(Long memberId, Integer pageNo, Integer pageSize);
 
-	Object getByThreadId(Long id);
+	Page<MessageVO> getByThreadId(Long id,Integer pageNo, Integer pageSize);
 
 }

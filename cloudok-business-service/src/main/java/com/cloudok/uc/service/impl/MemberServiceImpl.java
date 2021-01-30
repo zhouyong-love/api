@@ -659,6 +659,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 
 	@Override
 	public Page<WholeMemberDTO> link(QueryBuilder builder) {
+		builder.and(MemberMapping.ID, QueryOperator.NEQ,getCurrentUserId());
 		Page<MemberVO> page = this.page(builder);
 		Page<WholeMemberDTO> result = new Page<WholeMemberDTO>();
 		result.setPageNo(page.getPageNo());
@@ -672,10 +673,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	
 	@Override
 	public SimpleMemberDTO getSimpleMemberInfo() {
+		List<EducationExperienceVO> edu = educationExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class)
+				.and(EducationExperienceMapping.MEMBERID, getCurrentUserId()).end().sort(EducationExperienceMapping.GRADE).desc().enablePaging().pageNo(1).pageSize(1).end());
 		return SimpleMemberDTO.builder()
 				.member(this.get(getCurrentUserId()))
-				.eduExperience(educationExperienceService.get(QueryBuilder.create(EducationExperienceMapping.class)
-						.and(EducationExperienceMapping.MEMBERID, getCurrentUserId()).end().sort(EducationExperienceMapping.GRADE).desc().enablePaging().pageNo(1).pageNo(1).end()))
+				.eduExperience(CollectionUtils.isEmpty(edu)?null:edu.get(0))
 				.friendCount(recognizedService.getFriendCount())
 				.newApplyCount(recognizedService.getNewApplyCount())
 				.build();

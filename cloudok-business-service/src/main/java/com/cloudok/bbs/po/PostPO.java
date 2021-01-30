@@ -23,5 +23,7 @@ public class PostPO extends PO {
 	
 	private Integer collectCount;
 	
+	private String attachIds;
 	
+	private Boolean isPublic;
 }

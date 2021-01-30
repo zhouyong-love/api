@@ -1,6 +1,7 @@
 package com.cloudok.bbs.vo;
 
 import com.cloudok.core.vo.VO;
+import com.cloudok.uc.dto.SimpleMemberInfo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +32,8 @@ public class CommentVO extends VO {
 	
 	
 	private Long parentId;
+	
+	private SimpleMemberInfo memberInfo;
 	
 	
 }

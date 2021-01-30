@@ -41,7 +41,7 @@ spring:
       host: 127.0.0.1
       port: 6379
       timeout: 20000
-      password: 123456
+      password: 
       lettuce:
         pool:
           max-idle: 10
@@ -90,19 +90,19 @@ com:
     channel: 
       aliyun: 
         sms:
-          access-key:
-          access-secret:
+          access-key: LTAI4G1Zp6Mx4VwKKviqFPB1
+          access-secret: TxV7CNT4VKpPOcIdEh2TzDqKCA8311
           region-id: cn-beijing
         oss:
           endpoint: oss-cn-beijing.aliyuncs.com
           bucket: cloudok
           base-dir: local
           sign-timeout: 1800
-          access-key:
-          access-secret:
+          access-key: LTAI4G1Zp6Mx4VwKKviqFPB1
+          access-secret: TxV7CNT4VKpPOcIdEh2TzDqKCA8311
         voice:
-          access-key:
-          access-secret:
+          access-key: LTAI4G1Zp6Mx4VwKKviqFPB1
+          access-secret: TxV7CNT4VKpPOcIdEh2TzDqKCA8311
           region-id: cn-beijing
           
         

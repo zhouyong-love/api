@@ -11,11 +11,13 @@ import com.cloudok.base.service.SchoolService;
 import com.cloudok.base.service.SpecialismService;
 import com.cloudok.base.vo.SchoolVO;
 import com.cloudok.base.vo.SpecialismVO;
+import com.cloudok.core.context.SpringApplicationContext;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.security.SecurityContextHelper;
+import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.mapper.EducationExperienceMapper;
 import com.cloudok.uc.mapping.EducationExperienceMapping;
 import com.cloudok.uc.po.EducationExperiencePO;
@@ -48,7 +50,11 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 		member.getState().setFillEduInfo(true);
 		member.setId(d.getMemberId());
 		memberService.merge(member);
-		return super.create(d);
+		EducationExperienceVO vo = super.create(d);
+		
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(member));
+		
+		return vo;
 	}
 
 	@Override
@@ -60,7 +66,9 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 			}
 		}
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
-		return super.update(d);
+		EducationExperienceVO t = super.update(d);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return t;
 	}
 
 	@Override
@@ -107,7 +115,9 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
 		}
-		return super.remove(pk);
+		int r =  super.remove(pk);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return r;
 	}
 
 	@Override

@@ -1,14 +1,19 @@
 package com.cloudok.app.api.bbs;
 
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.bbs.mapping.TopicMapping;
+import com.cloudok.bbs.service.PostService;
 import com.cloudok.bbs.service.TopicService;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
@@ -23,6 +28,9 @@ public class TopicApi {
 
 	@Autowired
 	private TopicService topicService;
+	
+	@Autowired
+	private PostService postService;
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
@@ -30,4 +38,13 @@ public class TopicApi {
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(topicService.page(QueryBuilder.create(TopicMapping.class).with(request)));
 	} 
+	
+
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/{topicId}/bbs")
+	@ApiOperation(value = "发现", notes = "发现")
+	public Response searchByTopic(@PathVariable("topicId") Long topicId,@RequestParam(name = "pageNo",defaultValue="0") Integer pageNo,
+			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
+		return Response.buildSuccess(postService.searchByTopic(Collections.singletonList(topicId),pageNo,pageSize));
+	}
 }

@@ -13,16 +13,19 @@ import com.cloudok.base.service.JobService;
 import com.cloudok.base.vo.CompanyVO;
 import com.cloudok.base.vo.IndustryVO;
 import com.cloudok.base.vo.JobVO;
+import com.cloudok.core.context.SpringApplicationContext;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.security.SecurityContextHelper;
+import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.mapper.InternshipExperienceMapper;
 import com.cloudok.uc.mapping.InternshipExperienceMapping;
 import com.cloudok.uc.po.InternshipExperiencePO;
 import com.cloudok.uc.service.InternshipExperienceService;
 import com.cloudok.uc.vo.InternshipExperienceVO;
+import com.cloudok.uc.vo.MemberVO;
 
 @Service
 public class InternshipExperienceServiceImpl extends AbstractService<InternshipExperienceVO, InternshipExperiencePO>
@@ -47,7 +50,10 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		d.setCompany(companyService.createOrGet(d.getCompany().getName()));
 		d.setJob(jobService.createOrGet(d.getJob().getName()));
-		return super.create(d);
+		InternshipExperienceVO v = super.create(d);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return v;
+		
 	}
 
 	@Override
@@ -61,7 +67,9 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		d.setCompany(companyService.createOrGet(d.getCompany().getName()));
 		d.setJob(jobService.createOrGet(d.getJob().getName()));
-		return super.update(d);
+		InternshipExperienceVO v = super.update(d);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return v;
 	}
 	
 	@Override
@@ -114,7 +122,9 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
 		}
-		return super.remove(pk);
+		int r =  super.remove(pk);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return r;
 	}
 
 	@Override

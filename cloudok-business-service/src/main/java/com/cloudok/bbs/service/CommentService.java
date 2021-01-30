@@ -6,4 +6,5 @@ import com.cloudok.bbs.vo.CommentVO;
 
 public interface CommentService extends IService<CommentVO,CommentPO>{
 
+	
 }

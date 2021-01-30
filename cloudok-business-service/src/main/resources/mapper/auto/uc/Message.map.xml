@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.uc.mapper.MessageMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.uc.po.MessagePO" id="messageMap">
+		
+		<result property="type" column="type"/>
+		
+		<result property="fromId" column="from_id"/>
+		
+		<result property="toId" column="to_id"/>
+		
+		<result property="content" column="content"/>
+		
+		<result property="status" column="status"/>
+		
+		<result property="statusTs" column="status_ts"/>
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.type,t.from_id,t.to_id,t.content,t.status,t.status_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.uc.po.MessagePO">
+		insert into uc_message(type,from_id,to_id,content,status,status_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{type},#{fromId},#{toId},#{content},#{status},#{statusTs},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.uc.po.MessagePO">
+		update uc_message set type=#{type},from_id=#{fromId},to_id=#{toId},content=#{content},status=#{status},status_ts=#{statusTs},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.uc.po.MessagePO">
+		update uc_message set 
+			
+			<if test="type != null ">type = #{type},</if>
+			
+			<if test="fromId != null ">from_id = #{fromId},</if>
+			
+			<if test="toId != null ">to_id = #{toId},</if>
+			
+			<if test="content != null ">content = #{content},</if>
+			
+			<if test="status != null ">status = #{status},</if>
+			
+			<if test="statusTs != null ">status_ts = #{statusTs},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="uc_message"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="messageMap">
+		select
+		<include refid="columns"></include>
+		from uc_message  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from uc_message t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

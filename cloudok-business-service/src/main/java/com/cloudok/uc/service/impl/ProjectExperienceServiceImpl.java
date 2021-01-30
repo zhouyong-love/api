@@ -5,15 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cloudok.core.context.SpringApplicationContext;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.security.SecurityContextHelper;
+import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.mapper.ProjectExperienceMapper;
 import com.cloudok.uc.mapping.ProjectExperienceMapping;
 import com.cloudok.uc.po.ProjectExperiencePO;
 import com.cloudok.uc.service.ProjectExperienceService;
+import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.ProjectExperienceVO;
 
 @Service
@@ -28,7 +31,9 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 	@Override
 	public ProjectExperienceVO create(ProjectExperienceVO d) {
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
-		return super.create(d);
+		ProjectExperienceVO v =  super.create(d);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return v;
 	}
 
 	@Override
@@ -40,7 +45,9 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 			}
 		}
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
-		return super.update(d);
+		ProjectExperienceVO v =  super.update(d);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return v;
 	}
 
 	@Override
@@ -51,7 +58,9 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
 		}
-		return super.remove(pk);
+		int r = super.remove(pk);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return r;
 	}
 
 	@Override

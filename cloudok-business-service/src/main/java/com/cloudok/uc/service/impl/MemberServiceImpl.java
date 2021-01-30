@@ -10,13 +10,8 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.bson.Document;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -29,6 +24,7 @@ import com.cloudok.base.message.vo.MessageReceive;
 import com.cloudok.cache.Cache;
 import com.cloudok.common.CacheType;
 import com.cloudok.common.Constants;
+import com.cloudok.core.context.SpringApplicationContext;
 import com.cloudok.core.convert.Convert;
 import com.cloudok.core.enums.UserType;
 import com.cloudok.core.exception.CoreExceptionMessage;
@@ -45,6 +41,8 @@ import com.cloudok.security.token.JWTTokenInfo;
 import com.cloudok.security.token.JWTUtil;
 import com.cloudok.security.token.TokenType;
 import com.cloudok.uc.dto.WholeMemberDTO;
+import com.cloudok.uc.event.MemberCreateEvent;
+import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.mapper.MemberMapper;
 import com.cloudok.uc.mapping.EducationExperienceMapping;
 import com.cloudok.uc.mapping.InternshipExperienceMapping;
@@ -77,11 +75,8 @@ import com.cloudok.uc.vo.SingupVO;
 import com.cloudok.uc.vo.TokenVO;
 import com.cloudok.uc.vo.UserCheckRequest;
 import com.cloudok.uc.vo.VerifyCodeRequest;
-import com.mongodb.client.result.UpdateResult;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
+//@Slf4j
 @Service
 public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> implements MemberService,UserInfoHandler{
 
@@ -145,8 +140,8 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Autowired
 	private Cache cacheService;
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+//    @Autowired
+//    private MongoTemplate mongoTemplate;
     
 	@Autowired
 	public MemberServiceImpl(MemberMapper repository,MemberConvert convert) {
@@ -346,6 +341,8 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		User user = this.loadUserInfo(sysUser.getId(),sysUser);
 		TokenVO token = TokenVO.build(JWTUtil.genToken(user, TokenType.ACCESS), JWTUtil.genToken(user, TokenType.REFRESH), user);
 		
+		SpringApplicationContext.publishEvent(new MemberCreateEvent(member));
+		
 		return token;
 	}
 	
@@ -372,6 +369,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			member.setPassword(passwordEncoder.encode(vo.getPassword()));
 		}
 		this.merge(member);
+		
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(member));
+		
 		return this.get(member.getId());
 	}
 
@@ -515,6 +515,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			user.setId(vo.getId());
 			this.merge(user);
 		}
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(vo));
 		return true;
 	}
 
@@ -622,27 +623,27 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		return CollectionUtils.isEmpty(list) ? null : list.get(0);
 	}
 	
-	private void syncToMongoDB(Long memberId) {
-		//构建完整对象
-		WholeMemberDTO member = this.getWholeMemberInfo(memberId);
-		//查询数据库数据
-		Query query=new Query(Criteria.where("id").is(memberId));
-		Document doc = new Document(); // org.bson.Document
-		mongoTemplate.getConverter().write(member, doc);
-		Update update = Update.fromDocument(doc);
-		UpdateResult result = mongoTemplate.upsert(query, update, Constants.MONGODB_MEMBER_COLLECTION_NAME);
-		log.info("sync member[{}] info to mongodb,effect rows={}", memberId, result.getModifiedCount());
-	}
-	
-	private void addToMongoDB(Long memberId) {
-		//构建完整对象
-		WholeMemberDTO member = this.getWholeMemberInfo(memberId);
-		//查询数据库数据
-		Document doc = new Document(); // org.bson.Document
-		mongoTemplate.getConverter().write(member, doc);
-		mongoTemplate.save(doc, Constants.MONGODB_MEMBER_COLLECTION_NAME);
-		log.info("add member[{}] info to mongodb,effect rows={}", memberId);
-	}
+//	private void syncToMongoDB(Long memberId) {
+//		//构建完整对象
+//		WholeMemberDTO member = this.getWholeMemberInfo(memberId);
+//		//查询数据库数据
+//		Query query=new Query(Criteria.where("id").is(memberId));
+//		Document doc = new Document(); // org.bson.Document
+//		mongoTemplate.getConverter().write(member, doc);
+//		Update update = Update.fromDocument(doc);
+//		UpdateResult result = mongoTemplate.upsert(query, update, Constants.MONGODB_MEMBER_COLLECTION_NAME);
+//		log.info("sync member[{}] info to mongodb,effect rows={}", memberId, result.getModifiedCount());
+//	}
+//	
+//	private void addToMongoDB(Long memberId) {
+//		//构建完整对象
+//		WholeMemberDTO member = this.getWholeMemberInfo(memberId);
+//		//查询数据库数据
+//		Document doc = new Document(); // org.bson.Document
+//		mongoTemplate.getConverter().write(member, doc);
+//		mongoTemplate.save(doc, Constants.MONGODB_MEMBER_COLLECTION_NAME);
+//		log.info("add member[{}] info to mongodb,effect rows={}", memberId);
+//	}
 
 	@Override
 	public Boolean checkPhone(UserCheckRequest request) {

@@ -12,19 +12,24 @@
 		
 		<result property="collectCount" column="collect_count"/>
 		
+		<result property="attachIds" column="attach_ids"/>
+		
+		<result property="isPublic" column="is_public"/>
+		
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.content,t.thumbs_up_count,t.reply_count,t.collect_count,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.content,t.thumbs_up_count,t.reply_count,t.collect_count,t.attach_ids,t.is_public<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.bbs.po.PostPO">
-		insert into bbs_post(content,thumbs_up_count,reply_count,collect_count,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{content},#{thumbsUpCount},#{replyCount},#{collectCount},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into bbs_post(content,thumbs_up_count,reply_count,collect_count,attach_ids,is_public,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{content},#{thumbsUpCount},#{replyCount},#{collectCount},#{attachIds},#{isPublic},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.bbs.po.PostPO">
-		update bbs_post set content=#{content},thumbs_up_count=#{thumbsUpCount},reply_count=#{replyCount},collect_count=#{collectCount},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update bbs_post set content=#{content},thumbs_up_count=#{thumbsUpCount},reply_count=#{replyCount},collect_count=#{collectCount},attach_ids=#{attachIds},is_public=#{isPublic},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -40,6 +45,10 @@
 			<if test="replyCount != null ">reply_count = #{replyCount},</if>
 			
 			<if test="collectCount != null ">collect_count = #{collectCount},</if>
+			
+			<if test="attachIds != null ">attach_ids=#{attachIds},</if>
+			
+			<if test="isPublic != null ">is_public=#{isPublic},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

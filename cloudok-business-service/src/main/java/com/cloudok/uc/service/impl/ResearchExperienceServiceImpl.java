@@ -9,15 +9,18 @@ import org.springframework.util.CollectionUtils;
 
 import com.cloudok.base.service.ResearchDomainService;
 import com.cloudok.base.vo.ResearchDomainVO;
+import com.cloudok.core.context.SpringApplicationContext;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.security.SecurityContextHelper;
+import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.mapper.ResearchExperienceMapper;
 import com.cloudok.uc.mapping.ResearchExperienceMapping;
 import com.cloudok.uc.po.ResearchExperiencePO;
 import com.cloudok.uc.service.ResearchExperienceService;
+import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.ResearchExperienceVO;
 
 @Service
@@ -35,7 +38,9 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 	public ResearchExperienceVO create(ResearchExperienceVO d) {
 		d.setDomain(researchDomainService.createOrGet(d.getDomain().getName()));
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
-		return super.create(d);
+		ResearchExperienceVO v =  super.create(d);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return v;
 	}
 
 	@Override
@@ -48,7 +53,9 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 		}
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		d.setDomain(researchDomainService.createOrGet(d.getDomain().getName()));
-		return super.update(d);
+		ResearchExperienceVO v =  super.update(d);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return v;
 	}
 
 	@Override
@@ -59,7 +66,9 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
 		}
-		return super.remove(pk);
+		int r =  super.remove(pk);
+		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		return r;
 	}
 
 

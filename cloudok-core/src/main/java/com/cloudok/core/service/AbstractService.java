@@ -175,7 +175,7 @@ public abstract class AbstractService<D extends VO, E extends PO>
 	@Override
 	public D get(Long id) {
 		List<E> list = repository.select(QueryBuilder.create(Mapping.class).and(Mapping.ID, id).end());
-		return list!=null&&list.size()>0?convert.convert2VO(list.get(0)):null;
+		return list!=null&&list.size()>0?convert.convert2VO(list).get(0):null;
 	}
 
 	@Override

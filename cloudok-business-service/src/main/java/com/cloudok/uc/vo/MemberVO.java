@@ -14,6 +14,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class MemberVO extends VO {
 
 	private static final long serialVersionUID = 212382535356088200L;
@@ -49,6 +50,10 @@ public class MemberVO extends VO {
 	private String description;
 	
 	private UserState state;
+	
+	public MemberVO(Long id) {
+		this.setId(id);
+	}
 	
 	@Builder
 	@NoArgsConstructor

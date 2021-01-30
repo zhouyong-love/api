@@ -55,8 +55,15 @@ public class WholeMemberDTO extends MemberVO {
 		return target;
 	}
 
-	public StrangeMemberDTO strangeMember() {
+	public StrangeMemberDTO toStrangeMember() {
 		StrangeMemberDTO target = new StrangeMemberDTO();
+		BeanUtils.copyProperties(this, target);
+		return target;
+	}
+
+
+	public SimpleMemberInfo toSampleInfo() {
+		SimpleMemberInfo target = new SimpleMemberInfo();
 		BeanUtils.copyProperties(this, target);
 		return target;
 	}

@@ -36,6 +36,7 @@ import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.core.vo.Page;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.User;
@@ -647,5 +648,18 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Override
 	public Boolean checkPhone(UserCheckRequest request) {
 		return  !CollectionUtils.isEmpty(this.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.PHONE, request.getPhone()).end()));
+	}
+
+	@Override
+	public Page<WholeMemberDTO> link(QueryBuilder builder) {
+		Page<MemberVO> page = this.page(builder);
+		Page<WholeMemberDTO> result = new Page<WholeMemberDTO>();
+		result.setPageNo(page.getPageNo());
+		result.setPageSize(page.getPageSize());
+		result.setTotalCount(page.getTotalCount());
+		if(!CollectionUtils.isEmpty(page.getData())) {
+			result.setData(getWholeMemberInfo(page.getData().stream().map(MemberVO::getId).collect(Collectors.toList())));
+		}
+		return result;
 	}
 }

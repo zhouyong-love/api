@@ -1,5 +1,6 @@
 package com.cloudok.app.api.uc;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.core.exception.SystemException;
+import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.exception.SecurityExceptionMessage;
+import com.cloudok.uc.mapping.MemberMapping;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.vo.BindRequest;
 import com.cloudok.uc.vo.ChangePasswordRequest;
@@ -133,5 +136,10 @@ public class MemberApi {
 			return Response.buildSuccess(memberService.bind(vo));
 	}
 	
- 
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/link")
+	@ApiOperation(value="get current full user info",notes="get current full user info")
+	public Response link(HttpServletRequest request) {
+		return Response.buildSuccess(memberService.link(QueryBuilder.create(MemberMapping.class).with(request)));
+	}
 }

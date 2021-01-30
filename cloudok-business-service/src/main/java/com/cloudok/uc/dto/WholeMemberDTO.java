@@ -1,8 +1,10 @@
 package com.cloudok.uc.dto;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 
 import com.cloudok.uc.vo.EducationExperienceVO;
 import com.cloudok.uc.vo.InternshipExperienceVO;
@@ -65,7 +67,17 @@ public class WholeMemberDTO extends MemberVO {
 	public SimpleMemberInfo toSampleInfo() {
 		SimpleMemberInfo target = new SimpleMemberInfo();
 		BeanUtils.copyProperties(this, target);
+		if(!CollectionUtils.isEmpty(educationList)) {
+			target.setEducation(educationList.get(0));
+		}
 		return target;
 	}
+
+	public void setEducationList(List<EducationExperienceVO> educationList) {
+		if(!CollectionUtils.isEmpty(educationList)) {
+			this.educationList = educationList.stream().sorted((a,b)->a.getGrade().compareTo(b.getGrade())).collect(Collectors.toList());
+		}
+	}
+	
 
 }

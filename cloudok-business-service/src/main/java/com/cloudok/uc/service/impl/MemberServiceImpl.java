@@ -548,9 +548,13 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Autowired
 	private ResearchExperienceService researchExperienceService;
 	
-	
 	@Override
 	public List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList) {
+		return getWholeMemberInfo(memberIdList, false);
+	}
+	
+	@Override
+	public List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList,boolean ignoreRecognized) {
 		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
 		List<WholeMemberDTO> memberList = this.get(memberIdList).stream().map(item ->{
 			WholeMemberDTO dto = new WholeMemberDTO();
@@ -599,22 +603,23 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					item.setResearchList(valueList);
 				});
 			});
-			
-			recognizedService.list(QueryBuilder.create(EducationExperienceMapping.class).and(RecognizedMapping.SOURCEID, QueryOperator.IN,memberIdList).end())
-			.stream().collect(Collectors.groupingBy(RecognizedVO::getSourceId))
-			.forEach((memberId,valueList)->{
-				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
-					item.setRecognizedMemberList(valueList.stream().map(i -> i.getTargetId()).distinct().collect(Collectors.toList()));
+			if(!ignoreRecognized) {
+				recognizedService.list(QueryBuilder.create(EducationExperienceMapping.class).and(RecognizedMapping.SOURCEID, QueryOperator.IN,memberIdList).end())
+				.stream().collect(Collectors.groupingBy(RecognizedVO::getSourceId))
+				.forEach((memberId,valueList)->{
+					memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+						item.setRecognizedMemberList(valueList.stream().map(i -> i.getTargetId()).distinct().collect(Collectors.toList()));
+					});
 				});
-			});
-			
-			recognizedService.list(QueryBuilder.create(EducationExperienceMapping.class).and(RecognizedMapping.TARGETID, QueryOperator.IN,memberIdList).end())
-			.stream().collect(Collectors.groupingBy(RecognizedVO::getSourceId))
-			.forEach((memberId,valueList)->{
-				memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
-					item.setRecognizedByList(valueList.stream().map(i -> i.getSourceId()).distinct().collect(Collectors.toList()));
+				
+				recognizedService.list(QueryBuilder.create(EducationExperienceMapping.class).and(RecognizedMapping.TARGETID, QueryOperator.IN,memberIdList).end())
+				.stream().collect(Collectors.groupingBy(RecognizedVO::getSourceId))
+				.forEach((memberId,valueList)->{
+					memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+						item.setRecognizedByList(valueList.stream().map(i -> i.getSourceId()).distinct().collect(Collectors.toList()));
+					});
 				});
-			});
+			}
 			 
 		}
 		return memberList;
@@ -660,7 +665,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		result.setPageSize(page.getPageSize());
 		result.setTotalCount(page.getTotalCount());
 		if(!CollectionUtils.isEmpty(page.getData())) {
-			result.setData(getWholeMemberInfo(page.getData().stream().map(MemberVO::getId).collect(Collectors.toList())));
+			result.setData(getWholeMemberInfo(page.getData().stream().map(MemberVO::getId).collect(Collectors.toList()),true));
 		}
 		return result;
 	}

@@ -16,4 +16,16 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	public RecognizedServiceImpl(RecognizedMapper repository) {
 		super(repository);
 	}
+
+	@Override
+	public int getFriendCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getNewApplyCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

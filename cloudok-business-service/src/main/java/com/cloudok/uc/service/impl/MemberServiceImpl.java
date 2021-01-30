@@ -45,6 +45,7 @@ import com.cloudok.security.exception.SecurityExceptionMessage;
 import com.cloudok.security.token.JWTTokenInfo;
 import com.cloudok.security.token.JWTUtil;
 import com.cloudok.security.token.TokenType;
+import com.cloudok.uc.dto.SimpleMemberDTO;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.mapper.MemberMapper;
 import com.cloudok.uc.mapping.EducationExperienceMapping;
@@ -661,5 +662,16 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			result.setData(getWholeMemberInfo(page.getData().stream().map(MemberVO::getId).collect(Collectors.toList())));
 		}
 		return result;
+	}
+	
+	@Override
+	public SimpleMemberDTO getSimpleMemberInfo() {
+		return SimpleMemberDTO.builder()
+				.member(this.get(getCurrentUserId()))
+				.eduExperience(educationExperienceService.get(QueryBuilder.create(EducationExperienceMapping.class)
+						.and(EducationExperienceMapping.MEMBERID, getCurrentUserId()).end().sort(EducationExperienceMapping.GRADE).desc().enablePaging().pageNo(1).pageNo(1).end()))
+				.friendCount(recognizedService.getFriendCount())
+				.newApplyCount(recognizedService.getNewApplyCount())
+				.build();
 	}
 }

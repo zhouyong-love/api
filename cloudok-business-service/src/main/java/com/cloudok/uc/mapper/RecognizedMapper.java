@@ -5,4 +5,8 @@ import com.cloudok.uc.po.RecognizedPO;
 
 public interface RecognizedMapper extends IMapper<RecognizedPO>{
 
+	int getFriendCount(Long userId);
+	
+	int getNewApplyCount(Long userId);
+	
 }

@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.IService;
 import com.cloudok.core.vo.Page;
+import com.cloudok.uc.dto.SimpleMemberDTO;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.vo.BindRequest;
@@ -52,5 +53,7 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList);
 	
 	Page<WholeMemberDTO> link(QueryBuilder builder);
+	
+	SimpleMemberDTO getSimpleMemberInfo();
 
 }

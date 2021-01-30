@@ -28,6 +28,8 @@ public interface IService<D extends VO, E extends PO> {
 	
 	D get(Long id);
 	
+	D get(QueryBuilder queryStream);
+	
 	List<D> get(List<Long> pkList);
 	
 	Long count(QueryBuilder queryStream);

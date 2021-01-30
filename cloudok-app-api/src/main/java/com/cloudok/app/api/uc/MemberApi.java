@@ -138,8 +138,15 @@ public class MemberApi {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/link")
-	@ApiOperation(value="get current full user info",notes="get current full user info")
+	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
 	public Response link(HttpServletRequest request) {
 		return Response.buildSuccess(memberService.link(QueryBuilder.create(MemberMapping.class).with(request)));
+	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/simpleInfo")
+	@ApiOperation(value="查询登录用户的简要信息",notes="查询登录用户的简要信息")
+	public Response simpleInfo() {
+		return Response.buildSuccess(memberService.getSimpleMemberInfo());
 	}
 }

@@ -18,9 +18,12 @@ import com.cloudok.uc.vo.RecognizedVO;
 @Service
 public class RecognizedServiceImpl extends AbstractService<RecognizedVO, RecognizedPO> implements RecognizedService{
 
+	private RecognizedMapper repository;
+	
 	@Autowired
 	public RecognizedServiceImpl(RecognizedMapper repository) {
 		super(repository);
+		this.repository=repository;
 	}
 	
 	@Override
@@ -55,13 +58,11 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	}
 	@Override
 	public int getFriendCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return repository.getFriendCount(getCurrentUserId());
 	}
 
 	@Override
 	public int getNewApplyCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return repository.getNewApplyCount(getCurrentUserId());
 	}
 }

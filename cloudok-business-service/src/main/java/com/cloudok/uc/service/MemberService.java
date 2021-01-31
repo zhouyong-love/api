@@ -55,7 +55,7 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	
 	List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList);
 	
-	List<WholeMemberDTO> getWholeMemberInfo(List<MemberVO> memberIdList,boolean ignoreRecognized);
+	List<WholeMemberDTO> getWholeMemberInfo(List<? extends MemberVO> memberIdList,boolean ignoreRecognized);
 	
 	Page<WholeMemberDTO> link(QueryBuilder builder);
 	

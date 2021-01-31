@@ -3,6 +3,7 @@ package com.cloudok.core.query;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,9 @@ import com.cloudok.util.ReflectionUtils;
  */
 
 public class QueryBuilder {
+	
+	private Map<String,Object> parameters;
+	
 	private Class<? extends Mapping> clazz;
 
 	private List<QueryCondition<QueryBuilder>> conditions = new ArrayList<>();
@@ -33,6 +37,17 @@ public class QueryBuilder {
 	private List<SortCondition<QueryBuilder>> sortConditions = new ArrayList<>();
 
 	private PageCondition<QueryBuilder> pageCondition;
+	
+	public void addParameter(String name,Object value) {
+		if(this.parameters == null) {
+			this.parameters = new HashMap<String, Object>();
+		}
+		this.parameters.put(name, value);
+	}
+
+	public Map<String, Object> getParameters() {
+		return parameters;
+	}
 
 	public List<QueryCondition<QueryBuilder>> getConditions() {
 		return conditions;
@@ -332,6 +347,7 @@ public class QueryBuilder {
 	public QueryBuilder excludeSortPage() {
 		QueryBuilder qb=QueryBuilder.create(this.clazz);
 		qb.conditions=this.conditions;
+		qb.parameters = this.parameters;
 		return qb;
 	}
 }

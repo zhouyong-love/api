@@ -8,8 +8,8 @@ import org.springframework.util.CollectionUtils;
 
 import com.cloudok.uc.vo.EducationExperienceVO;
 import com.cloudok.uc.vo.InternshipExperienceVO;
+import com.cloudok.uc.vo.LinkMemberVO;
 import com.cloudok.uc.vo.MemberTagsVO;
-import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.ProjectExperienceVO;
 import com.cloudok.uc.vo.ResearchExperienceVO;
 
@@ -30,7 +30,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WholeMemberDTO extends MemberVO {
+public class WholeMemberDTO extends LinkMemberVO {
 
 	/**
 	 * 

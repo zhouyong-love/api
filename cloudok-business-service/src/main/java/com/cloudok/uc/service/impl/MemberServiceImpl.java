@@ -54,6 +54,7 @@ import com.cloudok.uc.mapping.MemberTagsMapping;
 import com.cloudok.uc.mapping.ProjectExperienceMapping;
 import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.mapping.ResearchExperienceMapping;
+import com.cloudok.uc.po.LinkMemberPO;
 import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.service.EducationExperienceService;
 import com.cloudok.uc.service.InternshipExperienceService;
@@ -67,6 +68,7 @@ import com.cloudok.uc.vo.ChangePasswordRequest;
 import com.cloudok.uc.vo.EducationExperienceVO;
 import com.cloudok.uc.vo.ForgotVO;
 import com.cloudok.uc.vo.InternshipExperienceVO;
+import com.cloudok.uc.vo.LinkMemberVO;
 import com.cloudok.uc.vo.LoginVO;
 import com.cloudok.uc.vo.MemberTagsVO;
 import com.cloudok.uc.vo.MemberVO;
@@ -86,7 +88,6 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Component
 	public static class MemberConvert implements Convert<MemberVO, MemberPO>{
 
-		
 		@Override
 		public MemberPO convert2PO(MemberVO d) {
 			MemberPO po = new MemberPO();
@@ -143,12 +144,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Autowired
 	private Cache cacheService;
 
-//    @Autowired
-//    private MongoTemplate mongoTemplate;
+    private MemberMapper repository;
     
 	@Autowired
 	public MemberServiceImpl(MemberMapper repository,MemberConvert convert) {
 		super(repository,convert);
+		this.repository=repository;
 	}
 
 	@Override
@@ -555,9 +556,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	}
 	
 	@Override
-	public List<WholeMemberDTO> getWholeMemberInfo(List<MemberVO> memberIdList,boolean ignoreRecognized) {
-//		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
-		List<WholeMemberDTO> memberList = memberIdList.stream().map(item ->{
+	public List<WholeMemberDTO> getWholeMemberInfo(List<? extends MemberVO> memberVo,boolean ignoreRecognized) {
+		List<Long> memberIdList = memberVo.stream().map(MemberVO::getId).distinct().collect(Collectors.toList());
+		List<WholeMemberDTO> memberList = memberVo.stream().map(item ->{
 			WholeMemberDTO dto = new WholeMemberDTO();
 			BeanUtils.copyProperties(item, dto);
 			return dto;
@@ -660,8 +661,24 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 
 	@Override
 	public Page<WholeMemberDTO> link(QueryBuilder builder) {
-		builder.and(MemberMapping.ID, QueryOperator.NEQ,getCurrentUserId());
-		Page<MemberVO> page = this.page(builder);
+		builder.addParameter("memberId",getCurrentUserId());
+		Page<LinkMemberVO> page=new Page<>();
+		page.setTotalCount(repository.countQueryLinkMember(builder.excludeSortPage()));
+		page.setPageNo(builder.getPageCondition().getPageNo());
+		page.setPageSize(builder.getPageCondition().getPageSize());
+		if (page.getTotalCount() > 0 && (page.getTotalCount() / builder.getPageCondition().getPageSize() + 1) >= builder.getPageCondition()
+				.getPageNo()) {
+			List<LinkMemberPO> es = repository.queryLinkMember(builder);
+			if(es!=null) {
+				page.setData(es.stream().map(item->{
+					LinkMemberVO vo=new LinkMemberVO();
+					BeanUtils.copyProperties(item, vo);
+					vo.setState(UserState.build(item.getState()));
+					return vo;
+				}).collect(Collectors.toList()));
+			}
+		}
+		
 		Page<WholeMemberDTO> result = new Page<WholeMemberDTO>();
 		result.setPageNo(page.getPageNo());
 		result.setPageSize(page.getPageSize());

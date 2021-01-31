@@ -38,11 +38,12 @@ public class QueryBuilder {
 
 	private PageCondition<QueryBuilder> pageCondition;
 	
-	public void addParameter(String name,Object value) {
+	public QueryBuilder addParameter(String name,Object value) {
 		if(this.parameters == null) {
 			this.parameters = new HashMap<String, Object>();
 		}
 		this.parameters.put(name, value);
+		return this;
 	}
 
 	public Map<String, Object> getParameters() {

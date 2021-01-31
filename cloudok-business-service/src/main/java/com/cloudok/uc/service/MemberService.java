@@ -21,6 +21,8 @@ import com.cloudok.uc.vo.TokenVO;
 import com.cloudok.uc.vo.UserCheckRequest;
 import com.cloudok.uc.vo.VerifyCodeRequest;
 
+import lombok.Data;
+
 public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	TokenVO login(LoginVO vo);
@@ -59,6 +61,17 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	
 	Page<WholeMemberDTO> link(QueryBuilder builder);
 	
+	WholeMemberDTO link(Long id);
+	
 	SimpleMemberDTO getSimpleMemberInfo();
+	
+	IdenticalCountVO identical(Long id);
+	
+	@Data
+	public class IdenticalCountVO{
+		private int friends;
+		
+		private int tags;
+	}
 
 }

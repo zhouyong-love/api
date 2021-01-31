@@ -12,4 +12,7 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	List<LinkMemberPO> queryLinkMember(QueryBuilder builder);
 	
 	Long countQueryLinkMember(QueryBuilder builder);
+	
+	List<LinkMemberPO> queryFriends(QueryBuilder builder);
+	
 }

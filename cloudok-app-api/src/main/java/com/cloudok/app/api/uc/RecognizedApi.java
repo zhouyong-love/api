@@ -23,7 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController("AppRecognizedApi")
-@RequestMapping("/v1/uc/member/{memberId}/recognized")
+@RequestMapping("/v1/uc/recognized")
 @Api(tags = "认可某人")
 public class RecognizedApi {
 

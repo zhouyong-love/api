@@ -172,9 +172,24 @@ public class MemberApi {
 	}
 	
 	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/link/{id}")
+	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
+	public Response linkById(@PathVariable("id")Long id) {
+		return Response.buildSuccess(memberService.link(id));
+	}
+	
+	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/simpleInfo")
 	@ApiOperation(value="查询登录用户的简要信息",notes="查询登录用户的简要信息")
 	public Response simpleInfo() {
 		return Response.buildSuccess(memberService.getSimpleMemberInfo());
 	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/identical/{id}")
+	@ApiOperation(value="获取共同的好友和标签",notes="获取共同的好友和标签")
+	public Response identical(@PathVariable("id")Long id) {
+		return Response.buildSuccess(memberService.identical(id));
+	}
+	
 }

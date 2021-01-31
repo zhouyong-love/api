@@ -18,9 +18,29 @@
 		<include refid="columns"></include>
 		from uc_member  t
 		left join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
-		left join uc_recognized t2 on t1.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
+		left join uc_recognized t2 on t2.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
 		<where>
-			(t1.id is null or t2.id is null) and t.id != #{parameters.memberId} and
+			<if test="parameters.ignore">
+				(t1.id is null or t2.id is null) and 
+			</if>
+			t.id != #{parameters.memberId} and
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+	
+	<select id="queryFriends" 
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="linkMemberMap">
+		select
+		(t1.id is not null ) as `from`,
+		(t2.id is not null ) as `to`,
+		<include refid="columns"></include>
+		from uc_member  t
+		left join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
+		left join uc_recognized t2 on t2.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
+		<where>
+			t1.id is not null and t2.id is not null and
+			t.id != #{parameters.memberId} and
 			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
 		</where>
 	</select>
@@ -32,11 +52,16 @@
 		count(1)
 		from uc_member t
 		left join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
-		left join uc_recognized t2 on t1.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
+		left join uc_recognized t2 on t2.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
 		<where>
-			(t1.id is null or t2.id is null) and t.id != #{parameters.memberId} and
+			<if test="parameters.ignore">
+				(t1.id is null or t2.id is null) and 
+			</if>
+			t.id != #{parameters.memberId} and
 			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
 		</where>
 	</select>
+	
+	
 	
 </mapper>

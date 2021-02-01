@@ -8,7 +8,6 @@ import com.aliyuncs.CommonRequest;
 import com.aliyuncs.IAcsClient;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.http.MethodType;
-import com.cloudok.base.channel.aliyun.voice.AliyunVoiceProperties;
 import com.cloudok.base.message.channel.ChannelIoAdapter;
 import com.cloudok.base.message.vo.ChannelMessage;
 import com.cloudok.base.message.vo.MessageVO;
@@ -24,7 +23,7 @@ public class SMSHandler implements ChannelIoAdapter{
 	private static final String BATCHACTION = "SendSms";
 
 	@Autowired
-	private AliyunVoiceProperties aliyunProperties;
+	private AliyunSMSProperties aliyunProperties;
 	
 	@Autowired
 	@Qualifier("SMSIAcsClient")

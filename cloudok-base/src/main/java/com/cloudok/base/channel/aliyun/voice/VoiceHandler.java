@@ -20,7 +20,7 @@ public class VoiceHandler implements ChannelIoAdapter{
 	@Autowired
 	@Qualifier("voiceIAcsClient")
 	private IAcsClient acsClient;
-
+	
 	@Override
 	public String write(ChannelMessage channelParameters) {
 		SingleCallByTtsRequest request = new SingleCallByTtsRequest();

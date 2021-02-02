@@ -21,6 +21,7 @@ spring:
     locations: classpath:db/migration/mysql
     
   jackson: 
+    time-zone: GMT+8
     default-property-inclusion: non-null 
     date-format: yyyy-MM-dd HH:mm:ss
   

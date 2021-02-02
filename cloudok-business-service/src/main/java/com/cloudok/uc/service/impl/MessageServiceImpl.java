@@ -114,7 +114,16 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			idList.addAll(toIdList);
 			idList = idList.stream().distinct().collect(Collectors.toList());
 			List<SimpleMemberInfo> simpleList =  memberService.getSimpleMemberInfo(idList);
-			list.stream().filter(item -> !item.getType().toString().equals(UCMessageType.privateInteraction.getValue())).forEach(item -> {
+			list.stream()
+			.filter(item ->{
+				//私密互动，只有回复人和留言人可见
+				if(item.getType().toString().equals(UCMessageType.privateInteraction.getValue())) {
+					return item.getFrom().getId().equals(SecurityContextHelper.getCurrentUserId()) || item.getTo().getId().equals(SecurityContextHelper.getCurrentUserId()) ;
+				}else{
+					return true;
+				}
+			} )
+			.forEach(item -> {
 				simpleList.stream()
 				.filter(mem -> mem.getId().equals(item.getFrom().getId())).findAny().ifPresent(mem -> {
 					item.setFrom(mem);

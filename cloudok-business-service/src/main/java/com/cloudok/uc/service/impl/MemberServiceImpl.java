@@ -755,7 +755,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 						});
 					});
 		}
-		return null;
+		return memberList;
 	}
 
 	@Override

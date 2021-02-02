@@ -175,7 +175,7 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		//预取 threadIdList.size * limit * 5 条  判断是否所有的thread都满足了limit条数，无限递归处理
 		List<MessagePO>  list = this.repository.select(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, QueryOperator.IN,threadIdList).end()
 				.sort(MessageMapping.ID).desc().enablePaging().page(0, threadIdList.size()*2*limit).end());
-		if(CollectionUtils.isEmpty(list)) {
+		if(CollectionUtils.isEmpty(list) || list.size() <= threadIdList.size()) {
 			return result;
 		}else {
 			Map<Long,List<MessagePO>> map = list.stream().collect(Collectors.groupingBy(MessagePO::getThreadId));

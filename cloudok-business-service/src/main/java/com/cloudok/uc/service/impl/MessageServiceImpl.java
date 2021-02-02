@@ -178,10 +178,12 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		Map<String,List<MessagePO>> map = list.stream().collect(Collectors.groupingBy(MessagePO::getThreadId));
 		List<String> notMatchedthreadIdList = new ArrayList<String>();
 		List<MessagePO> matchedMessgeList = new ArrayList<MessagePO>();
+		List<MessagePO> notMatchedMessgeList = new ArrayList<MessagePO>();
 		map.forEach((key,value)->{
 			if(value.size()>=limit) {
 				matchedMessgeList.addAll(value.subList(0, limit));
 			}else {
+				notMatchedMessgeList.addAll(value);
 				notMatchedthreadIdList.add(key);
 			}
 		});
@@ -192,6 +194,11 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			//判断是否要递归查询
 			if(list.size() >= threadIdList.size()*limit) { //数据量小于最小数据要求，则递归查
 				result.addAll(this.getMessageThread(notMatchedthreadIdList, limit)); //递归查剩下的
+			}else { //不递归，就捞出没有加进去的数据
+				this.convert2VO(notMatchedMessgeList).stream().collect(Collectors.groupingBy(MessageVO::getThreadId))
+				.forEach((key,value)->{
+					result.add(new MessageThreadVO(key, value));
+				});
 			}
 		}
 		return result;

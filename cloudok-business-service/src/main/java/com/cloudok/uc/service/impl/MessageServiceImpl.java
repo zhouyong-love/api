@@ -176,6 +176,9 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		List<MessagePO>  list = this.repository.select(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, QueryOperator.IN,threadIdList).end()
 				.sort(MessageMapping.ID).desc().enablePaging().page(0, threadIdList.size()*2*limit).end());
 		if(CollectionUtils.isEmpty(list) || list.size() <= threadIdList.size()) {
+			this.convert2VO(list).stream().collect(Collectors.groupingBy(MessageVO::getThreadId)).forEach((key,value)->{
+				result.add(new MessageThreadVO(key, value));
+			});;
 			return result;
 		}else {
 			Map<Long,List<MessagePO>> map = list.stream().collect(Collectors.groupingBy(MessagePO::getThreadId));

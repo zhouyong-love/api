@@ -69,7 +69,7 @@ public class UCMessageApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/interaction")
 	@ApiOperation(value = "查询member的互动消息列表-memberId就是名片详情页的那个member的id （别人的名片或者自己的名片）", notes = "查询member的互动消息列表")
-	public Response searchInteractionMessages(@RequestParam("memberId") Long memberId,
+	public Response searchInteractionMessages(@RequestParam(name = "memberId",required = false) Long memberId,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
 		return Response.buildSuccess(messageService.searchInteractionMessages(memberId, pageNo, pageSize));

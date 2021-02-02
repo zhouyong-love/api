@@ -19,6 +19,8 @@ public class SchoolVO extends VO {
 	
 	private String emailPostfix;
 	
+	private String abbreviation;
+	
 	public SchoolVO(Long id) {
 		this.setId(id);
 	}

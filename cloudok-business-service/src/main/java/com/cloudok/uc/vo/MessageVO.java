@@ -17,7 +17,6 @@ public class MessageVO extends VO {
 	
 	private Long threadId;
 	
-	
 	private SimpleMemberInfo from;
 	
 	
@@ -32,5 +31,12 @@ public class MessageVO extends VO {
 	
 	private java.sql.Timestamp statusTs;
 	
+	
+	public MessageVO() {}
+	
+	public MessageVO(Long id,Integer status) {
+		this.setId(id);
+		this.status = status;
+	}
 	
 }

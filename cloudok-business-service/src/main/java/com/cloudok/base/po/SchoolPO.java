@@ -17,5 +17,7 @@ public class SchoolPO extends PO {
 	
 	private String emailPostfix;
 	
+	private String abbreviation;
+	
 	
 }

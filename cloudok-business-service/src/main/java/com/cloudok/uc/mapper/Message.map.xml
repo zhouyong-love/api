@@ -9,7 +9,7 @@
 
 	<select id="searchInteractionMessagesCount"
 		parameterType="Map" resultType="Long">
-		select count( distinct thread_id ) from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (3,4)  and deleted=false limit #{start},#{end}
+		select count( distinct thread_id ) from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (3,4)  and deleted=false
 	</select>
 	
 	<select id="searchPrivateMessages"
@@ -20,7 +20,7 @@
 
 	<select id="searchPrivateMessagesCount"
 		parameterType="Map" resultType="Long">
-		 select count( distinct thread_id ) from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (1,2)  and deleted=false limit #{start},#{end}
+		 select count( distinct thread_id ) from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (1,2)  and deleted=false
 	</select>
 	 
 </mapper>

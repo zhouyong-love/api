@@ -72,6 +72,12 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 	
 	@Override
 	public MessageVO createByMember(@Valid MessageVO vo) {
+		if(vo.getThreadId()!=null) {
+			this.list(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, vo.getThreadId()).and(MessageMapping.STATUS, 0).end())
+			.forEach(item->{
+				this.merge(new MessageVO(vo.getId(),1));
+			});
+		}
 		if(vo.getType().toString().equals(UCMessageType.recognized.getValue())) {
 			throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 		}
@@ -79,7 +85,7 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			vo.setThreadId(getOrGeneratorThreadId(vo.getTo().getId(),SecurityContextHelper.getCurrentUserId()));
 		}else {
 			if(vo.getThreadId() == null) {
-				vo.setTenantId(this.getPrimaryKey());
+				vo.setThreadId(this.getPrimaryKey());
 			}
 		}
 		vo.setFrom(new SimpleMemberInfo(SecurityContextHelper.getCurrentUserId()));
@@ -152,6 +158,9 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 	}
 	@Override
 	public Page<MessageThreadVO> searchInteractionMessages(Long memberId, Integer pageNo, Integer pageSize) {
+		if(memberId == null) {
+			memberId = getCurrentUserId();
+		}
 		Page<MessageThreadVO> page=new Page<>();
 		page.setTotalCount(repository.searchInteractionMessagesCount(memberId));
 		page.setPageNo(pageNo);
@@ -228,6 +237,7 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			message.setContent("认可消息");
 			message.setFrom(new SimpleMemberInfo(vo.getSourceId()));
 			message.setTo(new SimpleMemberInfo(vo.getTargetId()));
+			message.setType(Integer.parseInt(UCMessageType.recognized.getValue()));
 			this.createByRecognized(message);
 		}else if(arg0 instanceof RecognizedDeleteEvent) {
 			RecognizedDeleteEvent event = RecognizedDeleteEvent.class.cast(arg0);

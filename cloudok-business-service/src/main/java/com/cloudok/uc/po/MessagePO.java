@@ -26,7 +26,7 @@ public class MessagePO extends PO {
 	private String content;
 	
 	
-	private Boolean status;
+	private Integer status;
 	
 	
 	private java.sql.Timestamp statusTs;

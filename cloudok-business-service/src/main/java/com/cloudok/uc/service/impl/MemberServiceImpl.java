@@ -694,7 +694,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 
 	@Override
 	public Page<WholeMemberDTO> link(QueryBuilder builder) {
-		builder.addParameter("memberId", getCurrentUserId()).addParameter("ignore", false);
+		builder.addParameter("memberId", getCurrentUserId()).addParameter("ignore", true);
 		Page<LinkMemberVO> page = new Page<>();
 		page.setTotalCount(repository.countQueryLinkMember(builder.excludeSortPage()));
 		page.setPageNo(builder.getPageCondition().getPageNo());
@@ -726,7 +726,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	public WholeMemberDTO link(Long id) {
 		LinkMemberPO po = repository
 				.queryLinkMember(QueryBuilder.create(MemberMapping.class).addParameter("memberId", getCurrentUserId())
-						.addParameter("ignore", true).and(MemberMapping.ID, id).end())
+						.addParameter("ignore", false).and(MemberMapping.ID, id).end())
 				.get(0);
 		LinkMemberVO vo = new LinkMemberVO();
 		BeanUtils.copyProperties(po, vo);

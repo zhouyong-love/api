@@ -82,6 +82,9 @@ public class UCMessageApi {
 			@RequestParam(name = "status",defaultValue = "0") Integer status,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+		if(status != null && status != 0 && status !=1 ) {
+			status = 0;
+		}
 		return Response.buildSuccess(messageService.searchInteractionMessages(memberId,status, pageNo, pageSize));
 	}
 

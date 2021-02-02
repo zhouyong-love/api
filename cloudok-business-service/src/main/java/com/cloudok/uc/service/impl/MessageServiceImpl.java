@@ -278,6 +278,16 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 
 	@Override
 	public void deleteByThreadId(String threadId) {
-		repository.deleteByThreadId(threadId);
+		List<MessageVO> list = this.list(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, threadId).end().enablePaging().page(1, 1).end());
+		if(CollectionUtils.isEmpty(list)) {
+			return;
+		}
+		if(list.get(0).getFrom().getId().equals(SecurityContextHelper.getCurrentUserId()) || 
+		list.get(0).getTo().getId().equals(SecurityContextHelper.getCurrentUserId()) ) {
+			repository.deleteByThreadId(threadId);
+		}else {
+			throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
+		}
+		
 	}
 }

@@ -106,7 +106,7 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 	@Override
 	public List<MessageVO> convert2VO(List<MessagePO> e) {
 		List<MessageVO> list =  super.convert2VO(e);
-		if(CollectionUtils.isEmpty(list)) {
+		if(!CollectionUtils.isEmpty(list)) {
 			List<Long> fromIdList = list.stream().map(item -> item.getFrom().getId()).distinct().collect(Collectors.toList());
 			List<Long> toIdList = list.stream().map(item -> item.getTo().getId()).distinct().collect(Collectors.toList());
 			List<Long> idList = new ArrayList<Long>();

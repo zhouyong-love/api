@@ -7,6 +7,7 @@
 		select distinct thread_id from uc_message  
 		<if test="status == 0">
 			where thread_id not in (select distinct t.thread_id from uc_message t where t.status=1 and  thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false )
+			and thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false
 		</if>
 		<if test="status == 1">
 			where thread_id  in (select distinct t.thread_id from uc_message t where t.status=1 and thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false )
@@ -19,6 +20,7 @@
 		select count( distinct thread_id ) from uc_message  
 		<if test="status == 0">
 			where thread_id not in (select distinct t.thread_id from uc_message t where t.status=1 and  thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false )
+			and thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false
 		</if>
 		<if test="status == 1">
 			where thread_id  in (select distinct t.thread_id from uc_message t where t.status=1 and thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false )

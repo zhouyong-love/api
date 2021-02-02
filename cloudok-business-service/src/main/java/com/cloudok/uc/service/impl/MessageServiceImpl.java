@@ -85,7 +85,7 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			vo.setThreadId(getOrGeneratorThreadId(vo.getTo().getId(),SecurityContextHelper.getCurrentUserId()));
 		}else {
 			if(vo.getThreadId() == null) {
-				vo.setThreadId(this.getPrimaryKey());
+				vo.setThreadId(vo.getTo().getId()+"-"+this.getPrimaryKey());
 			}
 		}
 		vo.setFrom(new SimpleMemberInfo(SecurityContextHelper.getCurrentUserId()));
@@ -99,8 +99,8 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		return this.create(vo);
 	}
 	
-	private Long getOrGeneratorThreadId(Long from,Long to) { //两个人id之和算一个会好id，省事，好用，且对于某一个确定的用户来说唯一
-		return from+to;
+	private String getOrGeneratorThreadId(Long from,Long to) { //两个人id之和算一个会好id，省事，好用，且对于某一个确定的用户来说唯一
+		return String.valueOf(from+to);
 	}
 	
 	@Override
@@ -157,51 +157,47 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		return this.remove(id);
 	}
 	@Override
-	public Page<MessageThreadVO> searchInteractionMessages(Long memberId, Integer pageNo, Integer pageSize) {
+	public Page<MessageThreadVO> searchInteractionMessages(Long memberId, Integer status,Integer pageNo, Integer pageSize) {
 		if(memberId == null) {
 			memberId = getCurrentUserId();
 		}
 		Page<MessageThreadVO> page=new Page<>();
-		page.setTotalCount(repository.searchInteractionMessagesCount(memberId));
+		page.setTotalCount(repository.searchInteractionMessagesCount(memberId,status));
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-			page.setData(this.getMessageThread(repository.searchInteractionMessages(memberId,(pageNo-1)*pageSize,pageNo*pageSize),2));
+			page.setData(this.getMessageThread(repository.searchInteractionMessages(memberId,status,(pageNo-1)*pageSize,pageNo*pageSize),2));
 		}
 		return page;
 	}
-	private List<MessageThreadVO> getMessageThread(List<Long> threadIdList,int limit){
+	private List<MessageThreadVO> getMessageThread(List<String> threadIdList,int limit){
 		List<MessageThreadVO> result = new ArrayList<MessageThreadVO>();
 		//预取 threadIdList.size * limit * 5 条  判断是否所有的thread都满足了limit条数，无限递归处理
 		List<MessagePO>  list = this.repository.select(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, QueryOperator.IN,threadIdList).end()
 				.sort(MessageMapping.ID).desc().enablePaging().page(0, threadIdList.size()*2*limit).end());
-		if(CollectionUtils.isEmpty(list) || list.size() <= threadIdList.size()) {
-			this.convert2VO(list).stream().collect(Collectors.groupingBy(MessageVO::getThreadId)).forEach((key,value)->{
-				result.add(new MessageThreadVO(key, value));
-			});;
-			return result;
-		}else {
-			Map<Long,List<MessagePO>> map = list.stream().collect(Collectors.groupingBy(MessagePO::getThreadId));
-			List<Long> notMatchedthreadIdList = new ArrayList<Long>();
-			List<MessagePO> matchedMessgeList = new ArrayList<MessagePO>();
-			map.forEach((key,value)->{
-				if(value.size()>=limit) {
-					matchedMessgeList.addAll(value.subList(0, limit));
-				}else {
-					notMatchedthreadIdList.add(key);
-				}
-			});
-			this.convert2VO(matchedMessgeList).stream().collect(Collectors.groupingBy(MessageVO::getThreadId)).forEach((key,value)->{
-				result.add(new MessageThreadVO(key, value));
-			});
-			if(!CollectionUtils.isEmpty(notMatchedthreadIdList)) {
+		Map<String,List<MessagePO>> map = list.stream().collect(Collectors.groupingBy(MessagePO::getThreadId));
+		List<String> notMatchedthreadIdList = new ArrayList<String>();
+		List<MessagePO> matchedMessgeList = new ArrayList<MessagePO>();
+		map.forEach((key,value)->{
+			if(value.size()>=limit) {
+				matchedMessgeList.addAll(value.subList(0, limit));
+			}else {
+				notMatchedthreadIdList.add(key);
+			}
+		});
+		this.convert2VO(matchedMessgeList).stream().collect(Collectors.groupingBy(MessageVO::getThreadId)).forEach((key,value)->{
+			result.add(new MessageThreadVO(key, value));
+		});
+		if(!CollectionUtils.isEmpty(notMatchedthreadIdList)) {
+			//判断是否要递归查询
+			if(list.size() >= threadIdList.size()*limit) { //数据量小于最小数据要求，则递归查
 				result.addAll(this.getMessageThread(notMatchedthreadIdList, limit)); //递归查剩下的
 			}
 		}
 		return result;
 	}
 	@Override
-	public Page<MessageVO> getByThreadId(Long id,Integer pageNo, Integer pageSize) {
+	public Page<MessageVO> getByThreadId(String id,Integer pageNo, Integer pageSize) {
 		Page<MessageVO> page = this.page(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, id).end()
 				.sort(MessageMapping.ID).desc().enablePaging().page(pageNo, pageSize).end());
 		List<MessageVO> messageList = page.getData();

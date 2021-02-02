@@ -34,7 +34,7 @@ public class UCMessageApi {
 	@PostMapping("/{threadId}/message")
 	@ApiOperation(value = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 匿名互动 4 实名互动, threadId为空时，后端自动生成，to的id必传",
 	notes = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 匿名互动 4 实名互动，threadId为空时，后端自动生成，to的id必传")
-	public Response create(@PathVariable("threadId") Long threadId,
+	public Response create(@PathVariable("threadId") String threadId,
 			@RequestBody @Valid MessageVO vo) {
 		vo.setThreadId(threadId);
 		return Response.buildSuccess(messageService.createByMember(vo));
@@ -60,7 +60,7 @@ public class UCMessageApi {
 	@GetMapping("/{threadId}")
 	@ApiOperation(value = "根据threadId获取聊天内容", notes = "根据threadId获取聊天内容")
 	public Response getByThreadId(
-			@PathVariable("id") Long id,
+			@PathVariable("threadId") String id,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
 		return Response.buildSuccess(messageService.getByThreadId(id,pageNo,pageSize));
@@ -69,10 +69,15 @@ public class UCMessageApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/interaction")
 	@ApiOperation(value = "查询member的互动消息列表-memberId就是名片详情页的那个member的id （别人的名片或者自己的名片）", notes = "查询member的互动消息列表")
-	public Response searchInteractionMessages(@RequestParam(name = "memberId",required = false) Long memberId,
+	public Response searchInteractionMessages(
+			@RequestParam(name = "memberId",required = false) Long memberId,
+			@RequestParam(name = "status",required = false) Integer status,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
-		return Response.buildSuccess(messageService.searchInteractionMessages(memberId, pageNo, pageSize));
+		if(status != 0 || status != 1) {
+			status = 0;
+		}
+		return Response.buildSuccess(messageService.searchInteractionMessages(memberId,status, pageNo, pageSize));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

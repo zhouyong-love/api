@@ -15,7 +15,7 @@ public class MessageVO extends VO {
 	
 	private Integer type;
 	
-	private Long threadId;
+	private String threadId;
 	
 	private SimpleMemberInfo from;
 	

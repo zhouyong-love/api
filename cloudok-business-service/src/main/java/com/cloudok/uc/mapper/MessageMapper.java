@@ -11,13 +11,13 @@ import com.cloudok.uc.po.MessagePO;
 @Repository("UCMessageMapper")
 public interface MessageMapper extends IMapper<MessagePO>{
 
-	Long searchInteractionMessagesCount(@Param("memberId")Long memberId);
+	Long searchInteractionMessagesCount(@Param("memberId")Long memberId,@Param("status")Integer status);
 
-	List<Long> searchInteractionMessages(@Param("memberId") Long memberId, @Param("start") Integer start, @Param("end") Integer end);
+	List<String> searchInteractionMessages(@Param("memberId") Long memberId, @Param("status")Integer status,@Param("start") Integer start, @Param("end") Integer end);
 
 	Long searchPrivateMessagesCount(@Param("memberId")Long memberId);
 
-	List<Long> searchPrivateMessages(@Param("memberId") Long memberId, @Param("start") Integer start, @Param("end") Integer end);
+	List<String> searchPrivateMessages(@Param("memberId") Long memberId, @Param("start") Integer start, @Param("end") Integer end);
 	
 
 }

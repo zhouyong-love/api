@@ -14,7 +14,7 @@ public class MessagePO extends PO {
 	
 	private Integer type;
 	
-	private Long threadId;
+	private String threadId;
 	
 	
 	private Long fromId;

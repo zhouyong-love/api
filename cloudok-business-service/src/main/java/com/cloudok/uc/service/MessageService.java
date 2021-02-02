@@ -18,10 +18,10 @@ public interface MessageService extends IService<MessageVO,MessagePO>{
 
 	Integer removeByMember(Long id);
 
-	Page<MessageThreadVO> searchInteractionMessages(Long memberId, Integer pageNo, Integer pageSize);
+	Page<MessageThreadVO> searchInteractionMessages(Long memberId, Integer status,Integer pageNo, Integer pageSize);
 
 	Page<MessageThreadVO> searchPrivateMessages(Long memberId, Integer pageNo, Integer pageSize);
 
-	Page<MessageVO> getByThreadId(Long id,Integer pageNo, Integer pageSize);
+	Page<MessageVO> getByThreadId(String id,Integer pageNo, Integer pageSize);
 
 }

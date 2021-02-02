@@ -74,6 +74,9 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 	
 	@Override
 	public MessageVO createByMember(@Valid MessageVO vo) {
+		if("-1".equals(vo.getThreadId())) {
+			vo.setThreadId(null);
+		}
 		if(vo.getType().toString().equals(UCMessageType.recognized.getValue())) {
 			throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 		}

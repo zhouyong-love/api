@@ -23,5 +23,7 @@ public interface MessageService extends IService<MessageVO,MessagePO>{
 	Page<MessageThreadVO> searchPrivateMessages(Long memberId, Integer pageNo, Integer pageSize);
 
 	Page<MessageVO> getByThreadId(String id,Integer pageNo, Integer pageSize);
+	
+	void deleteByThreadId(String threadId);
 
 }

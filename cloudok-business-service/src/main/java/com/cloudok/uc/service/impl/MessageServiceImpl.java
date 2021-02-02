@@ -59,7 +59,9 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 	@Override
 	public MessagePO convert2PO(MessageVO d) {
 		MessagePO p =  super.convert2PO(d);
+		if(d.getFrom()!=null)
 		p.setFromId(d.getFrom().getId());
+		if(d.getTo()!=null)
 		p.setToId(d.getTo().getId());
 		return p;
 	}
@@ -72,12 +74,6 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 	
 	@Override
 	public MessageVO createByMember(@Valid MessageVO vo) {
-		if(vo.getThreadId()!=null) {
-			this.list(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, vo.getThreadId()).and(MessageMapping.STATUS, 0).end())
-			.forEach(item->{
-				this.merge(new MessageVO(vo.getId(),1));
-			});
-		}
 		if(vo.getType().toString().equals(UCMessageType.recognized.getValue())) {
 			throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 		}
@@ -89,6 +85,12 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			}
 		}
 		vo.setFrom(new SimpleMemberInfo(SecurityContextHelper.getCurrentUserId()));
+		if(vo.getThreadId()!=null) {
+			this.list(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, vo.getThreadId()).and(MessageMapping.STATUS, 0).end())
+			.forEach(item->{
+				this.merge(new MessageVO(item.getId(),1));
+			});
+		}
 		return this.create(vo);
 	}
 	
@@ -272,5 +274,10 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			
 		}
 		
+	}
+
+	@Override
+	public void deleteByThreadId(String threadId) {
+		repository.deleteByThreadId(threadId);
 	}
 }

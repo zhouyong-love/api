@@ -2,6 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.uc.mapper.MessageMapper">
 	
+	<update id="deleteByThreadId">
+		update uc_message set deleted = true where thread_id = #{threadId}
+	</update>
+	
 	<select id="searchInteractionMessages"
 		parameterType="Map" resultType="String">
 		select distinct thread_id from uc_message  

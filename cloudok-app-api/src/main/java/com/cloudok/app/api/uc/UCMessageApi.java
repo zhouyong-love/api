@@ -55,6 +55,14 @@ public class UCMessageApi {
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(messageService.removeByMember(id));
 	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@DeleteMapping("/{threadId}")
+	@ApiOperation(value = "删除消息", notes = "删除消息")
+	public Response removeByThreadId(@PathVariable("threadId") String threadId) {
+		messageService.deleteByThreadId(threadId);
+		return Response.buildSuccess();
+	}
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{threadId}")
@@ -71,12 +79,9 @@ public class UCMessageApi {
 	@ApiOperation(value = "查询member的互动消息列表-memberId就是名片详情页的那个member的id （别人的名片或者自己的名片）", notes = "查询member的互动消息列表")
 	public Response searchInteractionMessages(
 			@RequestParam(name = "memberId",required = false) Long memberId,
-			@RequestParam(name = "status",required = false,defaultValue = "0") Integer status,
+			@RequestParam(name = "status",defaultValue = "0") Integer status,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
-		if(status != 0 || status != 1) {
-			status = 0;
-		}
 		return Response.buildSuccess(messageService.searchInteractionMessages(memberId,status, pageNo, pageSize));
 	}
 

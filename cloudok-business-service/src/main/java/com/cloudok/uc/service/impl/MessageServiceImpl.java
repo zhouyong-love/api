@@ -115,14 +115,6 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 			idList = idList.stream().distinct().collect(Collectors.toList());
 			List<SimpleMemberInfo> simpleList =  memberService.getSimpleMemberInfo(idList);
 			list.stream()
-			.filter(item ->{
-				//私密互动，只有回复人和留言人可见
-				if(item.getType().toString().equals(UCMessageType.privateInteraction.getValue())) {
-					return item.getFrom().getId().equals(SecurityContextHelper.getCurrentUserId()) || item.getTo().getId().equals(SecurityContextHelper.getCurrentUserId()) ;
-				}else{
-					return true;
-				}
-			} )
 			.forEach(item -> {
 				simpleList.stream()
 				.filter(mem -> mem.getId().equals(item.getFrom().getId())).findAny().ifPresent(mem -> {
@@ -175,7 +167,22 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-			page.setData(this.getMessageThread(repository.searchInteractionMessages(memberId,status,(pageNo-1)*pageSize,pageNo*pageSize),2));
+			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchInteractionMessages(memberId,status,(pageNo-1)*pageSize,pageNo*pageSize),2);
+			if(!CollectionUtils.isEmpty(dataList)) {
+				//私密互动，只有回复人和留言人可见
+				dataList.stream().forEach( thread ->{
+					List<MessageVO> messageList = 	thread.getMessageList();
+					messageList  = messageList.stream().filter(item ->{
+						if(item.getType().toString().equals(UCMessageType.privateInteraction.getValue())) {
+							return item.getFrom().getId().equals(SecurityContextHelper.getCurrentUserId()) || item.getTo().getId().equals(SecurityContextHelper.getCurrentUserId()) ;
+						}else{
+							return true;
+						}
+					} ).collect(Collectors.toList());
+					thread.setMessageList(messageList);
+				});
+			}
+			page.setData(dataList);
 		}
 		return page;
 	}

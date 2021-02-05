@@ -1,5 +1,7 @@
 package com.cloudok.app.api.uc;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,5 +53,12 @@ public class RecognizedApi {
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(recognizedService.remove(id));
 	}
- 
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@PutMapping("/read")
+	@ApiOperation(value = "关注状态已读", notes = "关注状态已读")
+	public Response read(@RequestBody List<Long> memberIds) {
+		recognizedService.read(memberIds);
+		return Response.buildSuccess();
+	}
 }

@@ -8,19 +8,24 @@
 		
 		<result property="targetId" column="target_id"/>
 		
+		<result property="read" column="read"/>
+
+		<result property="readTime" column="read_time"/>
+
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.source_id,t.target_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.source_id,t.target_id,t.read_time,t.`read`,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.RecognizedPO">
-		insert into uc_recognized(source_id,target_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{sourceId},#{targetId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_recognized(source_id,target_id,`read`,read_time,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{sourceId},#{targetId},#{read},#{readTime},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.RecognizedPO">
-		update uc_recognized set source_id=#{sourceId},target_id=#{targetId},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_recognized set source_id=#{sourceId},target_id=#{targetId},`read`=#{read},read_time=#{readTime},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -29,7 +34,12 @@
 	<update id="merge" parameterType="com.cloudok.uc.po.RecognizedPO">
 		update uc_recognized set 
 			
+			<if test="read != null ">`read` = #{read},</if>
+			
+			<if test="readTime != null ">read_time = #{readTime},</if>
+
 			<if test="sourceId != null ">source_id = #{sourceId},</if>
+
 			
 			<if test="targetId != null ">target_id = #{targetId},</if>
 			

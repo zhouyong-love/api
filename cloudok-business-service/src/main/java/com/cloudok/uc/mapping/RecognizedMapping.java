@@ -11,4 +11,10 @@ public class RecognizedMapping extends Mapping{
 	
 	public static final Mapping TARGETID=new Mapping("targetId", "t.target_id",QueryOperator.EQ);
 	
+	
+	public static final Mapping READ=new Mapping("read", "t.read",QueryOperator.EQ);
+
+	
+	public static final Mapping READTIME=new Mapping("readTime", "t.read_time",QueryOperator.EQ);
+
 }

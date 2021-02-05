@@ -1,17 +1,23 @@
 package com.cloudok.uc.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.cloudok.core.context.SpringApplicationContext;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
+import com.cloudok.core.query.QueryBuilder;
+import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.event.RecognizedCreateEvent;
 import com.cloudok.uc.event.RecognizedDeleteEvent;
 import com.cloudok.uc.mapper.RecognizedMapper;
+import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.po.RecognizedPO;
 import com.cloudok.uc.service.RecognizedService;
 import com.cloudok.uc.vo.MemberVO;
@@ -71,4 +77,17 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	public int getNewApplyCount() {
 		return repository.getNewApplyCount(getCurrentUserId());
 	}
+
+	@Override
+	public void read(List<Long> memberIds) {
+		if(!CollectionUtils.isEmpty(memberIds)) {
+			List<RecognizedVO> vos = super.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, QueryOperator.IN,memberIds).and(RecognizedMapping.TARGETID, getCurrentUserId()).end());
+			if(!CollectionUtils.isEmpty(vos)) {
+				vos.forEach(item->{
+					super.merge(new RecognizedVO(item.getId(),true));
+				});
+			}
+		}
+	}
+
 }

@@ -1,5 +1,7 @@
 package com.cloudok.uc.po;
 
+import java.sql.Timestamp;
+
 import com.cloudok.core.po.PO;
 
 import lombok.Getter;
@@ -17,5 +19,8 @@ public class RecognizedPO extends PO {
 	
 	private Long targetId;
 	
+	private Boolean read;
+
+	private Timestamp readTime;
 	
 }

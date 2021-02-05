@@ -67,6 +67,8 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	
 	IdenticalCountVO identical(Long id);
 	
+	Page<WholeMemberDTO> friend(String type,QueryBuilder builder);
+	
 	@Data
 	public class IdenticalCountVO{
 		private int friends;

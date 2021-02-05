@@ -768,8 +768,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.friendCount(recognizedService.getFriendCount())
 				.fromCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).end()))
 				.toCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).end()))
+				.newFrom(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).and(RecognizedMapping.READ, false).end()))
 				.build();
 	}
+	
 
 	@Autowired
 	private MemberTagsMapper memberTagsMapper;
@@ -792,5 +794,39 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			}
 		}
 		return vo;
+	}
+
+	@Override
+	public Page<WholeMemberDTO> friend(String type, QueryBuilder builder) {
+		builder.addParameter("memberId", getCurrentUserId());
+		builder.addParameter("type", type);
+		Page<WholeMemberDTO> page = new Page<>();
+		page.setTotalCount(repository.friendCount(builder.excludeSortPage()));
+		page.setPageNo(builder.getPageCondition().getPageNo());
+		page.setPageSize(builder.getPageCondition().getPageSize());
+		if (page.getTotalCount() > 0 && (page.getTotalCount() / builder.getPageCondition().getPageSize() + 1) >= builder
+				.getPageCondition().getPageNo()) {
+			List<MemberPO> es = repository.friend(builder);
+			if (es != null) {
+				page.setData(es.stream().map(item -> {
+					WholeMemberDTO vo = new WholeMemberDTO();
+					BeanUtils.copyProperties(item, vo);
+					return vo;
+				}).collect(Collectors.toList()));
+			}
+		}
+		if (!CollectionUtils.isEmpty(page.getData())) {
+			educationExperienceService
+					.list(QueryBuilder.create(EducationExperienceMapping.class)
+							.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, page.getData().stream().map(item->item.getId()).collect(Collectors.toList())).end()
+							.sort(EducationExperienceMapping.GRADE).desc())
+					.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
+					.forEach((memberId, valueList) -> {
+						page.getData().stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+							item.setEducationList(valueList);
+						});
+					});
+		}
+		return page;
 	}
 }

@@ -192,4 +192,10 @@ public class MemberApi {
 		return Response.buildSuccess(memberService.identical(id));
 	}
 	
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/{type}/friend")
+	@ApiOperation(value = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注", notes = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注")
+	public Response friend(HttpServletRequest request,@PathVariable("type") String type) {
+		return Response.buildSuccess(memberService.friend(type, QueryBuilder.create(MemberMapping.class).with(request)));
+	}
 }

@@ -22,10 +22,14 @@ public class MessageThreadVO extends VO{
 
 	private List<MessageVO> messageList;
 	
+	private Integer unReadCount;
+	
 	public MessageThreadVO(String threadId,List<MessageVO> messageList) {
 		this.threadId = threadId;
 		this.messageList = messageList;
 	}
+	
+	
 	
 
 }

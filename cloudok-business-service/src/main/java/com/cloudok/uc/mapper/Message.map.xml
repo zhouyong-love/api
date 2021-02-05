@@ -8,44 +8,108 @@
 	
 	<select id="searchInteractionMessages"
 		parameterType="Map" resultType="String">
-		select distinct thread_id from uc_message  
-		<if test="status == 0">
-			where thread_id not in (select distinct t.thread_id from uc_message t where t.status=1 and  thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false )
-			and thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false
+		select distinct thread_id from uc_message  t
+		<if test="seeOthers==1">
+			where   from_id = #{memberId}   and ( type =4 or (type=5 and t.to_id=#{currentMemberId}) ) and deleted=false 
 		</if>
-		<if test="status == 1">
-			where thread_id  in (select distinct t.thread_id from uc_message t where t.status=1 and thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false )
+		<if test="seeOthers==0">
+			<if test="status == 0">
+				where to_id=#{memberId}  and type = 3 and status=0
+			</if>
+			<if test="status == 1">
+				where to_id=#{memberId}  and type = 3 and status=1
+			</if>
+			<if test="status == null">
+				where  to_id= #{memberId} and type = 3  and deleted=false 
+			</if>
 		</if>
-		<if test="status == null">
-			where   thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false 
-		</if>
+		order by t.create_ts desc
 		limit #{start},#{end}
 	</select>
 
 	<select id="searchInteractionMessagesCount"
 		parameterType="Map" resultType="Long">
 		select count( distinct thread_id ) from uc_message  
-		<if test="status == 0">
-			where thread_id not in (select distinct t.thread_id from uc_message t where t.status=1 and  thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false )
-			and thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false
+		<if test="seeOthers==1">
+			where   from_id = #{memberId}   and ( type =4 or (type=5 and t.to_id=#{currentMemberId}) ) and deleted=false 
 		</if>
-		<if test="status == 1">
-			where thread_id  in (select distinct t.thread_id from uc_message t where t.status=1 and thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false )
-		</if>
-		<if test="status == null">
-			where   thread_id like concat(#{memberId},'-%')  and type in (3,4) and deleted=false 
+		<if test="seeOthers==0">
+			<if test="status == 0">
+				where to_id=#{memberId}  and type = 3 and status=0
+			</if>
+			<if test="status == 1">
+				where to_id=#{memberId}  and type = 3 and status=1
+			</if>
+			<if test="status == null">
+				where  to_id= #{memberId} and type = 3  and deleted=false 
+			</if>
 		</if>
 	</select>
 	
 	<select id="searchPrivateMessages"
 		parameterType="Map" resultType="String">
-		select distinct thread_id from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (1,2) and deleted=false limit #{start},#{end}
-		 
+		select distinct thread_id from uc_message t where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (1,2) and deleted=false order by t.create_ts desc limit #{start},#{end}
 	</select>
 
 	<select id="searchPrivateMessagesCount"
 		parameterType="Map" resultType="Long">
 		 select count( distinct thread_id ) from uc_message where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (1,2)  and deleted=false
 	</select>
+	
+	<resultMap  type="com.cloudok.uc.po.UnReadCount" id="unReadMessageMap">
+		<result property="threadId" column="thread_id"/>
+		<result property="count" column="c_count"/>
+	</resultMap>
+	
+	
+	<select id="getUnReadMessages"
+		parameterType="Map" resultMap="unReadMessageMap">
+		select  thread_id,count(1) as c_count from uc_message t where  to_id=#{memberId} and type in (1,2) and status=0 and deleted=false 
+		<if test="threadIdList != null">
+			and thread_id in 
+			<foreach collection="threadIdList" close=")"  item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+	
+	<update id="batchRead" parameterType="Map">
+		update uc_message set status=1 where  ( from_id = #{memberId} or to_id=#{memberId} ) and status=1  and deleted=false 
+		<if test="types != null">
+			and type in 
+			<foreach collection="types" close=")"  item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="threadId != null">
+			and	thread_id=#{threadId}
+		</if>
+		 
+	</update>
+	  
+	
+	<select id="searchMyInteractionMessages" parameterType="Map" resultType="String">
+		select distinct thread_id from uc_message  t
+		<if test="viewType == 1">
+			where   to_id = #{memberId}  and type = 3 
+		</if>
+		<if test="viewType == 2">
+			where   to_id = #{memberId}  and type in (4,5)
+		</if>
+		order by t.create_ts desc
+		limit #{start},#{end}
+	</select>
+
+	<select id="searchMyInteractionMessagesCount"
+		parameterType="Map" resultType="Long">
+		select count( distinct thread_id ) from uc_message  
+		<if test="viewType == 1">
+			where   to_id = #{memberId}  and type = 3 
+		</if>
+		<if test="viewType == 2">
+			where   to_id = #{memberId}  and type in (4,5)
+		</if>
+	</select>
+	
 	 
 </mapper>

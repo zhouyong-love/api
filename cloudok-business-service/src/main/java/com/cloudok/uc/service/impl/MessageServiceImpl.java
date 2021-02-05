@@ -28,6 +28,7 @@ import com.cloudok.uc.event.RecognizedDeleteEvent;
 import com.cloudok.uc.mapper.MessageMapper;
 import com.cloudok.uc.mapping.MessageMapping;
 import com.cloudok.uc.po.MessagePO;
+import com.cloudok.uc.po.UnReadCount;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.service.MessageService;
 import com.cloudok.uc.vo.MessageThreadVO;
@@ -83,8 +84,9 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		if(vo.getType().toString().equals(UCMessageType.privateMessage.getValue())) {//私聊
 			vo.setThreadId(getOrGeneratorThreadId(vo.getTo().getId(),SecurityContextHelper.getCurrentUserId()));
 		}else {
-			if(vo.getThreadId() == null) {
+			if(vo.getThreadId() == null) { //留言
 				vo.setThreadId(vo.getTo().getId()+"-"+this.getPrimaryKey());
+				vo.setType(Integer.parseInt(UCMessageType.interaction.getValue())); //留言
 			}
 		}
 		vo.setFrom(new SimpleMemberInfo(SecurityContextHelper.getCurrentUserId()));
@@ -163,16 +165,52 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		return this.remove(id);
 	}
 	@Override
-	public Page<MessageThreadVO> searchInteractionMessages(Long memberId, Integer status,Integer pageNo, Integer pageSize) {
-		if(memberId == null) {
-			memberId = getCurrentUserId();
-		}
+	public Page<MessageThreadVO> searchMyInteractionMessages(Integer viewType, Integer pageNo, Integer pageSize) {
+		Long memberId = getCurrentUserId();
+		//看自己的，查询所有相关数据就可以
+		//如果是看别人的，则 要求必须已经公开回复的 或者  回复给自己的
 		Page<MessageThreadVO> page=new Page<>();
-		page.setTotalCount(repository.searchInteractionMessagesCount(memberId,status));
+		page.setTotalCount(repository.searchMyInteractionMessagesCount(memberId,viewType));
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchInteractionMessages(memberId,status,(pageNo-1)*pageSize,pageNo*pageSize),2);
+			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchMyInteractionMessages(memberId,viewType,(pageNo-1)*pageSize,pageNo*pageSize),2);
+			if(!CollectionUtils.isEmpty(dataList)) {
+				//私密互动，只有回复人和留言人可见
+				dataList.stream().forEach( thread ->{
+					List<MessageVO> messageList = 	thread.getMessageList();
+					messageList  = messageList.stream().filter(item ->{
+						if(item.getType().toString().equals(UCMessageType.privateInteraction.getValue())) {
+							return item.getFrom().getId().equals(SecurityContextHelper.getCurrentUserId()) || item.getTo().getId().equals(SecurityContextHelper.getCurrentUserId()) ;
+						}else{
+							return true;
+						}
+					} ).collect(Collectors.toList());
+					thread.setMessageList(messageList);
+				});
+			}
+			page.setData(dataList);
+		}
+		return page;
+	}
+	@Override
+	public Page<MessageThreadVO> searchInteractionMessages(Long memberId, Integer status,Integer pageNo, Integer pageSize) {
+		Integer seeOthers = 1; //是否看自己的
+		if(memberId == null) {
+			memberId = getCurrentUserId();
+		}
+		if(memberId.equals(getCurrentUserId())) {
+			seeOthers = 0; 
+		}
+		//看自己的，查询所有相关数据就可以
+		//如果是看别人的，则 要求必须已经公开回复的 或者  回复给自己的
+		
+		Page<MessageThreadVO> page=new Page<>();
+		page.setTotalCount(repository.searchInteractionMessagesCount(memberId,status,getCurrentUserId(),seeOthers));
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
+			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchInteractionMessages(memberId,status,getCurrentUserId(),seeOthers,(pageNo-1)*pageSize,pageNo*pageSize),2);
 			if(!CollectionUtils.isEmpty(dataList)) {
 				//私密互动，只有回复人和留言人可见
 				dataList.stream().forEach( thread ->{
@@ -250,7 +288,14 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-			page.setData(this.getMessageThread(repository.searchPrivateMessages(memberId,(pageNo-1)*pageSize,pageNo*pageSize),2));
+			List<MessageThreadVO> list = this.getMessageThread(repository.searchPrivateMessages(memberId,(pageNo-1)*pageSize,pageNo*pageSize),2);
+			List<UnReadCount> countList = this.repository.getUnReadMessages(memberId,list.stream().map(item -> item.getThreadId()).distinct().collect(Collectors.toList()));
+			list.stream().forEach(item ->{
+				countList.stream().filter( a -> a.getThreadId().equals(item.getThreadId())).findAny().ifPresent(a ->{
+					item.setUnReadCount(a.getCount());
+				});
+			});
+			page.setData(list);
 		}
 		return page;
 	}

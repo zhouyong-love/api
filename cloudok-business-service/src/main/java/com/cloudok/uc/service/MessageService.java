@@ -26,4 +26,6 @@ public interface MessageService extends IService<MessageVO,MessagePO>{
 	
 	void deleteByThreadId(String threadId);
 
+	Page<MessageThreadVO> searchMyInteractionMessages(Integer viewType, Integer pageNo, Integer pageSize);
+
 }

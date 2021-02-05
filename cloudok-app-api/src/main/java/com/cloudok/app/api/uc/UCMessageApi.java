@@ -85,7 +85,20 @@ public class UCMessageApi {
 		if(status != null && status != 0 && status !=1 ) {
 			status = 0;
 		}
-		return Response.buildSuccess(messageService.searchInteractionMessages(memberId,status, pageNo, pageSize));
+		return Response.buildSuccess(messageService.searchInteractionMessages(memberId,status,pageNo, pageSize));
+	}
+
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/myInteraction")
+	@ApiOperation(value = "查发送给我的和回复给我的留言 viewType=1 我收到的 viewType=2 回复我的", notes = "查发送给我的和回复给我的留言")
+	public Response searchMyInteractionMessagesCount(
+			@RequestParam(name = "viewType",defaultValue = "1") Integer viewType,
+			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+		if(viewType != null && viewType != 1 && viewType !=2 ) {
+			viewType = 1;
+		}
+		return Response.buildSuccess(messageService.searchMyInteractionMessages(viewType,pageNo, pageSize));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

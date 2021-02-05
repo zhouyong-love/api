@@ -22,7 +22,9 @@ public class SimpleMemberDTO implements Serializable{
 	
 	private EducationExperienceVO eduExperience;
 	
-	private int friendCount;
+	private long friendCount;
 	
-	private int newApplyCount;
+	private long fromCount;
+	
+	private long toCount;
 }

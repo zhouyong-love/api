@@ -765,7 +765,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.end().sort(EducationExperienceMapping.GRADE).desc().enablePaging().pageNo(1).pageSize(1).end());
 		return SimpleMemberDTO.builder().member(this.get(getCurrentUserId()))
 				.eduExperience(CollectionUtils.isEmpty(edu) ? null : edu.get(0))
-				.friendCount(recognizedService.getFriendCount()).newApplyCount(recognizedService.getNewApplyCount())
+				.friendCount(recognizedService.getFriendCount())
+				.fromCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).end()))
+				.toCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).end()))
 				.build();
 	}
 

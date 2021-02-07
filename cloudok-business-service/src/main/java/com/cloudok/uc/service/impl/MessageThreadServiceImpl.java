@@ -237,7 +237,14 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		return page;
 	}
 	
-	private List<MessageThreadVO> getMessageThread(List<Long> threadIdList,int limit){
+	private List<MessageThreadVO> getMessageThread(List<MessageThreadPO> threadList,int limit){
+		if(CollectionUtils.isEmpty(threadList)) {
+			return Collections.emptyList();
+		}
+		return this.getMessageThreadByIdList(threadList.stream().map(item -> item.getId()).distinct().collect(Collectors.toList()), limit);
+	}
+	
+	private List<MessageThreadVO> getMessageThreadByIdList(List<Long> threadIdList,int limit){
 		List<MessageThreadVO> result = new ArrayList<MessageThreadVO>();
 		//预取 threadIdList.size * limit * 5 条  判断是否所有的thread都满足了limit条数，无限递归处理
 		List<MessageVO>  list = this.messageService.list(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, QueryOperator.IN,threadIdList).end()
@@ -260,7 +267,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		if(!CollectionUtils.isEmpty(notMatchedthreadIdList)) {
 			//判断是否要递归查询
 			if(list.size() >= threadIdList.size()*limit) { //数据量小于最小数据要求，则递归查
-				result.addAll(this.getMessageThread(notMatchedthreadIdList, limit)); //递归查剩下的
+				result.addAll(this.getMessageThreadByIdList(notMatchedthreadIdList, limit)); //递归查剩下的
 			}else { //不递归，就捞出没有加进去的数据
 				notMatchedMessgeList.stream().collect(Collectors.groupingBy(MessageVO::getThreadId))
 				.forEach((key,value)->{

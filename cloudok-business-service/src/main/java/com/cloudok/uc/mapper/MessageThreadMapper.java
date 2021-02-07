@@ -18,7 +18,7 @@ public interface MessageThreadMapper extends IMapper<MessageThreadPO>{
 	 */
 	public MessageThreadPO getMessageThreadByMemebrs(@Param("memberIdList")List<Long> memberIdList,@Param("type")String type);
 
-	public List<Long> searchChatMessageThreads(@Param("memberId")Long memberId, @Param("start")int start, @Param("end")int end);
+	public List<MessageThreadPO> searchChatMessageThreads(@Param("memberId")Long memberId, @Param("start")int start, @Param("end")int end);
 
 	public Long searchChatMessageThreadsCount(@Param("memberId")Long memberId);
 
@@ -26,11 +26,11 @@ public interface MessageThreadMapper extends IMapper<MessageThreadPO>{
 
 	public Long searchMyInteractionMessageThreadsCount(@Param("memberId")Long memberId, @Param("viewType")Integer viewType);
 
-	public List<Long> searchMyInteractionMessageThreads(@Param("memberId")Long memberId, @Param("viewType")Integer viewType,@Param("start")int start, @Param("end")int end);
+	public List<MessageThreadPO> searchMyInteractionMessageThreads(@Param("memberId")Long memberId, @Param("viewType")Integer viewType,@Param("start")int start, @Param("end")int end);
 
 	public Long searchInteractionMessageThreadsCount(@Param("memberId")Long memberId, @Param("currentUserId")Long currentUserId,@Param("status")Integer status,
 			@Param("seeOthers")Integer seeOthers);
 
-	public List<Long> searchInteractionMessageThreads(@Param("memberId")Long memberId, @Param("currentUserId")Long currentUserId,@Param("status")Integer status,
+	public List<MessageThreadPO> searchInteractionMessageThreads(@Param("memberId")Long memberId, @Param("currentUserId")Long currentUserId,@Param("status")Integer status,
 			@Param("seeOthers")Integer seeOthers,@Param("start")int start, @Param("end")int end);
 }

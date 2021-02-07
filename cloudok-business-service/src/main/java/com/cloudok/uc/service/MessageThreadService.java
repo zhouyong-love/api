@@ -22,5 +22,6 @@ public interface MessageThreadService extends IService<MessageThreadVO,MessageTh
 
 	MessageThreadVO getMessageThreadByMemberId(Long currentUserId, Long memberId, Integer latestMessageCount);
 
+	void readed(Long messageId);
 
 }

@@ -201,7 +201,7 @@ public abstract class AbstractService<D extends VO, E extends PO>
 	@Override
 	public Page<D> page(QueryBuilder queryStream) {
 		Page<D> page=new Page<>();
-		page.setTotalCount(count(queryStream));
+		page.setTotalCount(count(queryStream.excludeSortPage()));
 		page.setPageNo(queryStream.getPageCondition().getPageNo());
 		page.setPageSize(queryStream.getPageCondition().getPageSize());
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / queryStream.getPageCondition().getPageSize() + 1) >= queryStream.getPageCondition()

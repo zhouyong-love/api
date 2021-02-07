@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -75,10 +76,10 @@ public class UCMessageApi {
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
-	@GetMapping("/myInteraction")
+	@GetMapping("/interaction/{type}")
 	@ApiOperation(value = "查发送给我的和回复给我的留言 viewType=1 我收到的 viewType=2 回复我的", notes = "查发送给我的和回复给我的留言")
 	public Response searchMyInteractionMessageThreads(
-			@RequestParam(name = "viewType",defaultValue = "1") Integer viewType,
+			@PathVariable(name = "type") Integer viewType,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
 		if(viewType != null && viewType != 1 && viewType !=2 ) {
@@ -103,6 +104,15 @@ public class UCMessageApi {
 			@RequestParam(name = "memberId",required = false) Long memberId,
 			@RequestParam(name = "latestMessageCount", defaultValue = "10") Integer latestMessageCount) {
 		return Response.buildSuccess(messageThreadService.getMessageThreadByMemberId(SecurityContextHelper.getCurrentUserId(), memberId, latestMessageCount));
+	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@PutMapping("/chats/{id}/readed")
+	@ApiOperation(value = "消息已读", notes = "消息已读")
+	public Response readed(
+			@PathVariable(name = "id",required = false) Long messageId) {
+		messageThreadService.readed(messageId);
+		return Response.buildSuccess();
 	}
 
 }

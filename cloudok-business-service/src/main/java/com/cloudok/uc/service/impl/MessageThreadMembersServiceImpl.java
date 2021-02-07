@@ -32,7 +32,7 @@ public class MessageThreadMembersServiceImpl extends AbstractService<MessageThre
 	}
 	//更新最新读取位置
 	private void onMessageSend(MessageVO eventData) {
-		MessageThreadMembersVO vo = this.get(QueryBuilder.create(MessageThreadMembersMapping.class).and(MessageThreadMembersMapping.THREADID, eventData.getTenantId())
+		MessageThreadMembersVO vo = this.get(QueryBuilder.create(MessageThreadMembersMapping.class).and(MessageThreadMembersMapping.THREADID, eventData.getThreadId())
 				.and(MessageThreadMembersMapping.MEMBERID, eventData.getMemberId()).end());
 		if(vo != null) {
 			MessageThreadMembersVO merge = new MessageThreadMembersVO();

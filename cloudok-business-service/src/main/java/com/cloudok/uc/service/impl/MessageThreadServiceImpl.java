@@ -390,5 +390,16 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 	}
 
 
+	@Override
+	public void readed(Long messageId) {
+		MessageVO message = messageService.get(messageId);
+		MessageThreadMembersVO mtmv = new MessageThreadMembersVO();
+		mtmv.setId(messageThreadMembersService.list(QueryBuilder.create(MessageThreadMembersMapping.class).and(MessageThreadMembersMapping.THREADID, message.getThreadId()).and(MessageThreadMembersMapping.MEMBERID, getCurrentUserId()).end())
+				.get(0).getId());
+		mtmv.setLastPosition(messageId);
+		messageThreadMembersService.merge(mtmv);
+	}
+
+
 
 }

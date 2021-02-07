@@ -37,6 +37,7 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	@Override
 	public RecognizedVO  create(RecognizedVO d) {
 		d.setSourceId(SecurityContextHelper.getCurrentUserId());
+		d.setRead(false);
 		RecognizedVO v =  super.create(d);
 		SpringApplicationContext.publishEvent(new RecognizedCreateEvent(v));
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));

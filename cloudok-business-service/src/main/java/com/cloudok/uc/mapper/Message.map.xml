@@ -8,7 +8,8 @@
 	
 	<select id="searchInteractionMessages"
 		parameterType="Map" resultType="String">
-		select distinct thread_id from uc_message  t
+		select distinct thread_id from (
+		select  thread_id from uc_message  t
 		<if test="seeOthers==1">
 			where   from_id = #{memberId}   and ( type =4 or (type=5 and t.to_id=#{currentMemberId}) ) and deleted=false 
 		</if>
@@ -24,12 +25,13 @@
 			</if>
 		</if>
 		order by t.create_ts desc
+		) t
 		limit #{start},#{end}
 	</select>
 
 	<select id="searchInteractionMessagesCount"
 		parameterType="Map" resultType="Long">
-		select count( distinct thread_id ) from uc_message  
+		select count( distinct thread_id ) from uc_message  t
 		<if test="seeOthers==1">
 			where   from_id = #{memberId}   and ( type =4 or (type=5 and t.to_id=#{currentMemberId}) ) and deleted=false 
 		</if>
@@ -48,7 +50,8 @@
 	
 	<select id="searchPrivateMessages"
 		parameterType="Map" resultType="String">
-		select distinct thread_id from uc_message t where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (1,2) and deleted=false order by t.create_ts desc limit #{start},#{end}
+		select distinct thread_id from (
+		select thread_id from uc_message t where ( from_id = #{memberId} or to_id=#{memberId} ) and type in (1,2) and deleted=false order by t.create_ts desc )t limit #{start},#{end}
 	</select>
 
 	<select id="searchPrivateMessagesCount"

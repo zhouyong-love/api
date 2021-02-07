@@ -26,7 +26,9 @@ import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.event.RecognizedCreateEvent;
 import com.cloudok.uc.event.RecognizedDeleteEvent;
 import com.cloudok.uc.mapper.MessageMapper;
+import com.cloudok.uc.mapper.RecognizedMapper;
 import com.cloudok.uc.mapping.MessageMapping;
+import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.po.MessagePO;
 import com.cloudok.uc.po.UnReadCount;
 import com.cloudok.uc.service.MemberService;
@@ -290,32 +292,39 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
 			List<MessageThreadVO> list = this.getMessageThread(repository.searchPrivateMessages(memberId,(pageNo-1)*pageSize,pageNo*pageSize),2);
 			List<UnReadCount> countList = this.repository.getUnReadMessages(memberId,list.stream().map(item -> item.getThreadId()).distinct().collect(Collectors.toList()));
-			list.stream().forEach(item ->{
-				countList.stream().filter( a -> a.getThreadId().equals(item.getThreadId())).findAny().ifPresent(a ->{
-					item.setUnReadCount(a.getCount());
+			if(!CollectionUtils.isEmpty(countList)&&!CollectionUtils.isEmpty(list)) {
+				list.stream().forEach(item ->{
+					countList.stream().filter( a -> item.getThreadId().equals(a.getThreadId())).findAny().ifPresent(a ->{
+						item.setUnReadCount(a.getCount());
+					});
 				});
-			});
+			}
 			page.setData(list);
 		}
 		return page;
 	}
 
+	@Autowired
+	private RecognizedMapper recognizedMapper;
+	
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> arg0) {
 		if(arg0 instanceof RecognizedCreateEvent) {
 			RecognizedCreateEvent event = RecognizedCreateEvent.class.cast(arg0);
 			RecognizedVO vo = event.getEventData();
-			MessageVO message = new MessageVO();
-			message.setContent("认可消息");
-			message.setFrom(new SimpleMemberInfo(vo.getSourceId()));
-			message.setTo(new SimpleMemberInfo(vo.getTargetId()));
-			message.setType(Integer.parseInt(UCMessageType.recognized.getValue()));
-			this.createByRecognized(message);
+			if(recognizedMapper.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, vo.getTargetId()).and(RecognizedMapping.TARGETID, vo.getSourceId()).end())>0) {
+				MessageVO message = new MessageVO();
+				message.setContent("成为了新的Peers");
+				message.setFrom(new SimpleMemberInfo(vo.getSourceId()));
+				message.setTo(new SimpleMemberInfo(vo.getTargetId()));
+				message.setType(Integer.parseInt(UCMessageType.recognized.getValue()));
+				this.createByRecognized(message);
+			}
 		}else if(arg0 instanceof RecognizedDeleteEvent) {
 			RecognizedDeleteEvent event = RecognizedDeleteEvent.class.cast(arg0);
 			RecognizedVO vo = event.getEventData();
 			List<MessagePO> list = this.repository.select(QueryBuilder.create(MessageMapping.class).and(MessageMapping.FROMID, vo.getSourceId()).and(MessageMapping.TOID, vo.getTargetId())
-					.and(MessageMapping.TYPE, UCMessageType.recognized.getValue()).end());
+					.end().and(MessageMapping.TOID, vo.getSourceId()).and(MessageMapping.FROMID, vo.getTargetId()).end().and(MessageMapping.TYPE, UCMessageType.recognized.getValue()).end());
 			if(!CollectionUtils.isEmpty(list)) {
 				this.remove(list.stream().map(item -> item.getId()).collect(Collectors.toList()));
 			}

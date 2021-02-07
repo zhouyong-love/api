@@ -33,10 +33,10 @@
 					t1.id is not null and t2.id is not null and 
 				</if>
 				<if test="parameters.type == 1">
-					t1.id is null and
+					t2.id is not null and
 				</if>
 				<if test="parameters.type == 2">
-					t2.id is null and 
+					t1.id is not null and 
 				</if>
 				<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
 			</where>
@@ -67,10 +67,10 @@
 					t1.id is not null and t2.id is not null and 
 				</if>
 				<if test="parameters.type == 1">
-					t1.id is null and
+					t2.id is not null and
 				</if>
 				<if test="parameters.type == 2">
-					t2.id is null and 
+					t1.id is not null and 
 				</if>
 				<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
 			</where>

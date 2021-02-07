@@ -93,7 +93,9 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		}
 		vo.setFrom(new SimpleMemberInfo(SecurityContextHelper.getCurrentUserId()));
 		if(vo.getThreadId()!=null) {
-			this.list(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, vo.getThreadId()).and(MessageMapping.STATUS, 0).end())
+			this.list(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, vo.getThreadId())
+					.and(MessageMapping.TOID, SecurityContextHelper.getCurrentUserId())
+					.and(MessageMapping.STATUS, 0).end())
 			.forEach(item->{
 				this.merge(new MessageVO(item.getId(),1));
 			});

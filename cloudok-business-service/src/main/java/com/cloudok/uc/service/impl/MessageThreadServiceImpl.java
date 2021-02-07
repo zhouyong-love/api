@@ -329,7 +329,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 					List<MessageThreadMembersVO> memberList = map.get(item.getId());
 					if(!CollectionUtils.isEmpty(memberList)) {
 						item.setMemberList(memberList.stream().map( m ->{
-						Optional<SimpleMemberInfo> opt =	simpleMemberInfoList.stream().filter(a -> a.getId().equals(m.getId())).findAny();
+						Optional<SimpleMemberInfo> opt =	simpleMemberInfoList.stream().filter(a -> a.getId().equals(m.getMemberId())).findAny();
 						return opt.isPresent() ? opt.get() : null;
 						}).distinct().collect(Collectors.toList()));
 					}

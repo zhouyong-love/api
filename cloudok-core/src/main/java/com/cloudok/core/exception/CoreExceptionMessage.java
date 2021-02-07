@@ -31,6 +31,8 @@ public class CoreExceptionMessage extends ExceptionMessage{
 	public static final CoreExceptionMessage NO_PERMISSION = new CoreExceptionMessage("CORE.NO_PERMISSION", "No permission");
 	
 	public static final CoreExceptionMessage GET_MULTIPLE = new CoreExceptionMessage("CORE.GET_MULTIPLE", "The get request returned multiple records");
+	
+	public static final CoreExceptionMessage PARAMETER_ERR = new CoreExceptionMessage("CORE.PARAMETER_ERR", "Parameter error");
 
 
 	public static CoreExceptionMessage build(String code, String message) {

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class UnReadCount {
-	private String threadId;
+	private Long threadId;
 	private Integer count;
 	
 }

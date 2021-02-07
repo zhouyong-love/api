@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudok.core.vo.Response;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.MessageService;
+import com.cloudok.uc.service.MessageThreadService;
 import com.cloudok.uc.vo.MessageVO;
 
 import io.swagger.annotations.Api;
@@ -29,24 +29,18 @@ public class UCMessageApi {
 
 	@Autowired
 	private MessageService messageService;
+	
+	@Autowired
+	private MessageThreadService messageThreadService;
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping("/{threadId}/message")
-	@ApiOperation(value = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 匿名互动 4 实名互动, threadId为空时，后端自动生成，to的id必传",
-	notes = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 匿名互动 4 实名互动，threadId为空时，后端自动生成，to的id必传")
-	public Response create(@PathVariable("threadId") String threadId,
+	@ApiOperation(value = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复, threadId为空时，后端自动生成，to的id必传",
+	notes = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复，threadId为空时，后端自动生成，to的id必传")
+	public Response sendMessage(@PathVariable("threadId") Long threadId,
 			@RequestBody @Valid MessageVO vo) {
 		vo.setThreadId(threadId);
-		return Response.buildSuccess(messageService.createByMember(vo));
-	}
-
-	@PreAuthorize("isFullyAuthenticated()")
-	@PutMapping("/{threadId}/message/{id}")
-	@ApiOperation(value = "修改消息", notes = "修改消息")
-	public Response modify(@PathVariable("threadId") Long threadId,
-			@PathVariable("id") Long id, @RequestBody @Valid MessageVO vo) {
-		vo.setId(id);
-		return Response.buildSuccess(messageService.updateByMember(vo));
+		return Response.buildSuccess(messageThreadService.createByMember(vo));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
@@ -55,23 +49,15 @@ public class UCMessageApi {
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(messageService.removeByMember(id));
 	}
-	
-	@PreAuthorize("isFullyAuthenticated()")
-	@DeleteMapping("/{threadId}")
-	@ApiOperation(value = "删除消息", notes = "删除消息")
-	public Response removeByThreadId(@PathVariable("threadId") String threadId) {
-		messageService.deleteByThreadId(threadId);
-		return Response.buildSuccess();
-	}
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{threadId}")
 	@ApiOperation(value = "根据threadId获取聊天内容", notes = "根据threadId获取聊天内容")
 	public Response getByThreadId(
-			@PathVariable("threadId") String id,
+			@PathVariable("threadId") Long threadId,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
-		return Response.buildSuccess(messageService.getByThreadId(id,pageNo,pageSize));
+		return Response.buildSuccess(messageThreadService.getMessageByThreadId(threadId,pageNo,pageSize));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
@@ -85,29 +71,38 @@ public class UCMessageApi {
 		if(status != null && status != 0 && status !=1 ) {
 			status = 0;
 		}
-		return Response.buildSuccess(messageService.searchInteractionMessages(memberId,status,pageNo, pageSize));
+		return Response.buildSuccess(messageThreadService.searchInteractionMessageThreads(memberId,status,pageNo, pageSize));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/myInteraction")
 	@ApiOperation(value = "查发送给我的和回复给我的留言 viewType=1 我收到的 viewType=2 回复我的", notes = "查发送给我的和回复给我的留言")
-	public Response searchMyInteractionMessagesCount(
+	public Response searchMyInteractionMessageThreads(
 			@RequestParam(name = "viewType",defaultValue = "1") Integer viewType,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
 		if(viewType != null && viewType != 1 && viewType !=2 ) {
 			viewType = 1;
 		}
-		return Response.buildSuccess(messageService.searchMyInteractionMessages(viewType,pageNo, pageSize));
+		return Response.buildSuccess(messageThreadService.searchMyInteractionMessageThreads(viewType,pageNo, pageSize));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
-	@GetMapping("/private")
+	@GetMapping("/chats")
 	@ApiOperation(value = "查询私信列表", notes = "查询私信列表")
-	public Response searchPrivateMessages(
+	public Response searchChatMessageThreads(
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
-		return Response.buildSuccess(messageService.searchPrivateMessages(SecurityContextHelper.getCurrentUserId(), pageNo, pageSize));
+		return Response.buildSuccess(messageThreadService.searchChatMessageThreads(SecurityContextHelper.getCurrentUserId(), pageNo, pageSize));
+	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/chats/{memberId}")
+	@ApiOperation(value = "查询与某一个人的私信--点击头像等进入与某一个人的私信聊天，要先获取与这个人的私信thread与最新的n条信息", notes = "查询与某一个人的私信")
+	public Response getMessageThreadByMemberId(
+			@RequestParam(name = "memberId",required = false) Long memberId,
+			@RequestParam(name = "latestMessageCount", defaultValue = "10") Integer latestMessageCount) {
+		return Response.buildSuccess(messageThreadService.getMessageThreadByMemberId(SecurityContextHelper.getCurrentUserId(), memberId, latestMessageCount));
 	}
 
 }

@@ -7,19 +7,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MessagePO extends PO {
+public class MessageThreadMembersPO extends PO {
 
-	private static final long serialVersionUID = 490715433984896700L;
+	private static final long serialVersionUID = 578312452443968900L;
 
-	
-	private String type;
-	
-	
-	private String content;
-	
 	
 	private Long threadId;
 	
 	private Long memberId;
+	
+	private Long lastPosition;
+	
 	
 }

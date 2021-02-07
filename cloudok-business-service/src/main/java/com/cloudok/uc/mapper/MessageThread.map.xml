@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.uc.mapper.MessageThreadMapper">
+
+
+	<select id="getMessageThreadByMemebrs" parameterType="Map"
+		resultMap="messageThreadMap">
+		SELECT t.* FROM uc_message_thread t
+		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE
+		and t.type=#{type}
+		and tm.member_id in
+		<foreach collection="memberIdList" close=")" item="item" open="(" separator=",">
+			#{item}
+		</foreach>
+	</select>
+
+
+	<select id="searchChatMessageThreads" parameterType="Map" resultType="Long">
+		SELECT t.id FROM uc_message_thread t
+		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=1 
+		and tm.member_id = #{memberId}
+		limit #{start},#{end}
+	</select>
+
+	<select id="searchChatMessageThreadsCount" parameterType="Map" resultType="Long">
+		SELECT count(1) FROM uc_message_thread t INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id 
+		AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=1 and tm.member_id = #{memberId}
+	</select>
+	
+	
+	<select id="searchMyInteractionMessageThreads" parameterType="Map" resultType="Long">
+		SELECT t.id FROM uc_message_thread t
+		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=1  and tm.member_id = #{memberId}
+		inner join uc_message m on m.thread_id = t.id and m.deleted=false
+		<if test="viewType ==1">
+			 and m.type =  3
+		</if>
+		<if test="viewType ==2">
+			 and m.type in (4,5)
+		</if>
+		limit #{start},#{end}
+	</select>
+
+	<select id="searchMyInteractionMessageThreadsCount" parameterType="Map" resultType="Long">
+		SELECT count(1) FROM uc_message_thread t INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id 
+		AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=1 and tm.member_id = #{memberId}
+		inner join uc_message m on m.thread_id = t.id and m.deleted=false
+		<if test="viewType ==1">
+			 and m.type =  3
+		</if>
+		<if test="viewType ==2">
+			 and m.type in (4,5)
+		</if>
+	</select>
+	<select id="searchInteractionMessageThreads" parameterType="Map" resultType="Long">
+		SELECT t.id FROM uc_message_thread t
+		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=1  and t.owner_id = #{memberId}
+	 	<if test="seeOthers == 1">
+	 		inner join uc_message m on m.thread_id = t.id and m.deleted=false
+	 		and ( t.is_public = true or ( m.member_id= #{currentUserId}) )
+	 	</if>
+		limit #{start},#{end}
+	</select>
+
+	<select id="searchInteractionMessageThreadsCount" parameterType="Map" resultType="Long">
+		SELECT count(1) FROM  uc_message_thread t
+		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=1  and t.owner_id = #{memberId}
+	 	<if test="seeOthers == 1">
+	 		inner join uc_message m on m.thread_id = t.id and m.deleted=false
+	 		and ( t.is_public = true or ( m.member_id= #{currentUserId}) )
+	 	</if>
+		 
+	</select>
+</mapper>

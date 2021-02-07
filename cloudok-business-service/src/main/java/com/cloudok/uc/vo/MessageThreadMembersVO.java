@@ -13,17 +13,16 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageVO extends VO {
+public class MessageThreadMembersVO extends VO {
 
-	private static final long serialVersionUID = 396439084235117300L;
-
-	private String type;
-
-	private String content;
-
+	private static final long serialVersionUID = 514910815917045250L;
+	
+	
 	private Long threadId;
-
+	
 	private Long memberId;
-
-	private Long toMemberId;
+	
+	private Long lastPosition;
+	
+	
 }

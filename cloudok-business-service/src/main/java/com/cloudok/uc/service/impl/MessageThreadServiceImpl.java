@@ -117,6 +117,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		message.setThreadId(threadId);
 		message.setContent(content);
 		message.setMemberId(fromId);
+		message.setType(messageType);
 		messageService.create(message);
 		//发布事件
 		SpringApplicationContext.publishEvent(new MessageSendEvent(message));
@@ -152,24 +153,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		}
 		List<Long> threadIdList = messageThreadList.stream().distinct().collect(Collectors.toList());
 		List<MessageThreadVO> list = this.get(threadIdList);
-		if(!CollectionUtils.isEmpty(list)) {
-			List<MessageThreadMembersVO> tempList = this.messageThreadMembersService.list(QueryBuilder.create(MessageThreadMembersMapping.class)
-					.and(MessageThreadMembersMapping.THREADID, QueryOperator.IN,threadIdList).end());
-			if(!CollectionUtils.isEmpty(tempList)) {
-				List<Long> memberIdList = tempList.stream().map(item -> item.getMemberId()).distinct().collect(Collectors.toList());
-				List<SimpleMemberInfo> simpleMemberInfoList = memberService.getSimpleMemberInfo(memberIdList);
-				Map<Long,List<MessageThreadMembersVO>> map =  tempList.stream().collect(Collectors.groupingBy(MessageThreadMembersVO::getThreadId));
-				list.stream().forEach(item ->{
-					List<MessageThreadMembersVO> memberList = map.get(item.getId());
-					if(!CollectionUtils.isEmpty(memberList)) {
-						item.setMemberList(memberList.stream().map( m ->{
-						Optional<SimpleMemberInfo> opt =	simpleMemberInfoList.stream().filter(a -> a.getId().equals(m.getId())).findAny();
-						return opt.isPresent() ? opt.get() : null;
-						}).distinct().collect(Collectors.toList()));
-					}
-				});
-			}
-		}
+		this.fillThreadInfo(list);
 		return list;
 	}
 
@@ -247,6 +231,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 					});
 				});
 			}
+			this.fillThreadInfo(list);
 			page.setData(list);
 		}
 		return page;
@@ -306,6 +291,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
 			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchInteractionMessageThreads(memberId,getCurrentUserId(),status,seeOthers,(pageNo-1)*pageSize,pageNo*pageSize),2);
+			this.fillThreadInfo(dataList);
 			page.setData(dataList);
 		}
 		return page;
@@ -324,9 +310,32 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
 			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchMyInteractionMessageThreads(memberId,viewType,(pageNo-1)*pageSize,pageNo*pageSize),2);
+			this.fillThreadInfo(dataList);
 			page.setData(dataList);
 		}
 		return page;
+	}
+	
+	private void fillThreadInfo(List<MessageThreadVO> list) {
+		if(!CollectionUtils.isEmpty(list)) {
+			List<Long> threadIdList = list.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
+			List<MessageThreadMembersVO> tempList = this.messageThreadMembersService.list(QueryBuilder.create(MessageThreadMembersMapping.class)
+					.and(MessageThreadMembersMapping.THREADID, QueryOperator.IN,threadIdList).end());
+			if(!CollectionUtils.isEmpty(tempList)) {
+				List<Long> memberIdList = tempList.stream().map(item -> item.getMemberId()).distinct().collect(Collectors.toList());
+				List<SimpleMemberInfo> simpleMemberInfoList = memberService.getSimpleMemberInfo(memberIdList);
+				Map<Long,List<MessageThreadMembersVO>> map =  tempList.stream().collect(Collectors.groupingBy(MessageThreadMembersVO::getThreadId));
+				list.stream().forEach(item ->{
+					List<MessageThreadMembersVO> memberList = map.get(item.getId());
+					if(!CollectionUtils.isEmpty(memberList)) {
+						item.setMemberList(memberList.stream().map( m ->{
+						Optional<SimpleMemberInfo> opt =	simpleMemberInfoList.stream().filter(a -> a.getId().equals(m.getId())).findAny();
+						return opt.isPresent() ? opt.get() : null;
+						}).distinct().collect(Collectors.toList()));
+					}
+				});
+			}
+		}
 	}
 	
 	@Override

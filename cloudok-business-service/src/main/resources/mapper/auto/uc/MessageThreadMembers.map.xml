@@ -13,7 +13,7 @@
 	</resultMap>
 
 	<sql id="columns">
-		t.thread_id,t.last_position,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.thread_id,t.last_position,t.member_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.MessageThreadMembersPO">

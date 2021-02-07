@@ -71,4 +71,30 @@
 	 	</if>
 		 
 	</select>
+	
+	
+	<resultMap  type="com.cloudok.uc.po.UnReadCount" id="unReadMessageMap">
+		<result property="threadId" column="thread_id"/>
+		<result property="count" column="c_count"/>
+	</resultMap>
+	
+	
+	
+	<select id="getUnReadMessages"
+		parameterType="Map" resultMap="unReadMessageMap">
+		SELECT 
+		   t.thread_id,count(1) as c_count
+		FROM
+		    uc_message t
+		        INNER JOIN
+		    uc_message_thread_members um ON t.thread_id = um.thread_id
+		    and t.id > um.last_position and t.member_id != #{memberId} and um.member_id=#{memberId}
+		<if test="threadIdList != null">
+			and um.thread_id in 
+			<foreach collection="threadIdList" close=")"  item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		   group by t.thread_id 
+	</select>
 </mapper>

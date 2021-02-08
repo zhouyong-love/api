@@ -36,6 +36,9 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	
 	@Override
 	public RecognizedVO  create(RecognizedVO d) {
+		if(count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, SecurityContextHelper.getCurrentUserId()).and(RecognizedMapping.TARGETID, d.getTargetId()).end())>0) {
+			throw new SystemException("请勿重复认可");
+		}
 		d.setSourceId(SecurityContextHelper.getCurrentUserId());
 		d.setRead(false);
 		RecognizedVO v =  super.create(d);
@@ -63,6 +66,9 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 			if (!vo.getSourceId().equals(SecurityContextHelper.getCurrentUserId())) {
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
+		}
+		if(count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, vo.getSourceId()).and(RecognizedMapping.SOURCEID, vo.getTargetId()).end())>0) {
+			throw new SystemException("已双向认可，不能取消认可");
 		}
 		int r = super.remove(id);
 		SpringApplicationContext.publishEvent(new RecognizedDeleteEvent(vo));

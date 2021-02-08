@@ -40,7 +40,7 @@
 		<if test="viewType ==2">
 			 and m.type=3 and m.member_id=#{memberId} 
 		</if>
-		order by t.last_message_id desc
+		order by t.id desc
 		limit #{start},#{end}
 	</select>
 
@@ -62,7 +62,7 @@
 	 		inner join uc_message m on m.thread_id = t.id and m.deleted=false
 	 		and ( t.is_public = true or ( m.member_id= #{currentUserId}) )
 	 	</if>
-	 	order by t.last_message_id desc
+	 	order by t.id desc
 		limit #{start},#{end}
 	</select>
 

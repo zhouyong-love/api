@@ -253,7 +253,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		List<MessageThreadVO> result = new ArrayList<MessageThreadVO>();
 		//预取 threadIdList.size * limit * 5 条  判断是否所有的thread都满足了limit条数，无限递归处理
 		List<MessageVO>  list = this.messageService.list(QueryBuilder.create(MessageMapping.class).and(MessageMapping.THREADID, QueryOperator.IN,threadIdList).end()
-				.sort(MessageMapping.ID).desc().enablePaging().page(0, threadIdList.size()*2*limit).end());
+				.sort(MessageMapping.ID).desc().enablePaging().page(0, threadIdList.size()*10*limit).end());
 		Map<Long,List<MessageVO>> map = list.stream().collect(Collectors.groupingBy(MessageVO::getThreadId));
 		List<Long> notMatchedthreadIdList = new ArrayList<Long>();
 		List<MessageVO> matchedMessgeList = new ArrayList<MessageVO>();
@@ -267,7 +267,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 			}
 		});
 		matchedMessgeList.stream().collect(Collectors.groupingBy(MessageVO::getThreadId)).forEach((key,value)->{
-			result.add(new MessageThreadVO(key, value));
+			result.add(new MessageThreadVO(key, value.stream().sorted((a,b)->a.getId().compareTo(b.getId())).collect(Collectors.toList())));
 		});
 		if(!CollectionUtils.isEmpty(notMatchedthreadIdList)) {
 			//判断是否要递归查询

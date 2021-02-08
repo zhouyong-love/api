@@ -35,10 +35,10 @@
 		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=2  and tm.member_id = #{memberId}
 		inner join uc_message m on m.thread_id = t.id and m.deleted=false
 		<if test="viewType ==1">
-			 and m.type =  3
+			 and m.type =  3 	and m.member_id != #{memberId}
 		</if>
 		<if test="viewType ==2">
-			 and m.type in (4,5)
+			 and m.type in (4,5) and m.member_id != #{memberId}
 		</if>
 		order by t.last_message_id desc
 		limit #{start},#{end}
@@ -49,10 +49,10 @@
 		AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=2 and tm.member_id = #{memberId}
 		inner join uc_message m on m.thread_id = t.id and m.deleted=false
 		<if test="viewType ==1">
-			 and m.type =  3
+			 and m.type =  3 and m.member_id != #{memberId}
 		</if>
 		<if test="viewType ==2">
-			 and m.type in (4,5)
+			 and m.type in (4,5) and m.member_id != #{memberId}
 		</if>
 	</select>
 	<select id="searchInteractionMessageThreads" parameterType="Map" resultMap="messageThreadMap">

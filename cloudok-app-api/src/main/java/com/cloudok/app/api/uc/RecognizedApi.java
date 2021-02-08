@@ -48,10 +48,11 @@ public class RecognizedApi {
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/{id}/member")
 	@ApiOperation(value = "删除认可某人", notes = "删除认可某人")
-	public Response remove(@PathVariable("id") Long id) {
-		return Response.buildSuccess(recognizedService.remove(id));
+	public Response remove(@PathVariable("id") Long memberId) {
+		recognizedService.unRecognized(memberId);
+		return Response.buildSuccess();
 	}
 	
 	@PreAuthorize("isFullyAuthenticated()")

@@ -97,4 +97,14 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 		}
 	}
 
+	@Override
+	public void unRecognized(Long memberId) {
+		List<RecognizedVO> vos = super.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).and(RecognizedMapping.TARGETID, memberId).end());
+		if(!CollectionUtils.isEmpty(vos)) {
+			vos.forEach(vo->{
+				remove(vo.getId());
+			});
+		}
+	}
+
 }

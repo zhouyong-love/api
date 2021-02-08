@@ -14,4 +14,5 @@ public interface RecognizedService extends IService<RecognizedVO,RecognizedPO>{
 	
 	void read(List<Long> memberIds);
 	
+	void unRecognized(Long memberId);
 }

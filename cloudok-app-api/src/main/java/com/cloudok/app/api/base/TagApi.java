@@ -42,7 +42,7 @@ public class TagApi {
 	@GetMapping
 	@ApiOperation(value = "查询标签列表", notes = "查询标签列表")
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(tagService.list(QueryBuilder.create(TagMapping.class).with(request)));
+		return Response.buildSuccess(tagService.list(QueryBuilder.create(TagMapping.class).with(request).disenablePaging()));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

@@ -765,11 +765,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		List<EducationExperienceVO> edu = educationExperienceService.list(QueryBuilder
 				.create(EducationExperienceMapping.class).and(EducationExperienceMapping.MEMBERID, getCurrentUserId())
 				.end().sort(EducationExperienceMapping.GRADE).desc().enablePaging().pageNo(1).pageSize(1).end());
+		long friendCount = recognizedService.getFriendCount();
 		return SimpleMemberDTO.builder().member(this.get(getCurrentUserId()))
 				.eduExperience(CollectionUtils.isEmpty(edu) ? null : edu.get(0))
-				.friendCount(recognizedService.getFriendCount())
-				.fromCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).end()))
-				.toCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).end()))
+				.friendCount(friendCount)
+				.fromCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).end()) )
+				.toCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).end()) )
 				.newFrom(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).and(RecognizedMapping.READ, false).end()))
 				.build();
 	}
@@ -808,7 +809,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		page.setPageSize(builder.getPageCondition().getPageSize());
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / builder.getPageCondition().getPageSize() + 1) >= builder
 				.getPageCondition().getPageNo()) {
-			List<MemberPO> es = repository.friend(builder);
+			List<LinkMemberPO> es = repository.friend(builder);
 			if (es != null) {
 				page.setData(es.stream().map(item -> {
 					WholeMemberDTO vo = new WholeMemberDTO();

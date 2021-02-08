@@ -1,135 +1,139 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.uc.mapper.MemberMapper">
-	<resultMap extends="memberMap" type="com.cloudok.uc.po.LinkMemberPO" id="linkMemberMap">
-	
-		<result property="to" column="to"/>
-		
-		<result property="from" column="from"/>
-		
+	<resultMap extends="memberMap"
+		type="com.cloudok.uc.po.LinkMemberPO" id="linkMemberMap">
+
+		<result property="to" column="to" />
+
+		<result property="from" column="from" />
+
 	</resultMap>
-	
-	<select id="friend" 
-		parameterType="com.cloudok.core.query.QueryBuilder"
-		resultMap="memberMap">
-		<if test="parameters.type == 3">
-			select
-			<include refid="columns"></include>
-			from uc_member  t
-			inner join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
-			<where>
-				t1.read = false and
-				<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
-			</where>
-		</if>
-		<if test="parameters.type != 3">
-			select
-			<include refid="columns"></include>
-			from uc_member  t
-			left join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
-			left join uc_recognized t2 on t2.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
-			<where>
-				<if test="parameters.type == 0">
-					t1.id is not null and t2.id is not null and 
-				</if>
-				<if test="parameters.type == 1">
-					t2.id is not null and
-				</if>
-				<if test="parameters.type == 2">
-					t1.id is not null and 
-				</if>
-				<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
-			</where>
-		</if>
-	</select>
-	
-	<select id="friendCount" 
-		parameterType="com.cloudok.core.query.QueryBuilder"
-		resultType="Long">
-		<if test="parameters.type == 3">
-			select
-			count(1)
-			from uc_member  t
-			inner join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
-			<where>
-				  t1.read = false and
-				<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
-			</where>
-		</if>
-		<if test="parameters.type != 3">
-			select
-			count(1)
-			from uc_member  t
-			left join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
-			left join uc_recognized t2 on t2.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
-			<where>
-				<if test="parameters.type == 0">
-					t1.id is not null and t2.id is not null and 
-				</if>
-				<if test="parameters.type == 1">
-					t2.id is not null and
-				</if>
-				<if test="parameters.type == 2">
-					t1.id is not null and 
-				</if>
-				<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
-			</where>
-		</if>
-	</select>
-	
-	<select id="queryLinkMember" 
+
+	<select id="friend"
 		parameterType="com.cloudok.core.query.QueryBuilder"
 		resultMap="linkMemberMap">
+
 		select
 		(t1.id is not null ) as `from`,
 		(t2.id is not null ) as `to`,
 		<include refid="columns"></include>
-		from uc_member  t
-		left join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
-		left join uc_recognized t2 on t2.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
+		from uc_member t
+		left join uc_recognized t1 on t1.source_id = t.id and t1.target_id =
+		#{parameters.memberId} and t1.deleted = false
+		left join uc_recognized t2 on t2.target_id = t.id and t2.source_id =
+		#{parameters.memberId} and t2.deleted = false
 		<where>
-			<if test="parameters.ignore">
-				 (t1.id is null or t2.id is null)  and
+			<if test="parameters.type == 0">
+				t1.id is not null and t2.id is not null and
 			</if>
-			t.id != #{parameters.memberId}  and 
-			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+			<if test="parameters.type == 1">
+				t2.id is not null and 
+			</if>
+			<if test="parameters.type == 2">
+				t1.id is not null and
+			</if>
+			<if test="parameters.type == 3">
+				t1.read = false and
+			</if>
+			<include
+				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
 		</where>
 	</select>
-	
-	<select id="queryFriends" 
+
+	<select id="friendCount"
+		parameterType="com.cloudok.core.query.QueryBuilder" resultType="Long">
+		select
+		count(1)
+		from uc_member t
+		left join uc_recognized t1 on t1.source_id = t.id and t1.target_id =
+		#{parameters.memberId} and t1.deleted = false
+		left join uc_recognized t2 on t2.target_id = t.id and t2.source_id =
+		#{parameters.memberId} and t2.deleted = false
+		<where>
+			<if test="parameters.type == 0">
+				t1.id is not null and t2.id is not null and
+			</if>
+			<if test="parameters.type == 1">
+				t2.id is not null and
+			</if>
+			<if test="parameters.type == 2">
+				t1.id is not null and
+			</if>
+			<if test="parameters.type == 3">
+				t1.read = false and
+			</if>
+			<include
+				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
+		</where>
+
+	</select>
+
+	<select id="queryLinkMember"
 		parameterType="com.cloudok.core.query.QueryBuilder"
 		resultMap="linkMemberMap">
 		select
 		(t1.id is not null ) as `from`,
 		(t2.id is not null ) as `to`,
 		<include refid="columns"></include>
-		from uc_member  t
-		left join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
-		left join uc_recognized t2 on t2.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
+		from uc_member t
+		left join uc_recognized t1 on t1.source_id = t.id and
+		t1.target_id = #{parameters.memberId} and t1.deleted = false
+		left join
+		uc_recognized t2 on t2.target_id = t.id and t2.source_id =
+		#{parameters.memberId} and t2.deleted = false
+		<where>
+			<if test="parameters.ignore">
+				(t1.id is null or t2.id is null) and
+			</if>
+			t.id != #{parameters.memberId} and
+			<include
+				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
+		</where>
+	</select>
+
+	<select id="queryFriends"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="linkMemberMap">
+		select
+		(t1.id is not null ) as `from`,
+		(t2.id is not null ) as `to`,
+		<include refid="columns"></include>
+		from uc_member t
+		left join uc_recognized t1 on t1.source_id = t.id and
+		t1.target_id = #{parameters.memberId} and t1.deleted = false
+		left join
+		uc_recognized t2 on t2.target_id = t.id and t2.source_id =
+		#{parameters.memberId} and t2.deleted = false
 		<where>
 			t1.id is not null and t2.id is not null and
-			t.id != #{parameters.memberId} and
-			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+			t.id !=
+			#{parameters.memberId} and
+			<include
+				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
 		</where>
 	</select>
 
 	<select id="countQueryLinkMember"
-		parameterType="com.cloudok.core.query.QueryBuilder"
-		resultType="long">
+		parameterType="com.cloudok.core.query.QueryBuilder" resultType="long">
 		select
 		count(1)
 		from uc_member t
-		left join uc_recognized t1 on t1.source_id = t.id and t1.target_id = #{parameters.memberId} and t1.deleted = false
-		left join uc_recognized t2 on t2.target_id = t.id and t2.source_id = #{parameters.memberId} and t2.deleted = false
+		left join uc_recognized t1 on
+		t1.source_id = t.id and t1.target_id = #{parameters.memberId} and
+		t1.deleted = false
+		left join uc_recognized t2 on t2.target_id = t.id
+		and t2.source_id = #{parameters.memberId} and t2.deleted = false
 		<where>
 			<if test="parameters.ignore">
-				(t1.id is null or t2.id is null) and 
+				(t1.id is null or t2.id is null) and
 			</if>
 			t.id != #{parameters.memberId} and
-			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+			<include
+				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
 		</where>
 	</select>
-	
-	
-	
+
+
+
 </mapper>

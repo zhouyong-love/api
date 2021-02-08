@@ -11,7 +11,7 @@
 	</select>
 	
 	<update id="deleteByRole" parameterType="list">
-		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.logicDelete">
 			<property name="tableName" value="sys_obj_role"/>
 		</include>	
 		<where>

@@ -64,7 +64,7 @@
 	</update>
 	
 	<update id="delete" parameterType="list">
-		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.logicDelete">
 			<property name="tableName" value="base_message_details"/>
 		</include>	
 		<where>

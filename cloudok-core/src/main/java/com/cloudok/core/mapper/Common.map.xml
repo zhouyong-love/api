@@ -33,11 +33,11 @@
 	</sql>
 	
 	<sql id="delete">
-		delete from ${tableName}
+		delete from ${tableName} t
 	</sql>
 	
 	<sql id="logicDelete">
-		update ${tableName} set deleted=true
+		update ${tableName} t set t.deleted=true
 	</sql>
 	
 	<sql id="byIds">

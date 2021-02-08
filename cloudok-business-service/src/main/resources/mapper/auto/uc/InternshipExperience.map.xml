@@ -52,7 +52,7 @@
 	</update>
 	
 	<update id="delete" parameterType="list">
-		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.logicDelete">
 			<property name="tableName" value="uc_internship_experience"/>
 		</include>	
 		<where>

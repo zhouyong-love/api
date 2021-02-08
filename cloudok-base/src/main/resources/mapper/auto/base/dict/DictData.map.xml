@@ -56,7 +56,7 @@
 	</update>
 	
 	<update id="delete" parameterType="list">
-		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.logicDelete">
 			<property name="tableName" value="sys_dict_data"/>
 		</include>	
 		<where>

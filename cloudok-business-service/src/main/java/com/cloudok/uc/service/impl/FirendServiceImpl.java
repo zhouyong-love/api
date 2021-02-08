@@ -72,7 +72,7 @@ public class FirendServiceImpl extends AbstractService<FirendVO, FirendPO> imple
 		if(arg0 instanceof RecognizedCreateEvent) {
 			this.recognized(RecognizedCreateEvent.class.cast(arg0).getEventData());
 		}else if(arg0 instanceof RecognizedDeleteEvent) {
-			this.unRecognized(RecognizedCreateEvent.class.cast(arg0).getEventData());
+			this.unRecognized(RecognizedDeleteEvent.class.cast(arg0).getEventData());
 		}
 		
 	}

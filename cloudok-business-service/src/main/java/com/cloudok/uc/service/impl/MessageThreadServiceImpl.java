@@ -241,7 +241,12 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		if(CollectionUtils.isEmpty(threadList)) {
 			return Collections.emptyList();
 		}
-		return this.getMessageThreadByIdList(threadList.stream().map(item -> item.getId()).distinct().collect(Collectors.toList()), limit);
+		List<MessageThreadVO> list =  this.getMessageThreadByIdList(threadList.stream().map(item -> item.getId()).distinct().collect(Collectors.toList()), limit);
+		//递归造成了数据排序混乱，回复排序
+		return threadList.stream().map(item -> {
+			Optional<MessageThreadVO>  opt = list.stream().filter( t -> t.getId().equals(item.getId())).findAny();
+			return opt.isPresent() ? opt.get() : null;
+		}).filter(item -> item != null).collect(Collectors.toList());
 	}
 	
 	private List<MessageThreadVO> getMessageThreadByIdList(List<Long> threadIdList,int limit){

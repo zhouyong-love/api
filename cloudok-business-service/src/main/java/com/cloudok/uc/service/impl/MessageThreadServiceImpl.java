@@ -380,7 +380,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		if(arg0 instanceof RecognizedCreateEvent) {
 			this.onRecognized(RecognizedCreateEvent.class.cast(arg0).getEventData());
 		}else if(arg0 instanceof RecognizedDeleteEvent) {
-			this.onUnRecognized(RecognizedCreateEvent.class.cast(arg0).getEventData());
+			this.onUnRecognized(RecognizedDeleteEvent.class.cast(arg0).getEventData());
 		}else if(arg0 instanceof MessageSendEvent) {
 			this.onMessageSendEvent(MessageSendEvent.class.cast(arg0).getEventData());
 		}

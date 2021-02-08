@@ -5,6 +5,8 @@
 	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.base.po.IndustryPO" id="industryMap">
 		
 		<result property="name" column="name"/>
+		<result property="category" column="category"/>
+
 		
 	</resultMap>
 
@@ -13,12 +15,12 @@
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.base.po.IndustryPO">
-		insert into base_industry(name,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{name},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into base_industry(name,category,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{name},#{category},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.base.po.IndustryPO">
-		update base_industry set name=#{name},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update base_industry set name=#{name},category=#{category},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -28,6 +30,9 @@
 		update base_industry set 
 			
 			<if test="name != null ">name = #{name},</if>
+			
+			<if test="name != null ">category = #{category},</if>
+			
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

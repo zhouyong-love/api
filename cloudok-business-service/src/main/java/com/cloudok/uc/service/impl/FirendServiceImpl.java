@@ -35,6 +35,7 @@ public class FirendServiceImpl extends AbstractService<FirendVO, FirendPO> imple
 	private void recognized(RecognizedVO recognized) {
 		//认可某人，如果相互认可了，则相互加入到好友表
 		RecognizedVO sourceRecognized = this.recognizedService.get(QueryBuilder.create(RecognizedMapping.class)
+				.and(RecognizedMapping.SOURCEID, recognized.getTargetId())
 				.and(RecognizedMapping.TARGETID, recognized.getSourceId()).end());
 		if(sourceRecognized != null) { //表示相互认可了 source 认可了 target 且 target 认可了 source
 			FirendVO f1 = new FirendVO();

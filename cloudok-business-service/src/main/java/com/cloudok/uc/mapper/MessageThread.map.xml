@@ -6,13 +6,10 @@
 	<select id="getMessageThreadByMemebrs" parameterType="Map"
 		resultMap="messageThreadMap">
 		SELECT distinct t.* FROM uc_message_thread t
-		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE
-		and t.type=#{type}
-		and tm.member_id in
-		<foreach collection="memberIdList" close=")" item="item" open="(" separator=",">
-			#{item}
+		<foreach collection="memberIdList"  item="item"  index="index">	
+			 INNER JOIN uc_message_thread_members tm_${index} ON t.id = tm_${index}.thread_id  AND tm_${index}.deleted = FALSE and tm_${index}.member_id = #{item} 
 		</foreach>
-		order by t.last_message_id desc
+		and t.type=#{type} and t.deleted = FALSE
 	</select>
 
 

@@ -9,7 +9,7 @@
 		<result property="from" column="from" />
 
 	</resultMap>
-
+<!-- 
 	<select id="friend"
 		parameterType="com.cloudok.core.query.QueryBuilder"
 		resultMap="linkMemberMap">
@@ -91,7 +91,7 @@
 				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
 		</where>
 	</select>
-
+ -->
 	<select id="queryFriends"
 		parameterType="com.cloudok.core.query.QueryBuilder"
 		resultMap="linkMemberMap">
@@ -113,7 +113,7 @@
 				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
 		</where>
 	</select>
-
+<!-- 
 	<select id="countQueryLinkMember"
 		parameterType="com.cloudok.core.query.QueryBuilder" resultType="long">
 		select
@@ -132,6 +132,34 @@
 			<include
 				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
 		</where>
+	</select>
+	 -->
+	
+	<resultMap  type="com.cloudok.uc.po.SuggsetMemberScorePO" id="suggsetMemberScoreMap">
+		<result property="id" column="id"/>
+		<result property="score" column="score"/>
+	</resultMap>
+	
+	
+	
+	<select id="suggest" parameterType="map" resultMap="suggsetMemberScoreMap">
+		select t.id, wi+ti+10  as score from uc_member t
+		where t.deleted=false
+		<if test="filterType ==1">
+			and exists (select 1 from uc_research_experience re where re.member_id = t.id and re.deleted=false)
+		</if>
+		<if test="filterType ==2">
+			and exists (select 1 from uc_internship_experience re where re.member_id = t.id and re.deleted=false) 
+		</if>
+		<if test="filterType ==3">
+			and exists (select 1 from uc_member_tags re , base_tag bt 
+				where bt.id = re.tag_id and bt.category='personality' and  re.member_id = t.id and re.type=2  )
+		</if>
+		<if test="filterType ==4">
+			and exists (select 1 from uc_member_tags re , base_tag bt 
+				where bt.id = re.tag_id and bt.category='statement' and  re.member_id = t.id and re.type=2  )
+		</if>
+		order by score desc
 	</select>
 
 

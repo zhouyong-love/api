@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.IService;
 import com.cloudok.core.vo.Page;
 import com.cloudok.uc.dto.SimpleMemberDTO;
@@ -59,15 +58,13 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	
 	List<WholeMemberDTO> getWholeMemberInfo(List<? extends MemberVO> memberIdList,boolean ignoreRecognized);
 	
-	Page<WholeMemberDTO> link(QueryBuilder builder);
-	
-	WholeMemberDTO link(Long id);
+//	Page<WholeMemberDTO> link(QueryBuilder builder);
+//	
+//	WholeMemberDTO link(Long id);
 	
 	SimpleMemberDTO getSimpleMemberInfo();
 	
 	IdenticalCountVO identical(Long id);
-	
-	Page<WholeMemberDTO> friend(String type,QueryBuilder builder);
 	
 	@Data
 	public class IdenticalCountVO{
@@ -75,5 +72,11 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 		
 		private int tags;
 	}
+
+	MemberVO getMemberDetails(Long memberId);
+
+	Page<WholeMemberDTO> suggest(Integer filterType,String threadId,  Integer pageNo, Integer pageSize);
+
+	Page<WholeMemberDTO> friend(Integer type, Integer pageNo, Integer pageSize);
 
 }

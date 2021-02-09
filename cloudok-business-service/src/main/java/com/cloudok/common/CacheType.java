@@ -10,4 +10,6 @@ public class CacheType {
 	public static final CacheNameSpace VerifyCodeCount = new CacheNameSpace("uc", "VerifyCodeCount");
 	
 	public static final CacheNameSpace Action = new CacheNameSpace("uc", "Action");
+	
+	public static final CacheNameSpace RI = new CacheNameSpace("uc", "RI");
 }

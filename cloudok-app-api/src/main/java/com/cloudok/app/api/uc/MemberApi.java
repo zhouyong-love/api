@@ -22,7 +22,6 @@ import com.cloudok.log.annotation.LogModule;
 import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.exception.SecurityExceptionMessage;
-import com.cloudok.uc.mapping.MemberMapping;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.vo.BindRequest;
 import com.cloudok.uc.vo.ChangePasswordRequest;
@@ -176,21 +175,23 @@ public class MemberApi {
 		return Response.buildSuccess(collectService.getMyCollectPosts(SecurityContextHelper.getCurrentUserId(),pageNo,pageSize));
 	}
  
-	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/link")
-	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
-	@Loggable
-	public Response link(HttpServletRequest request) {
-		return Response.buildSuccess(memberService.link(QueryBuilder.create(MemberMapping.class).with(request)));
-	}
-	
-	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/link/{id}")
-	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
-	@Loggable
-	public Response linkById(@PathVariable("id")Long id) {
-		return Response.buildSuccess(memberService.link(id));
-	}
+//	@PreAuthorize("isAuthenticated()")
+//	@GetMapping("/link")
+//	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
+//	@Loggable
+//	@Deprecated
+//	public Response link(HttpServletRequest request) {
+//		return Response.buildSuccess(memberService.link(QueryBuilder.create(MemberMapping.class).with(request)));
+//	}
+//	
+//	@PreAuthorize("isAuthenticated()")
+//	@GetMapping("/link/{id}")
+//	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
+//	@Loggable
+//	@Deprecated
+//	public Response linkById(@PathVariable("id")Long id) {
+//		return Response.buildSuccess(memberService.link(id));
+//	}
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/simpleInfo")
@@ -212,7 +213,30 @@ public class MemberApi {
 	@GetMapping("/{type}/friend")
 	@ApiOperation(value = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注", notes = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注")
 	@Loggable
-	public Response friend(HttpServletRequest request,@PathVariable("type") String type) {
-		return Response.buildSuccess(memberService.friend(type, QueryBuilder.create(MemberMapping.class).with(request)));
+	public Response friend(@PathVariable("type") Integer type,
+			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+		return Response.buildSuccess(memberService.friend(type, pageNo,pageSize));
+	}
+	
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/suggest")
+	@ApiOperation(value="查询关联用户详细信息 threadId--点击上方按钮的时候生成一次，filterType目前支持 0 不过滤 1 专业 2 实习 3 个性 4 状态",notes="查询关联用户详细信息")
+	@Loggable
+	public Response suggest(
+			@RequestParam(name = "filterType", defaultValue = "1",required=false) Integer filterType,
+			@RequestParam(name = "threadId", required=false) String threadId,
+			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+		return Response.buildSuccess(memberService.suggest(filterType,threadId,pageNo,pageSize));
+	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/{memberId}")
+	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
+	@Loggable
+	public Response getMemberDetails(@PathVariable("memberId")Long memberId) {
+		return Response.buildSuccess(memberService.getMemberDetails(memberId));
 	}
 }

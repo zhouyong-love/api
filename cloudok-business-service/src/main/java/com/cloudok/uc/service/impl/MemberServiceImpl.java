@@ -1,10 +1,12 @@
 package com.cloudok.uc.service.impl;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -52,6 +54,7 @@ import com.cloudok.uc.event.ViewMemberDetailEvent;
 import com.cloudok.uc.mapper.MemberMapper;
 import com.cloudok.uc.mapper.MemberTagsMapper;
 import com.cloudok.uc.mapping.EducationExperienceMapping;
+import com.cloudok.uc.mapping.FirendMapping;
 import com.cloudok.uc.mapping.InternshipExperienceMapping;
 import com.cloudok.uc.mapping.MemberMapping;
 import com.cloudok.uc.mapping.MemberTagsMapping;
@@ -61,7 +64,9 @@ import com.cloudok.uc.mapping.ResearchExperienceMapping;
 import com.cloudok.uc.po.LinkMemberPO;
 import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.po.MemberTagsPO;
+import com.cloudok.uc.po.SuggsetMemberScorePO;
 import com.cloudok.uc.service.EducationExperienceService;
+import com.cloudok.uc.service.FirendService;
 import com.cloudok.uc.service.InternshipExperienceService;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.service.MemberTagsService;
@@ -71,9 +76,9 @@ import com.cloudok.uc.service.ResearchExperienceService;
 import com.cloudok.uc.vo.BindRequest;
 import com.cloudok.uc.vo.ChangePasswordRequest;
 import com.cloudok.uc.vo.EducationExperienceVO;
+import com.cloudok.uc.vo.FirendVO;
 import com.cloudok.uc.vo.ForgotVO;
 import com.cloudok.uc.vo.InternshipExperienceVO;
-import com.cloudok.uc.vo.LinkMemberVO;
 import com.cloudok.uc.vo.LoginVO;
 import com.cloudok.uc.vo.MemberTagsVO;
 import com.cloudok.uc.vo.MemberVO;
@@ -86,7 +91,9 @@ import com.cloudok.uc.vo.TokenVO;
 import com.cloudok.uc.vo.UserCheckRequest;
 import com.cloudok.uc.vo.VerifyCodeRequest;
 
-//@Slf4j
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> implements MemberService, UserInfoHandler {
 
@@ -698,50 +705,50 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				this.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.PHONE, request.getPhone()).end()));
 	}
 
-	@Override
-	public Page<WholeMemberDTO> link(QueryBuilder builder) {
-		builder.addParameter("memberId", getCurrentUserId()).addParameter("ignore", true);
-		Page<LinkMemberVO> page = new Page<>();
-		page.setTotalCount(repository.countQueryLinkMember(builder.excludeSortPage()));
-		page.setPageNo(builder.getPageCondition().getPageNo());
-		page.setPageSize(builder.getPageCondition().getPageSize());
-		if (page.getTotalCount() > 0 && (page.getTotalCount() / builder.getPageCondition().getPageSize() + 1) >= builder
-				.getPageCondition().getPageNo()) {
-			List<LinkMemberPO> es = repository.queryLinkMember(builder);
-			if (es != null) {
-				page.setData(es.stream().map(item -> {
-					LinkMemberVO vo = new LinkMemberVO();
-					BeanUtils.copyProperties(item, vo);
-					vo.setState(UserState.build(item.getState()));
-					return vo;
-				}).collect(Collectors.toList()));
-			}
-		}
-
-		Page<WholeMemberDTO> result = new Page<WholeMemberDTO>();
-		result.setPageNo(page.getPageNo());
-		result.setPageSize(page.getPageSize());
-		result.setTotalCount(page.getTotalCount());
-		if (!CollectionUtils.isEmpty(page.getData())) {
-			result.setData(getWholeMemberInfo(page.getData(), true));
-		}
-		return result;
-	}
-
-	@Override
-	public WholeMemberDTO link(Long id) {
-		LinkMemberPO po = repository
-				.queryLinkMember(QueryBuilder.create(MemberMapping.class).addParameter("memberId", getCurrentUserId())
-						.addParameter("ignore", false).and(MemberMapping.ID, id).end())
-				.get(0);
-		LinkMemberVO vo = new LinkMemberVO();
-		BeanUtils.copyProperties(po, vo);
-		vo.setState(UserState.build(po.getState()));
-		if(!SecurityContextHelper.getCurrentUserId().equals(id)) {
-			SpringApplicationContext.publishEvent(new ViewMemberDetailEvent( Pair.of(SecurityContextHelper.getCurrentUserId(),id)));
-		}
-		return getWholeMemberInfo(Collections.singletonList(vo), true).get(0);
-	}
+//	@Override
+//	public Page<WholeMemberDTO> link(QueryBuilder builder) {
+//		builder.addParameter("memberId", getCurrentUserId()).addParameter("ignore", true);
+//		Page<LinkMemberVO> page = new Page<>();
+//		page.setTotalCount(repository.countQueryLinkMember(builder.excludeSortPage()));
+//		page.setPageNo(builder.getPageCondition().getPageNo());
+//		page.setPageSize(builder.getPageCondition().getPageSize());
+//		if (page.getTotalCount() > 0 && (page.getTotalCount() / builder.getPageCondition().getPageSize() + 1) >= builder
+//				.getPageCondition().getPageNo()) {
+//			List<LinkMemberPO> es = repository.queryLinkMember(builder);
+//			if (es != null) {
+//				page.setData(es.stream().map(item -> {
+//					LinkMemberVO vo = new LinkMemberVO();
+//					BeanUtils.copyProperties(item, vo);
+//					vo.setState(UserState.build(item.getState()));
+//					return vo;
+//				}).collect(Collectors.toList()));
+//			}
+//		}
+//
+//		Page<WholeMemberDTO> result = new Page<WholeMemberDTO>();
+//		result.setPageNo(page.getPageNo());
+//		result.setPageSize(page.getPageSize());
+//		result.setTotalCount(page.getTotalCount());
+//		if (!CollectionUtils.isEmpty(page.getData())) {
+//			result.setData(getWholeMemberInfo(page.getData(), true));
+//		}
+//		return result;
+//	}
+//
+//	@Override
+//	public WholeMemberDTO link(Long id) {
+//		LinkMemberPO po = repository
+//				.queryLinkMember(QueryBuilder.create(MemberMapping.class).addParameter("memberId", getCurrentUserId())
+//						.addParameter("ignore", false).and(MemberMapping.ID, id).end())
+//				.get(0);
+//		LinkMemberVO vo = new LinkMemberVO();
+//		BeanUtils.copyProperties(po, vo);
+//		vo.setState(UserState.build(po.getState()));
+//		if(!SecurityContextHelper.getCurrentUserId().equals(id)) {
+//			SpringApplicationContext.publishEvent(new ViewMemberDetailEvent( Pair.of(SecurityContextHelper.getCurrentUserId(),id)));
+//		}
+//		return getWholeMemberInfo(Collections.singletonList(vo), true).get(0);
+//	}
 
 	@Override
 	public List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList) {
@@ -806,37 +813,308 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		return vo;
 	}
 
+	
 	@Override
-	public Page<WholeMemberDTO> friend(String type, QueryBuilder builder) {
-		builder.addParameter("memberId", getCurrentUserId());
-		builder.addParameter("type", type);
-		Page<WholeMemberDTO> page = new Page<>();
-		page.setTotalCount(repository.friendCount(builder.excludeSortPage()));
-		page.setPageNo(builder.getPageCondition().getPageNo());
-		page.setPageSize(builder.getPageCondition().getPageSize());
-		if (page.getTotalCount() > 0 && (page.getTotalCount() / builder.getPageCondition().getPageSize() + 1) >= builder
-				.getPageCondition().getPageNo()) {
-			List<LinkMemberPO> es = repository.friend(builder);
-			if (es != null) {
-				page.setData(es.stream().map(item -> {
-					WholeMemberDTO vo = new WholeMemberDTO();
-					BeanUtils.copyProperties(item, vo);
-					return vo;
-				}).collect(Collectors.toList()));
+	public MemberVO getMemberDetails(Long memberId) {
+		WholeMemberDTO member = this.getWholeMemberInfo(memberId);
+		Long currentUserId = getCurrentUserId();
+		//查关注
+		if(!currentUserId.equals(memberId)) {
+			List<RecognizedVO> recoginzedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.SOURCEID, memberId)
+					.and(RecognizedMapping.TARGETID, currentUserId)
+					.end()
+					.and(RecognizedMapping.SOURCEID, currentUserId)
+					.and(RecognizedMapping.TARGETID, memberId)
+					.end()
+					);
+			if(!CollectionUtils.isEmpty(recoginzedList)) {
+				recoginzedList.stream().filter(item -> item.getSourceId().equals(currentUserId)).findAny().ifPresent(item ->{
+					member.setTo(true);
+				});
+				recoginzedList.stream().filter(item -> item.getTargetId().equals(currentUserId)).findAny().ifPresent(item ->{
+					member.setFrom(true);
+				});
 			}
 		}
-		if (!CollectionUtils.isEmpty(page.getData())) {
-			educationExperienceService
-					.list(QueryBuilder.create(EducationExperienceMapping.class)
-							.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, page.getData().stream().map(item->item.getId()).collect(Collectors.toList())).end()
-							.sort(EducationExperienceMapping.GRADE).desc())
-					.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
-					.forEach((memberId, valueList) -> {
-						page.getData().stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
-							item.setEducationList(valueList);
-						});
+		if(!SecurityContextHelper.getCurrentUserId().equals(memberId)) {
+			SpringApplicationContext.publishEvent(new ViewMemberDetailEvent( Pair.of(currentUserId,memberId)));
+		}
+		//当前不做数据权限过滤，后期会根据人脉网络去处理数据
+		return member;
+	}
+	@Autowired
+	private FirendService firendService;
+	
+	@Autowired
+	private Cache cache;
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Page<WholeMemberDTO> suggest(Integer filterType,String threadId,Integer pageNo, Integer pageSize) {
+		List<SuggsetMemberScorePO> suggestMemberList = this.repository.suggest(filterType, 1000);
+		Page<WholeMemberDTO> page = new Page<WholeMemberDTO>();
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		page.setTotalCount((long)suggestMemberList.size());
+		
+		Long currentUserId = getCurrentUserId();
+		
+		if(!CollectionUtils.isEmpty(suggestMemberList)) {
+			//生成随机分
+			Map<Long,Integer> cachedRIScore = cache.get(CacheType.RI, currentUserId+threadId, Map.class);
+			Map<Long,Integer> riScore = new HashMap<Long,Integer>();
+			if(cachedRIScore == null || cachedRIScore.isEmpty()) {
+				String lastThreadId = cache.get(CacheType.RI, currentUserId+"_last_ri_key",String.class);
+				if(!StringUtils.isEmpty(lastThreadId)) {
+					cache.evict(CacheType.RI, lastThreadId); //清理上次的数据 防止缓存泄露
+				}
+				try {
+					SecureRandom random  = SecureRandom.getInstanceStrong();
+					suggestMemberList.stream().forEach(item -> {
+						riScore.put(item.getId(), random.nextInt(50));
 					});
+				} catch (NoSuchAlgorithmException e) {
+					 log.error(e.getMessage(),e);
+					 Random random  = new Random();
+					 suggestMemberList.stream().forEach(item -> {
+						riScore.put(item.getId(), random.nextInt(50));
+					});
+				}
+				//超时60分钟
+				cache.put(CacheType.RI, currentUserId+threadId, riScore, 60, TimeUnit.MINUTES);
+				//存储当前的thread信息
+				cache.put(CacheType.RI, currentUserId+"_last_ri_key", currentUserId+threadId, 60, TimeUnit.MINUTES);
+			}else {
+				riScore.putAll(cachedRIScore);
+			}
+			//灌入RI分数
+			suggestMemberList.stream().forEach(item -> {
+				Integer ri = riScore.get(item.getId());
+				double s = item.getScore() == null ? 0 : item.getScore();
+				if(ri == null) {
+					ri = 0;
+				}
+				item.setScore(ri+s);
+			});
+			List<FirendVO> firendList = this.firendService.list(QueryBuilder.create(FirendMapping.class)
+					.and(FirendMapping.SOURCEID, currentUserId).end());
+			firendList.stream().forEach(item -> {
+				suggestMemberList.stream().filter(a -> a.getId().equals(item.getTargetId()))
+					.findAny().ifPresent(a ->{
+						a.setScore(Math.max(a.getScore()-30,0)); //好友压制30分
+					});
+			});
+			List<SuggsetMemberScorePO> targetList = suggestMemberList.stream().sorted((a,b)->b.getScore().compareTo(a.getScore()))
+				.skip((pageNo-1)*pageSize).limit(pageSize).collect(Collectors.toList());
+			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(targetList.stream().map(item -> item.getId()).collect(Collectors.toList()));
+			
+			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.SOURCEID, currentUserId).end()
+					.or(RecognizedMapping.TARGETID,currentUserId).end());
+			
+			if(!CollectionUtils.isEmpty(recoginzedList)) {
+				memberList.stream().forEach(member -> {
+					recoginzedList.stream().filter(item -> item.getSourceId().equals(currentUserId)).findAny().ifPresent(item ->{
+						member.setTo(true);
+					});
+					recoginzedList.stream().filter(item -> item.getTargetId().equals(currentUserId)).findAny().ifPresent(item ->{
+						member.setFrom(true);
+					});
+				});
+			}
+			page.setData(memberList);
 		}
 		return page;
+	}
+//	@Override
+//	public Page<WholeMemberDTO> friend(String type, QueryBuilder builder) {
+//		builder.addParameter("memberId", getCurrentUserId());
+//		builder.addParameter("type", type);
+//		Page<WholeMemberDTO> page = new Page<>();
+//		page.setTotalCount(repository.friendCount(builder.excludeSortPage()));
+//		page.setPageNo(builder.getPageCondition().getPageNo());
+//		page.setPageSize(builder.getPageCondition().getPageSize());
+//		if (page.getTotalCount() > 0 && (page.getTotalCount() / builder.getPageCondition().getPageSize() + 1) >= builder
+//				.getPageCondition().getPageNo()) {
+//			List<LinkMemberPO> es = repository.friend(builder);
+//			if (es != null) {
+//				page.setData(es.stream().map(item -> {
+//					WholeMemberDTO vo = new WholeMemberDTO();
+//					BeanUtils.copyProperties(item, vo);
+//					return vo;
+//				}).collect(Collectors.toList()));
+//			}
+//		}
+//		if (!CollectionUtils.isEmpty(page.getData())) {
+//			educationExperienceService
+//					.list(QueryBuilder.create(EducationExperienceMapping.class)
+//							.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, page.getData().stream().map(item->item.getId()).collect(Collectors.toList())).end()
+//							.sort(EducationExperienceMapping.GRADE).desc())
+//					.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
+//					.forEach((memberId, valueList) -> {
+//						page.getData().stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+//							item.setEducationList(valueList);
+//						});
+//					});
+//		}
+//		return page;
+//	}
+
+//	 0 互关 1 我关注 2 关注我 3 新关注
+	@Override
+	public Page<WholeMemberDTO> friend(Integer type, Integer pageNo, Integer pageSize) {
+		Page<WholeMemberDTO> resultPage = null;
+		switch (type) {
+			case 0:
+				resultPage = this.getFirendsList(pageNo, pageSize);
+				break;
+			case 1:
+				resultPage = this.getMyRecognizedMemberList(pageNo, pageSize);
+				break;
+			case 2:
+				resultPage = this.getRecognizedMeMemberList(pageNo, pageSize);
+				break;
+			case 3:
+				resultPage = this.getNewRecognizedMeMemberList(pageNo, pageSize);
+				break;
+	
+			default:
+				break;
+		}
+		
+		return resultPage;
+	}
+	/**
+	 * 新关注我的
+	 * @param pageNo
+	 * @param pageSize
+	 * @return
+	 */
+	private Page<WholeMemberDTO> getNewRecognizedMeMemberList(Integer pageNo, Integer pageSize){
+		Long currentUserId = getCurrentUserId();
+		Page<WholeMemberDTO> resultPage = new Page<WholeMemberDTO>();
+		Page<RecognizedVO> page = this.recognizedService.page(QueryBuilder.create(RecognizedMapping.class)
+				.and(RecognizedMapping.TARGETID, currentUserId)
+				.and(RecognizedMapping.READ, 0).end()
+				.sort(RecognizedMapping.CREATETIME).desc()
+				.enablePaging().page(pageNo, pageSize).end());
+		BeanUtils.copyProperties(page, resultPage);
+		if(!CollectionUtils.isEmpty(page.getData())) {
+			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()));
+			//查我关注的
+			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.SOURCEID, currentUserId)
+					.and(RecognizedMapping.TARGETID, QueryOperator.IN,page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.end()
+					.sort(RecognizedMapping.CREATETIME).desc());
+			memberList.forEach(item -> {
+				item.setTo(false);
+				item.setFrom(true);
+				//我是否关注了他
+				list.stream().filter( a -> a.getTargetId().equals(item.getId())).findAny().ifPresent(a -> {
+					item.setTo(true);
+				});
+				
+			});
+			resultPage.setData(memberList);
+		}
+		return resultPage;
+	}
+	/**
+	 * 关注我的
+	 * @param pageNo
+	 * @param pageSize
+	 * @return
+	 */
+	private Page<WholeMemberDTO> getRecognizedMeMemberList(Integer pageNo, Integer pageSize){
+		Long currentUserId = getCurrentUserId();
+		Page<WholeMemberDTO> resultPage = new Page<WholeMemberDTO>();
+		Page<RecognizedVO> page = this.recognizedService.page(QueryBuilder.create(RecognizedMapping.class)
+				.and(RecognizedMapping.TARGETID, currentUserId).end()
+				.sort(RecognizedMapping.CREATETIME).desc()
+				.enablePaging().page(pageNo, pageSize).end());
+		BeanUtils.copyProperties(page, resultPage);
+		if(!CollectionUtils.isEmpty(page.getData())) {
+			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()));
+			//查我关注的
+			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.SOURCEID, currentUserId)
+					.and(RecognizedMapping.TARGETID, QueryOperator.IN,page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.end()
+					.sort(RecognizedMapping.CREATETIME).desc());
+					
+			memberList.forEach(item -> {
+				item.setTo(false);
+				//我是否关注了他
+				list.stream().filter( a -> a.getTargetId().equals(item.getId())).findAny().ifPresent(a -> {
+					item.setTo(true);
+				});
+				item.setFrom(true);
+			});
+			resultPage.setData(memberList);
+		}
+		return resultPage;
+	}
+	
+	/**
+	 * 
+	 * 我关注的
+	 * @param pageNo
+	 * @param pageSize
+	 * @return
+	 */
+	private Page<WholeMemberDTO> getMyRecognizedMemberList(Integer pageNo, Integer pageSize){
+		Long currentUserId = getCurrentUserId();
+		Page<WholeMemberDTO> resultPage = new Page<WholeMemberDTO>();
+		Page<RecognizedVO> page = this.recognizedService.page(QueryBuilder.create(RecognizedMapping.class)
+				.and(RecognizedMapping.SOURCEID, currentUserId).end()
+				.sort(RecognizedMapping.CREATETIME).desc()
+				.enablePaging().page(pageNo, pageSize).end());
+		BeanUtils.copyProperties(page, resultPage);
+		if(!CollectionUtils.isEmpty(page.getData())) {
+			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()));
+			//查我关注的
+			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.TARGETID, currentUserId)
+					.and(RecognizedMapping.SOURCEID, QueryOperator.IN,page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.end()
+					.sort(RecognizedMapping.CREATETIME).desc());
+					
+			memberList.forEach(item -> {
+				item.setFrom(true);
+				item.setTo(true);
+				//我是否关注了他
+				list.stream().filter( a -> a.getTargetId().equals(item.getId())).findAny().ifPresent(a -> {
+					item.setFrom(true);
+				});
+			});
+			resultPage.setData(memberList);
+		}
+		return resultPage;
+	}
+	/**
+	 * 好友列表
+	 * @param pageNo
+	 * @param pageSize
+	 * @return
+	 */
+	private Page<WholeMemberDTO> getFirendsList(Integer pageNo, Integer pageSize){
+		Long currentUserId = getCurrentUserId();
+		Page<WholeMemberDTO> resultPage = new Page<WholeMemberDTO>();
+		Page<FirendVO> page = this.firendService.page(QueryBuilder.create(FirendMapping.class)
+				.and(FirendMapping.SOURCEID, currentUserId).end()
+				.sort(FirendMapping.CREATETIME).desc()
+				.enablePaging().page(pageNo, pageSize).end());
+		BeanUtils.copyProperties(page, resultPage);
+		if(!CollectionUtils.isEmpty(page.getData())) {
+			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()));
+			memberList.forEach(item -> {
+				item.setFrom(true);
+				item.setTo(true);
+			});
+			resultPage.setData(memberList);
+		}
+		return resultPage;
 	}
 }

@@ -59,7 +59,7 @@
 			
 			<if test="ti != null ">ti = #{ti},</if>
 			
-			<if test="userName != null ">remark = #{remark},</if>
+			<if test="remark != null ">remark = #{remark},</if>
 			
 			<if test="state != null ">state = #{state},</if>
 			

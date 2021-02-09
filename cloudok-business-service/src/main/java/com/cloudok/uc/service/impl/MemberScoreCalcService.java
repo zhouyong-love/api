@@ -170,11 +170,14 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 
 	//用户活动，每个时间段加10分
 	private void onUserActionEvent(UserActionEvent event) {
-		MemberVO member = memberService.get(event.getEventData().getId());
+		Long lastTime = cache.get(CacheType.Action, String.valueOf(event.getEventData().getUserId()), Long.class);
+		if(lastTime !=  null) {
+			return;
+		}
+		MemberVO member = memberService.get(event.getEventData().getUserId());
 		if(member == null) {
 			return;
 		}
-		Long lastTime = cache.get(CacheType.Action, String.valueOf(event.getEventData().getId()), Long.class);
 		if(lastTime == null) {
 			double score = member.getTi() == null ? 0 :  member.getTi().doubleValue();
 			MemberVO vo = new MemberVO();
@@ -182,7 +185,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 			vo.setTi(Math.min(score+10, 50));
 			this.memberService.merge(vo);
 			//每三个小时计算一次
-			this.cache.put(CacheType.Action, String.valueOf(event.getEventData().getId()), System.currentTimeMillis(),3,TimeUnit.HOURS);
+			this.cache.put(CacheType.Action, String.valueOf(event.getEventData().getUserId()), System.currentTimeMillis(),3,TimeUnit.HOURS);
 		}
 		
 	}

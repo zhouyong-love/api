@@ -128,6 +128,8 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			BeanUtils.copyProperties(e, vo);
 			if (e.getState() != null) {
 				vo.setState(UserState.build(e.getState()));
+			}else {
+				vo.setState(UserState.build(0L));
 			}
 			return vo;
 		}

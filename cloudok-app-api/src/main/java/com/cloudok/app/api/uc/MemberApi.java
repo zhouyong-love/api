@@ -225,7 +225,7 @@ public class MemberApi {
 	@ApiOperation(value="查询关联用户详细信息 threadId--点击上方按钮的时候生成一次，filterType目前支持 0 不过滤 1 专业 2 实习 3 个性 4 状态",notes="查询关联用户详细信息")
 	@Loggable
 	public Response suggest(
-			@RequestParam(name = "filterType", defaultValue = "1",required=false) Integer filterType,
+			@RequestParam(name = "filterType", required=false) Integer filterType,
 			@RequestParam(name = "threadId", required=false) String threadId,
 			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {

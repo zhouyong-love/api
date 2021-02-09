@@ -3,6 +3,7 @@ package com.cloudok.uc.service.impl;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -852,13 +853,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@SuppressWarnings("unchecked")
 	@Override
 	public Page<WholeMemberDTO> suggest(Integer filterType,String threadId,Integer pageNo, Integer pageSize) {
-		List<SuggsetMemberScorePO> suggestMemberList = this.repository.suggest(filterType, 1000);
+		Long currentUserId = getCurrentUserId();
+		List<SuggsetMemberScorePO> suggestMemberList = this.repository.suggest(Arrays.asList(currentUserId),filterType, 1000);
 		Page<WholeMemberDTO> page = new Page<WholeMemberDTO>();
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		page.setTotalCount((long)suggestMemberList.size());
-		
-		Long currentUserId = getCurrentUserId();
 		
 		if(!CollectionUtils.isEmpty(suggestMemberList)) {
 			//生成随机分
@@ -1105,10 +1105,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					.sort(RecognizedMapping.CREATETIME).desc());
 					
 			memberList.forEach(item -> {
-				item.setFrom(true);
+				item.setFrom(false);
 				item.setTo(true);
 				//我是否关注了他
-				list.stream().filter( a -> a.getTargetId().equals(item.getId())).findAny().ifPresent(a -> {
+				list.stream().filter( a -> a.getSourceId().equals(item.getId())).findAny().ifPresent(a -> {
 					item.setFrom(true);
 				});
 			});

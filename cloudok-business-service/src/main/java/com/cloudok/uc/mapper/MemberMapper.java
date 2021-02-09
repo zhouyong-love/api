@@ -24,11 +24,12 @@ public interface MemberMapper extends IMapper<MemberPO>{
 
 	/**
 	 * 推荐
+	 * @param excludedIdList 排除哪些
 	 * @param filterType
 	 * @param ri 
 	 * @param limit 最大数量
 	 * @return
 	 */
-	List<SuggsetMemberScorePO> suggest(@Param("filterType") Integer filterType,@Param("limit") Integer limit);
+	List<SuggsetMemberScorePO> suggest(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer filterType,@Param("limit") Integer limit);
 	
 }

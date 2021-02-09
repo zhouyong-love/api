@@ -87,6 +87,9 @@ public class MemberVO extends VO {
 		private boolean checkEmail;
 		
 		public static UserState build(Long state) {
+			if(state == null) {
+				state = 0L;
+			}
 			return UserState.builder()
 					.fillUserInfo((state&1)==1)
 					.fillEduInfo(((state>>1)&1)==1)

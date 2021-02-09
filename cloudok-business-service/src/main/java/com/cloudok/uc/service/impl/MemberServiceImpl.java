@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -47,6 +48,7 @@ import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.event.MemberCreateEvent;
 import com.cloudok.uc.event.MemberUpdateEvent;
+import com.cloudok.uc.event.ViewMemberDetailEvent;
 import com.cloudok.uc.mapper.MemberMapper;
 import com.cloudok.uc.mapper.MemberTagsMapper;
 import com.cloudok.uc.mapping.EducationExperienceMapping;
@@ -733,6 +735,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		LinkMemberVO vo = new LinkMemberVO();
 		BeanUtils.copyProperties(po, vo);
 		vo.setState(UserState.build(po.getState()));
+		if(!SecurityContextHelper.getCurrentUserId().equals(id)) {
+			SpringApplicationContext.publishEvent(new ViewMemberDetailEvent( Pair.of(SecurityContextHelper.getCurrentUserId(),id)));
+		}
 		return getWholeMemberInfo(Collections.singletonList(vo), true).get(0);
 	}
 

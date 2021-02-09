@@ -157,7 +157,9 @@ public abstract class AbstractService<D extends VO, E extends PO>
 			throw new SystemException(CoreExceptionMessage.IDNULL_ERR);
 		}
 		d.setDeleted(Boolean.FALSE);
-		d.setUpdateBy(getCurrentUserId());
+		if(!getCurrentUserId().equals(0L) && d.getUpdateBy() == null) {
+			d.setUpdateBy(getCurrentUserId());
+		}
 		d.setUpdateTs(new Timestamp(System.currentTimeMillis()));
 		repository.merge(convert.convert2PO(d));
 		return d;
@@ -169,7 +171,9 @@ public abstract class AbstractService<D extends VO, E extends PO>
 			throw new SystemException(CoreExceptionMessage.IDNULL_ERR);
 		}
 		d.setDeleted(Boolean.FALSE);
-		d.setUpdateBy(getCurrentUserId());
+		if(!getCurrentUserId().equals(0L) && d.getUpdateBy() == null) {
+			d.setUpdateBy(getCurrentUserId());
+		}
 		d.setUpdateTs(new Timestamp(System.currentTimeMillis()));
 		repository.update(convert.convert2PO(d));
 		return d;

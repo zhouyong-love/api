@@ -28,5 +28,9 @@ public class MemberMapping extends Mapping {
 	public static final Mapping REMARK = new Mapping("remark", "t.remark");
 
 	public static final Mapping STATE = new Mapping("state", "t.state");
+	
+	public static final Mapping WI = new Mapping("wi", "t.wi");
+	
+	public static final Mapping TI = new Mapping("ti", "t.ti");
 
 }

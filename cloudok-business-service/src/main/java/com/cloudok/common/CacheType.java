@@ -8,4 +8,6 @@ public class CacheType {
 	public static final CacheNameSpace VerifyCode = new CacheNameSpace("uc", "VerifyCode");
 	
 	public static final CacheNameSpace VerifyCodeCount = new CacheNameSpace("uc", "VerifyCodeCount");
+	
+	public static final CacheNameSpace Action = new CacheNameSpace("uc", "Action");
 }

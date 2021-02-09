@@ -17,6 +17,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -45,9 +46,11 @@ import com.cloudok.security.User;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
-public class LogAspectAdapter {
+public class LogAspectAdapter implements InitializingBean {
 
 	private ExecutorService executor = Executors.newFixedThreadPool(10); // 最多同时8个线程并行
 
@@ -65,7 +68,10 @@ public class LogAspectAdapter {
 	private String level;
 
 	private transient Integer _level = null;
-
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		init();
+	}
 	private void init() {
 		if (_level == null) {
 			synchronized (this) {
@@ -86,7 +92,7 @@ public class LogAspectAdapter {
 	}
 
 	private void recod(HttpServletRequest request, Object result, JoinPoint joinPoint, int httpCode, Exception ex) {
-		init();
+		Long start =  System.currentTimeMillis();
 		MethodSignature methodSignature = MethodSignature.class.cast(joinPoint.getSignature());
 		Loggable loggable = methodSignature.getMethod().getAnnotation(Loggable.class);
 		LogModule logModule = joinPoint.getTarget().getClass().getAnnotation(LogModule.class);
@@ -155,6 +161,7 @@ public class LogAspectAdapter {
 							interceptorResult.getFormatedMessage()
 							));
 		});
+		log.debug("日志处理耗时 {} mils",System.currentTimeMillis()-start);
 	}
 
 	private LogContext buildLogContext(LogModule logModule, Loggable loggable, LogConfig moduleConfig,

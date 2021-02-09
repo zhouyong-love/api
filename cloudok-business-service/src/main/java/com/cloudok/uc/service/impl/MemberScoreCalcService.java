@@ -22,6 +22,7 @@ import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.query.QueryOperator;
 import com.cloudok.enums.UCMessageType;
+import com.cloudok.log.aspect.LogAspectAdapter;
 import com.cloudok.log.event.UserActionEvent;
 import com.cloudok.log.mapping.SysLogMapping;
 import com.cloudok.log.service.SysLogService;
@@ -41,7 +42,10 @@ import com.cloudok.uc.vo.ProjectExperienceVO;
 import com.cloudok.uc.vo.ResearchExperienceVO;
 import com.cloudok.util.DateTimeUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class MemberScoreCalcService implements ApplicationListener<BusinessEvent<?>>,InitializingBean {
 
 	private ExecutorService executor = Executors.newFixedThreadPool(10); // 最多同时8个线程并行
@@ -246,6 +250,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> arg0) {
 		executor.submit(() -> {
+			Long start = System.currentTimeMillis();
 			if (arg0 instanceof RecognizedCreateEvent) {
 				this.onRecognizedCreateEvent(RecognizedCreateEvent.class.cast(arg0));
 			}
@@ -269,7 +274,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 			if (arg0 instanceof UserActionEvent) {
 				this.onUserActionEvent(UserActionEvent.class.cast(arg0));
 			}
-			
+			log.debug("用户评分处理，耗时={} mils",(System.currentTimeMillis()-start));
 			
 		});
 	}

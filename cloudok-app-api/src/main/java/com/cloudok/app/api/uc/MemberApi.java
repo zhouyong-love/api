@@ -18,6 +18,8 @@ import com.cloudok.bbs.service.PostService;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.exception.SecurityExceptionMessage;
 import com.cloudok.uc.mapping.MemberMapping;
@@ -38,6 +40,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppMemberApi")
 @RequestMapping("/v1/uc/member")
 @Api(tags = "会员表")
+@LogModule
 public class MemberApi {
 
 	@Autowired
@@ -51,6 +54,7 @@ public class MemberApi {
 	
 	@PostMapping("/register")
 	@ApiOperation(value = "注册", notes = "注册")
+	@Loggable
 	public Response create(@RequestBody @Valid SingupVO vo) {
 		return Response.buildSuccess(memberService.signup(vo));
 	}
@@ -58,12 +62,14 @@ public class MemberApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping("/fill")
 	@ApiOperation(value = "补充账号消息", notes = "补充账号消息")
+	@Loggable
 	public Response fillAccountInfo(@RequestBody @Valid MemberVO vo) {
 		return Response.buildSuccess(memberService.fillAccountInfo(vo));
 	}
 	
 	@PostMapping("/login")
 	@ApiOperation(value = "user login", notes = "user login")
+	@Loggable
 	public Response login(@RequestBody LoginVO vo) {
 		try {
 			return Response.buildSuccess(memberService.login(vo));
@@ -77,6 +83,7 @@ public class MemberApi {
 	
 	@PostMapping("/logout")
 	@ApiOperation(value = "logout", notes = "logout")
+	@Loggable
 	public Response logout() {
 		return Response.buildSuccess(memberService.logout());
 	}
@@ -91,6 +98,7 @@ public class MemberApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/userInfo")
 	@ApiOperation(value="get current user info",notes="get current user info")
+	@Loggable
 	public Response userInfo() {
 		return Response.buildSuccess(memberService.getCurrentUserInfo());
 	}
@@ -98,6 +106,7 @@ public class MemberApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/fullUserInfo")
 	@ApiOperation(value="get current full user info",notes="get current full user info")
+	@Loggable
 	public Response fullUserInfo() {
 		return Response.buildSuccess(memberService.getWholeMemberInfo(SecurityContextHelper.getCurrentUserId()));
 	}
@@ -142,6 +151,7 @@ public class MemberApi {
 
 	@PostMapping("/bind")
 	@ApiOperation(value = "user register", notes = "user register")
+	@Loggable
 	public Response bindEmailOrPhone(@RequestBody BindRequest vo) {
 			return Response.buildSuccess(memberService.bind(vo));
 	}
@@ -150,6 +160,7 @@ public class MemberApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{memberId}/bbs")
 	@ApiOperation(value = "查询某一个人的动态列表", notes = "查询某一个人的动态列表")
+	@Loggable
 	public Response search(@PathVariable("memberId") Long memberId,HttpServletRequest request) {
 		QueryBuilder query = QueryBuilder.create(com.cloudok.bbs.mapping.PostMapping.class).with(request);
 		query.and(com.cloudok.bbs.mapping.PostMapping.CREATEBY,  memberId);
@@ -159,6 +170,7 @@ public class MemberApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/collect/posts")
 	@ApiOperation(value = "我收藏的动态", notes = "我收藏的动态")
+	@Loggable
 	public Response getMyCollects(@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
 			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
 		return Response.buildSuccess(collectService.getMyCollectPosts(SecurityContextHelper.getCurrentUserId(),pageNo,pageSize));
@@ -167,6 +179,7 @@ public class MemberApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/link")
 	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
+	@Loggable
 	public Response link(HttpServletRequest request) {
 		return Response.buildSuccess(memberService.link(QueryBuilder.create(MemberMapping.class).with(request)));
 	}
@@ -174,6 +187,7 @@ public class MemberApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/link/{id}")
 	@ApiOperation(value="查询关联用户详细信息",notes="查询关联用户详细信息")
+	@Loggable
 	public Response linkById(@PathVariable("id")Long id) {
 		return Response.buildSuccess(memberService.link(id));
 	}
@@ -181,6 +195,7 @@ public class MemberApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/simpleInfo")
 	@ApiOperation(value="查询登录用户的简要信息",notes="查询登录用户的简要信息")
+	@Loggable
 	public Response simpleInfo() {
 		return Response.buildSuccess(memberService.getSimpleMemberInfo());
 	}
@@ -188,6 +203,7 @@ public class MemberApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/identical/{id}")
 	@ApiOperation(value="获取共同的好友和标签",notes="获取共同的好友和标签")
+	@Loggable
 	public Response identical(@PathVariable("id")Long id) {
 		return Response.buildSuccess(memberService.identical(id));
 	}
@@ -195,6 +211,7 @@ public class MemberApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{type}/friend")
 	@ApiOperation(value = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注", notes = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注")
+	@Loggable
 	public Response friend(HttpServletRequest request,@PathVariable("type") String type) {
 		return Response.buildSuccess(memberService.friend(type, QueryBuilder.create(MemberMapping.class).with(request)));
 	}

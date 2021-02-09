@@ -44,4 +44,8 @@ public class MemberPO extends PO {
 	private String description;
 	
 	private Long state;
+	
+	private Integer wi;
+	
+	private Integer ti;
 }

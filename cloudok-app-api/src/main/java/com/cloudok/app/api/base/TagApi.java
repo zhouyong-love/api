@@ -19,6 +19,8 @@ import com.cloudok.base.service.TagService;
 import com.cloudok.base.vo.TagVO;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppTagApi")
 @RequestMapping("/v1/base/tag")
 @Api(tags = "标签")
+@LogModule
 public class TagApi {
 
 	@Autowired
@@ -33,6 +36,7 @@ public class TagApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
+	@Loggable
 	@ApiOperation(value = "添加标签", notes = "添加标签")
 	public Response create(@RequestBody @Valid TagVO vo) {
 		return Response.buildSuccess(tagService.createByMember(vo));
@@ -40,6 +44,7 @@ public class TagApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
+	@Loggable
 	@ApiOperation(value = "查询标签列表", notes = "查询标签列表")
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(tagService.list(QueryBuilder.create(TagMapping.class).with(request).disenablePaging()));
@@ -48,6 +53,7 @@ public class TagApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改标签", notes = "修改标签")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid TagVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(tagService.updateByMember(vo));
@@ -57,6 +63,7 @@ public class TagApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "删除标签", notes = "删除标签")
+	@Loggable
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(tagService.removeByMember(id));
 	}

@@ -17,6 +17,8 @@ import com.cloudok.bbs.service.PostService;
 import com.cloudok.bbs.service.TopicService;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +26,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppTopicApi")
 @RequestMapping("/v1/bbs/topic")
 @Api(tags = "话题")
+@LogModule
 public class TopicApi {
 
 	@Autowired
@@ -35,6 +38,7 @@ public class TopicApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询话题列表", notes = "查询话题列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(topicService.page(QueryBuilder.create(TopicMapping.class).with(request)));
 	} 
@@ -43,6 +47,7 @@ public class TopicApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{topicId}/bbs")
 	@ApiOperation(value = "指定话题下的动态", notes = "指定话题下的动态")
+	@Loggable
 	public Response searchByTopic(@PathVariable("topicId") Long topicId,@RequestParam(name = "pageNo",defaultValue="0") Integer pageNo,
 			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
 		return Response.buildSuccess(postService.searchByTopic(Collections.singletonList(topicId),pageNo,pageSize));

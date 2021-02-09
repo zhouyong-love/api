@@ -12,6 +12,8 @@ import com.cloudok.base.mapping.SchoolMapping;
 import com.cloudok.base.service.SchoolService;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppSchoolApi")
 @RequestMapping("/v1/base/school")
 @Api(tags = "学校基础数据")
+@LogModule
 public class SchoolApi {
 
 	@Autowired
@@ -27,6 +30,7 @@ public class SchoolApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询学校基础数据列表", notes = "查询学校基础数据列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(schoolService.list(QueryBuilder.create(SchoolMapping.class).with(request)));
 	}

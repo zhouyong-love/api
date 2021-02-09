@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.service.RecognizedService;
 import com.cloudok.uc.vo.RecognizedVO;
@@ -28,6 +30,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppRecognizedApi")
 @RequestMapping("/v1/uc/recognized")
 @Api(tags = "认可某人")
+@LogModule
 public class RecognizedApi {
 
 	@Autowired
@@ -36,6 +39,7 @@ public class RecognizedApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加认可某人", notes = "添加认可某人")
+	@Loggable
 	public Response create(@RequestBody @Valid RecognizedVO vo) {
 		return Response.buildSuccess(recognizedService.create(vo));
 	}
@@ -43,6 +47,7 @@ public class RecognizedApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询认可某人列表", notes = "查询认可某人列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(recognizedService.page(QueryBuilder.create(RecognizedMapping.class).with(request)));
 	}
@@ -50,6 +55,7 @@ public class RecognizedApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}/member")
 	@ApiOperation(value = "删除认可某人", notes = "删除认可某人")
+	@Loggable
 	public Response remove(@PathVariable("id") Long memberId) {
 		recognizedService.unRecognized(memberId);
 		return Response.buildSuccess();
@@ -58,6 +64,7 @@ public class RecognizedApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/read")
 	@ApiOperation(value = "关注状态已读", notes = "关注状态已读")
+	@Loggable
 	public Response read(@RequestBody List<Long> memberIds) {
 		recognizedService.read(memberIds);
 		return Response.buildSuccess();

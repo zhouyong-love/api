@@ -22,6 +22,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.cloudok</groupId>
+			<artifactId>cloudok-log</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.cloudok</groupId>
 			<artifactId>cloudok-business-service</artifactId>
 			<version>${project.version}</version>
 		</dependency>

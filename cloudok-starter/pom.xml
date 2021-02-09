@@ -106,6 +106,7 @@
 					<include>**/*.sql</include>
 					<include>**/*.txt</include>
 					<include>**/**/**/*.ftl</include>
+					<include>**/**/**/*.flt</include>
 				</includes>
 				<filtering>true</filtering>
 			</resource>

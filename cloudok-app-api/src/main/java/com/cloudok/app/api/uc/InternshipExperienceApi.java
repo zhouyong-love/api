@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.InternshipExperienceService;
 import com.cloudok.uc.vo.InternshipExperienceVO;
@@ -25,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppInternshipExperienceApi")
 @RequestMapping("/v1/uc/internshipExperience")
 @Api(tags = "实习经历")
+@LogModule
 public class InternshipExperienceApi {
 
 	@Autowired
@@ -33,6 +36,7 @@ public class InternshipExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加实习经历", notes = "添加实习经历")
+	@Loggable
 	public Response create(@RequestBody @Valid InternshipExperienceVO vo) {
 		return Response.buildSuccess(internshipExperienceService.create(vo));
 	}
@@ -40,6 +44,7 @@ public class InternshipExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询实习经历列表", notes = "查询实习经历列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(internshipExperienceService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
@@ -47,6 +52,7 @@ public class InternshipExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改实习经历", notes = "修改实习经历")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid InternshipExperienceVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(internshipExperienceService.update(vo));
@@ -55,6 +61,7 @@ public class InternshipExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{id}")
 	@ApiOperation(value = "获取实习经历", notes = "获取实习经历")
+	@Loggable
 	public Response get(@PathVariable("id") Long id) {
 		return Response.buildSuccess(internshipExperienceService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}
@@ -63,6 +70,7 @@ public class InternshipExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "删除实习经历", notes = "删除实习经历")
+	@Loggable
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(internshipExperienceService.remove(id));
 	}

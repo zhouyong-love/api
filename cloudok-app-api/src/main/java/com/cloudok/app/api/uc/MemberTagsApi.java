@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.MemberTagsService;
 import com.cloudok.uc.vo.MemberTagsVO;
@@ -24,6 +26,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppMemberTagsApi")
 @RequestMapping("/v1/uc/tags")
 @Api(tags = "用户标签")
+@LogModule
 public class MemberTagsApi {
 
 	@Autowired
@@ -32,6 +35,7 @@ public class MemberTagsApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加用户标签", notes = "添加用户标签")
+	@Loggable
 	public Response create(@RequestBody @Valid MemberTagsVO vo) {
 		return Response.buildSuccess(memberTagsService.create(vo));
 	}
@@ -39,6 +43,7 @@ public class MemberTagsApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询用户标签列表", notes = "查询用户标签列表")
+	@Loggable
 	public Response search() {
 		return Response.buildSuccess(memberTagsService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
@@ -46,6 +51,7 @@ public class MemberTagsApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{id}")
 	@ApiOperation(value = "查询用户标签列表", notes = "查询用户标签列表")
+	@Loggable
 	public Response get(@PathVariable("id")Long id) {
 		return Response.buildSuccess(memberTagsService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}
@@ -53,6 +59,7 @@ public class MemberTagsApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改用户标签", notes = "修改用户标签")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid MemberTagsVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(memberTagsService.update(vo));
@@ -61,6 +68,7 @@ public class MemberTagsApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "删除用户标签", notes = "删除用户标签")
+	@Loggable
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(memberTagsService.remove(id));
 	}

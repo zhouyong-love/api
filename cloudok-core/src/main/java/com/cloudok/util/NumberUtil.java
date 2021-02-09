@@ -1,5 +1,9 @@
 package com.cloudok.util;
 
+import java.util.regex.Pattern;
+
+import org.springframework.util.StringUtils;
+
 /**
  * 
  * @author zhijian.xia@foxmail.com
@@ -210,5 +214,14 @@ public class NumberUtil {
 		}catch (Exception e) {
 			return _default;
 		}
+	}
+	private static final Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$") ;
+	/**
+	 * 是否数字
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNum(String str) { 
+        return !StringUtils.isEmpty(str) && pattern.matcher(str).matches(); 
 	}
 }

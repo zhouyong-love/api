@@ -27,6 +27,8 @@ public class Response implements Serializable{
 
 	private Object result;
 	
+	private int responseCode = 200;
+	
 	public static Response buildSuccess() {
 		Response response = new Response();
 		response.setStatus(true);
@@ -47,6 +49,9 @@ public class Response implements Serializable{
 		error.setErrorCode(ex.getExceptionMessage().getCode());
 		error.setErrorMessage(StringUtils.isEmpty(ex.getMessage()) ? ex.getExceptionMessage().getMessage()
 				: ex.getMessage());
+
+		int code = ex.getExceptionMessage().getResponseCode();
+		response.setResponseCode(code>1000?500:code);
 		response.setError(error);
 		return response;
 	}
@@ -55,6 +60,7 @@ public class Response implements Serializable{
 		Response response = new Response();
 		response.setStatus(false);
 		ErrorMessage error = new ErrorMessage();
+		response.setResponseCode(500);
 		error.setErrorCode(CoreExceptionMessage.UNDEFINED_ERROR);
 		error.setErrorMessage(ex.getMessage());
 		response.setError(error);
@@ -67,6 +73,8 @@ public class Response implements Serializable{
 		ErrorMessage error = new ErrorMessage();
 		error.setErrorCode(message.getCode());
 		error.setErrorMessage(message.getMessage());
+		int code = message.getResponseCode();
+		response.setResponseCode(code>1000?500:code);
 		response.setError(error);
 		return response;
 	}
@@ -77,6 +85,7 @@ public class Response implements Serializable{
 		ErrorMessage error = new ErrorMessage();
 		error.setErrorCode(CoreExceptionMessage.UNDEFINED_ERROR);
 		error.setErrorMessage(message);
+		response.setResponseCode(500);
 		response.setError(error);
 		return response;
 	}

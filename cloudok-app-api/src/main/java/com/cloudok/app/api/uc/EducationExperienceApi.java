@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.EducationExperienceService;
 import com.cloudok.uc.vo.EducationExperienceVO;
@@ -25,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppEducationExperienceApi")
 @RequestMapping("/v1/uc/educationExperience")
 @Api(tags = "教育经历")
+@LogModule
 public class EducationExperienceApi {
 
 	@Autowired
@@ -33,6 +36,7 @@ public class EducationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加教育经历", notes = "添加教育经历")
+	@Loggable
 	public Response create(@RequestBody @Valid EducationExperienceVO vo) {
 		return Response.buildSuccess(educationExperienceService.create(vo));
 	}
@@ -40,6 +44,7 @@ public class EducationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询教育经历列表", notes = "查询教育经历列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(educationExperienceService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
@@ -47,6 +52,7 @@ public class EducationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改教育经历", notes = "修改教育经历")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id,
 			@RequestBody @Valid EducationExperienceVO vo) {
 		vo.setId(id);
@@ -56,6 +62,7 @@ public class EducationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "删除教育经历", notes = "删除教育经历")
+	@Loggable
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(educationExperienceService.remove(id));
 	}
@@ -63,6 +70,7 @@ public class EducationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{id}")
 	@ApiOperation(value = "获取教育经历", notes = "获取教育经历")
+	@Loggable
 	public Response get(@PathVariable("id") Long id) {
 		return Response.buildSuccess(educationExperienceService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.ResearchExperienceService;
 import com.cloudok.uc.vo.ResearchExperienceVO;
@@ -25,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppResearchExperienceApi")
 @RequestMapping("/v1/uc/research")
 @Api(tags = "科研经历")
+@LogModule
 public class ResearchExperienceApi {
 
 	@Autowired
@@ -33,6 +36,7 @@ public class ResearchExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加科研经历", notes = "添加科研经历")
+	@Loggable
 	public Response create(@RequestBody @Valid ResearchExperienceVO vo) {
 		return Response.buildSuccess(researchExperienceService.create(vo));
 	}
@@ -40,6 +44,7 @@ public class ResearchExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询科研经历列表", notes = "查询科研经历列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(researchExperienceService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
@@ -47,6 +52,7 @@ public class ResearchExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改科研经历", notes = "修改科研经历")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid ResearchExperienceVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(researchExperienceService.update(vo));
@@ -55,6 +61,7 @@ public class ResearchExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{id}")
 	@ApiOperation(value = "查询科研经历", notes = "查询科研经历")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id) {
 		return Response.buildSuccess(researchExperienceService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}
@@ -62,6 +69,7 @@ public class ResearchExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "删除科研经历", notes = "删除科研经历")
+	@Loggable
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(researchExperienceService.remove(id));
 	}

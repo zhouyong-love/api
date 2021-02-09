@@ -17,6 +17,8 @@ public abstract class ExceptionMessage implements Serializable {
 
 	private static final long serialVersionUID = -547904528497231913L;
 
+	private int responseCode;
+	
 	private String code;
 
 	private String message;
@@ -24,5 +26,12 @@ public abstract class ExceptionMessage implements Serializable {
 	public ExceptionMessage(String code, String message) {
 		this.code = code;
 		this.message = message;
+		this.responseCode = 500;
+	}
+	
+	public ExceptionMessage(int responseCode,String code, String message) {
+		this.code = code;
+		this.message = message;
+		this.responseCode = responseCode;
 	}
 }

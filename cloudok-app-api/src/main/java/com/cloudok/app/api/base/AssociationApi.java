@@ -12,6 +12,8 @@ import com.cloudok.base.mapping.AssociationMapping;
 import com.cloudok.base.service.AssociationService;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppAssociationApi")
 @RequestMapping("/v1/base/association")
 @Api(tags = "社团数据")
+@LogModule
 public class AssociationApi {
 
 	@Autowired
@@ -27,6 +30,7 @@ public class AssociationApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询社团数据列表", notes = "查询社团数据列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(associationService.page(QueryBuilder.create(AssociationMapping.class).with(request)));
 	} 

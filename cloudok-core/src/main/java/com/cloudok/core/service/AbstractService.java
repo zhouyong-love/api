@@ -129,7 +129,9 @@ public abstract class AbstractService<D extends VO, E extends PO>
 			d.setId(getPrimaryKey());
 		}
 		d.setDeleted(Boolean.FALSE);
-		d.setCreateBy(getCurrentUserId());
+		if(!getCurrentUserId().equals(0L) && d.getCreateBy() == null) {
+			d.setCreateBy(getCurrentUserId());
+		}
 		d.setUpdateBy(d.getCreateBy());
 		d.setCreateTs(new Timestamp(System.currentTimeMillis()));
 		d.setUpdateTs(d.getCreateTs());

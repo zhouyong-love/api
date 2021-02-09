@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.ProjectExperienceService;
 import com.cloudok.uc.vo.ProjectExperienceVO;
@@ -25,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppProjectExperienceApi")
 @RequestMapping("/v1/uc/project")
 @Api(tags = "项目实践")
+@LogModule
 public class ProjectExperienceApi {
 
 	@Autowired
@@ -33,6 +36,7 @@ public class ProjectExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加项目实践", notes = "添加项目实践")
+	@Loggable
 	public Response create(@RequestBody @Valid ProjectExperienceVO vo) {
 		return Response.buildSuccess(projectExperienceService.create(vo));
 	}
@@ -40,6 +44,7 @@ public class ProjectExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询项目实践列表", notes = "查询项目实践列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(projectExperienceService.getByMember(SecurityContextHelper.getCurrentUserId()));
 	}
@@ -47,6 +52,7 @@ public class ProjectExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{id}")
 	@ApiOperation(value = "查询项目实践列表", notes = "查询项目实践列表")
+	@Loggable
 	public Response get(@PathVariable("id")Long id) {
 		return Response.buildSuccess(projectExperienceService.getByMember(SecurityContextHelper.getCurrentUserId(),id));
 	}
@@ -54,6 +60,7 @@ public class ProjectExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改项目实践", notes = "修改项目实践")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid ProjectExperienceVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(projectExperienceService.update(vo));
@@ -62,6 +69,7 @@ public class ProjectExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "删除项目实践", notes = "删除项目实践")
+	@Loggable
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(projectExperienceService.remove(id));
 	}

@@ -12,6 +12,8 @@ import com.cloudok.base.mapping.CompanyMapping;
 import com.cloudok.base.service.CompanyService;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppCompanyApi")
 @RequestMapping("/v1/base/company")
 @Api(tags = "公司信息")
+@LogModule
 public class CompanyApi {
 
 	@Autowired
@@ -27,6 +30,7 @@ public class CompanyApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询公司信息列表", notes = "查询公司信息列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(companyService.page(QueryBuilder.create(CompanyMapping.class).with(request)));
 	} 

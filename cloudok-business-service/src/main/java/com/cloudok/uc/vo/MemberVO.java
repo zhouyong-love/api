@@ -51,6 +51,10 @@ public class MemberVO extends VO {
 	
 	private UserState state;
 	
+	private Integer wi;
+	
+	private Integer ti;
+	
 	public MemberVO(Long id) {
 		this.setId(id);
 	}

@@ -25,10 +25,13 @@ import com.cloudok.authority.vo.RoleResVO;
 import com.cloudok.authority.vo.RoleVO;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 
 @RestController
 @RequestMapping("/v1/authority/role")
 @Api(tags = "")
+@LogModule
 public class RoleApi {
 
 	@Autowired
@@ -37,6 +40,7 @@ public class RoleApi {
 	@PreAuthorize("hasAuthority('interface.role.write')")
 	@PostMapping
 	@ApiOperation(value = "添加", notes = "添加")
+	@Loggable
 	public Response create(@RequestBody @Valid RoleVO vo) {
 		return Response.buildSuccess(roleService.create(vo));
 	}
@@ -44,6 +48,7 @@ public class RoleApi {
 	@PreAuthorize("hasAuthority('interface.role.write') or hasAuthority('interface.role.read')")
 	@GetMapping
 	@ApiOperation(value = "查询列表", notes = "查询列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(roleService.page(QueryBuilder.create(RoleMapping.class).with(request)));
 	}
@@ -51,6 +56,7 @@ public class RoleApi {
 	@PreAuthorize("hasAuthority('interface.role.write')")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改", notes = "修改")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid RoleVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(roleService.update(vo));
@@ -59,6 +65,7 @@ public class RoleApi {
 	@PreAuthorize("hasAuthority('interface.role.write') or hasAuthority('interface.role.read')")
 	@GetMapping("/{id}")
 	@ApiOperation(value = "查询", notes = "查询")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id) {
 		return Response.buildSuccess(roleService.get(id));
 	}
@@ -66,6 +73,7 @@ public class RoleApi {
 	@PreAuthorize("hasAuthority('interface.role.write')")
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "删除", notes = "删除")
+	@Loggable
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(roleService.remove(id));
 	}
@@ -73,6 +81,7 @@ public class RoleApi {
 	@PreAuthorize("hasAuthority('interface.role.write')")
 	@DeleteMapping
 	@ApiOperation(value = "批量删除", notes = "批量删除")
+	@Loggable
 	public Response removeList(List<Long> ids) {
 		return Response.buildSuccess(roleService.remove(ids));
 	}
@@ -83,6 +92,7 @@ public class RoleApi {
 	@PostMapping("/{roleId}/resources")
 	@PreAuthorize("hasAuthority('role.write')")
 	@ApiOperation(value="为角色授予资源权限",notes="为角色授予资源权限")
+	@Loggable
 	public Response grant(@RequestBody List<RoleResVO> vos,@PathVariable("roleId")Long roleId) {
 		for (RoleResVO roleResVO : vos) {
 			roleResVO.setRoleId(roleId);
@@ -93,6 +103,7 @@ public class RoleApi {
 	@DeleteMapping("/{roleId}/resources/{resourcesId}")
 	@PreAuthorize("hasAuthority('role.write')")
 	@ApiOperation(value="删除角色的资源权限",notes="删除角色的资源权限")
+	@Loggable
 	public Response ungrant(@PathVariable("resourcesId")Long id) {
 		return Response.buildSuccess(roleResServer.remove(id));
 	}
@@ -100,6 +111,7 @@ public class RoleApi {
 	@GetMapping("/{roleId}/resources")
 	@PreAuthorize("hasAuthority('role.read') or hasAuthority('role.write')")
 	@ApiOperation(value="查询角色的权限列表",notes="查询角色的权限列表")
+	@Loggable
 	public Response roleResList(@PathVariable("roleId")Long roleId) {
 		return Response.buildSuccess(roleResServer.list(QueryBuilder.create(RoleResMapping.class).and(RoleResMapping.ROLEID,roleId).end()));
 	} 

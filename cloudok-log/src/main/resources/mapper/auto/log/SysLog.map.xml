@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.log.mapper.SysLogMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.log.po.SysLogPO" id="sysLogMap">
+		
+		<result property="modelCode" column="model_code"/>
+		
+		<result property="modelName" column="model_name"/>
+		
+		<result property="interfaceCode" column="interface_code"/>
+		
+		<result property="interfaceName" column="interface_name"/>
+		
+		<result property="userId" column="user_id"/>
+		
+		<result property="userName" column="user_name"/>
+		
+		<result property="requestUrl" column="request_url"/>
+		
+		<result property="requestMethod" column="request_method"/>
+		
+		<result property="input" column="input"/>
+		
+		<result property="inputLogSwitch" column="input_log_switch"/>
+		
+		<result property="logLevel" column="log_level"/>
+		
+		<result property="outputLogSwitch" column="output_log_switch"/>
+		
+		<result property="output" column="output"/>
+		
+		<result property="status" column="status"/>
+		
+		<result property="formatedMessage" column="formated_message"/>
+		
+		<result property="httpCode" column="http_code"/>
+		
+		<result property="businessId" column="business_id"/>
+		
+		<result property="relationBusinessId" column="relation_business_id"/>
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.model_code,t.model_name,t.interface_code,t.interface_name,t.user_id,t.user_name,t.request_url,t.request_method,t.input,t.input_log_switch,t.log_level,t.output_log_switch,t.output,t.status,t.formated_message,t.http_code,t.business_id,t.relation_business_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.log.po.SysLogPO">
+		insert into sys_log(model_code,model_name,interface_code,interface_name,user_id,user_name,request_url,request_method,input,input_log_switch,log_level,output_log_switch,output,status,formated_message,http_code,business_id,relation_business_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{modelCode},#{modelName},#{interfaceCode},#{interfaceName},#{userId},#{userName},#{requestUrl},#{requestMethod},#{input},#{inputLogSwitch},#{logLevel},#{outputLogSwitch},#{output},#{status},#{formatedMessage},#{httpCode},#{businessId},#{relationBusinessId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.log.po.SysLogPO">
+		update sys_log set model_code=#{modelCode},model_name=#{modelName},interface_code=#{interfaceCode},interface_name=#{interfaceName},user_id=#{userId},user_name=#{userName},request_url=#{requestUrl},request_method=#{requestMethod},input=#{input},input_log_switch=#{inputLogSwitch},log_level=#{logLevel},output_log_switch=#{outputLogSwitch},output=#{output},status=#{status},formated_message=#{formatedMessage},http_code=#{httpCode},business_id=#{businessId},relation_business_id=#{relationBusinessId},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.log.po.SysLogPO">
+		update sys_log set 
+			
+			<if test="modelCode != null ">model_code = #{modelCode},</if>
+			
+			<if test="modelName != null ">model_name = #{modelName},</if>
+			
+			<if test="interfaceCode != null ">interface_code = #{interfaceCode},</if>
+			
+			<if test="interfaceName != null ">interface_name = #{interfaceName},</if>
+			
+			<if test="userId != null ">user_id = #{userId},</if>
+			
+			<if test="userName != null ">user_name = #{userName},</if>
+			
+			<if test="requestUrl != null ">request_url = #{requestUrl},</if>
+			
+			<if test="requestMethod != null ">request_method = #{requestMethod},</if>
+			
+			<if test="input != null ">input = #{input},</if>
+			
+			<if test="inputLogSwitch != null ">input_log_switch = #{inputLogSwitch},</if>
+			
+			<if test="logLevel != null ">log_level = #{logLevel},</if>
+			
+			<if test="outputLogSwitch != null ">output_log_switch = #{outputLogSwitch},</if>
+			
+			<if test="output != null ">output = #{output},</if>
+			
+			<if test="status != null ">status = #{status},</if>
+			
+			<if test="formatedMessage != null ">formated_message = #{formatedMessage},</if>
+			
+			<if test="httpCode != null ">http_code = #{httpCode},</if>
+			
+			<if test="businessId != null ">business_id = #{businessId},</if>
+			
+			<if test="relationBusinessId != null ">relation_business_id = #{relationBusinessId},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.logicDelete">
+			<property name="tableName" value="sys_log"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="sysLogMap">
+		select
+		<include refid="columns"></include>
+		from sys_log  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from sys_log t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

@@ -19,6 +19,8 @@ import com.cloudok.authority.vo.TokenVO;
 import com.cloudok.authority.vo.UserVO;
 import com.cloudok.base.attach.io.AttachRWHandle;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.exception.SecurityExceptionMessage;
 
@@ -32,6 +34,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/v1/authority")
 @Api(tags = "")
+@LogModule
 public class AuthApi {
 	
 	@Autowired
@@ -47,6 +50,7 @@ public class AuthApi {
 	private ResourceService resourceService;
 	
 	@PostMapping("/login")
+	@Loggable
 	@ApiOperation(value = "用户登录", notes = "用户登录")
 	public Response create(@RequestBody LoginVO vo) {
 		try {
@@ -59,6 +63,7 @@ public class AuthApi {
 	
 	@PostMapping("/logout")
 	@ApiOperation(value = "用户登出", notes = "用户登出")
+	@Loggable
 	public Response logout() {
 		authService.logout();
 		return Response.buildSuccess();
@@ -74,6 +79,7 @@ public class AuthApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/provisionalPass")
 	@ApiOperation(value="获取临时通行令牌",notes="获取临时通行令牌")
+	@Loggable
 	public Response provisionalPass() {
 		return Response.buildSuccess(authService.provisionalPass());
 	}
@@ -81,6 +87,7 @@ public class AuthApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/userInfo")
 	@ApiOperation(value="获取登录用户信息",notes="获取登录用户信息")
+	@Loggable
 	public Response userInfo() {
 		return Response.buildSuccess(authService.userInfo());
 	}
@@ -88,6 +95,7 @@ public class AuthApi {
 	@PutMapping("/userInfo")
 	@PreAuthorize("isAuthenticated()")
 	@ApiOperation(value = "修改用户", notes = "修改用户")
+	@Loggable
 	public Response set(@RequestBody UserVO vo) {
 		vo.setId(SecurityContextHelper.getCurrentUserId());
 		if (!StringUtils.isEmpty(vo.getPassword())) {
@@ -107,6 +115,7 @@ public class AuthApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/menu")
 	@ApiOperation(value="用户菜单",notes="用户菜单")
+	@Loggable
 	public Response menu() {
 		return Response.buildSuccess(resourceService.getMenu(SecurityContextHelper.getCurrentUserId()));
 	}

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
+import com.cloudok.log.annotation.LogModule;
+import com.cloudok.log.annotation.Loggable;
 import com.cloudok.uc.mapping.AssociationExperienceMapping;
 import com.cloudok.uc.service.AssociationExperienceService;
 import com.cloudok.uc.vo.AssociationExperienceVO;
@@ -26,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("AppAssociationExperienceApi")
 @RequestMapping("/v1/uc/member/{memberId}/associationExperience")
 @Api(tags = "社团经历")
+@LogModule
 public class AssociationExperienceApi {
 
 	@Autowired
@@ -34,6 +37,7 @@ public class AssociationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加社团经历", notes = "添加社团经历")
+	@Loggable
 	public Response create(@RequestBody @Valid AssociationExperienceVO vo) {
 		return Response.buildSuccess(associationExperienceService.create(vo));
 	}
@@ -41,6 +45,7 @@ public class AssociationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping
 	@ApiOperation(value = "查询社团经历列表", notes = "查询社团经历列表")
+	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(associationExperienceService.page(QueryBuilder.create(AssociationExperienceMapping.class).with(request)));
 	}
@@ -48,6 +53,7 @@ public class AssociationExperienceApi {
 	@PreAuthorize("isFullyAuthenticated()")
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改社团经历", notes = "修改社团经历")
+	@Loggable
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid AssociationExperienceVO vo) {
 		vo.setId(id);
 		return Response.buildSuccess(associationExperienceService.update(vo));
@@ -55,6 +61,7 @@ public class AssociationExperienceApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
+	@Loggable
 	@ApiOperation(value = "删除社团经历", notes = "删除社团经历")
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(associationExperienceService.remove(id));

@@ -26,6 +26,7 @@
 		<module>cloudok-base</module>
 		<module>cloudok-cache</module>
 		<module>cloudok-security</module>
+		<module>cloudok-log</module>
 		<module>cloudok-app-api</module>
 		<module>cloudok-management-api</module>
 		<module>cloudok-business-service</module>

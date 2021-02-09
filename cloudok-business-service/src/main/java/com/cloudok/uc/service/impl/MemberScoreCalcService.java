@@ -22,7 +22,6 @@ import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.query.QueryOperator;
 import com.cloudok.enums.UCMessageType;
-import com.cloudok.log.aspect.LogAspectAdapter;
 import com.cloudok.log.event.UserActionEvent;
 import com.cloudok.log.mapping.SysLogMapping;
 import com.cloudok.log.service.SysLogService;
@@ -233,6 +232,16 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 	}
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		new Thread(()->{
+			try {
+				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+			} catch (InterruptedException e) {
+			}
+			this.initScores();
+		}) .start();
+	}
+	
+	public void initScores() {
 		int pageNo = 1;
 		QueryBuilder builder = QueryBuilder.create(MemberMapping.class).and(MemberMapping.WI, QueryOperator.LTE,0).end()
 				.sort(MemberMapping.ID).desc().enablePaging().page(pageNo, 100).end();

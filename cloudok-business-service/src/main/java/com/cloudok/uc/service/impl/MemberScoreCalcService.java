@@ -174,19 +174,26 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 		if(lastTime !=  null) {
 			return;
 		}
-		MemberVO member = memberService.get(event.getEventData().getUserId());
-		if(member == null) {
-			return;
+		synchronized (this) {
+			MemberVO member = memberService.get(event.getEventData().getUserId());
+			if(member == null) {
+				return;
+			}
+			lastTime = cache.get(CacheType.Action, String.valueOf(event.getEventData().getUserId()), Long.class);
+			if(lastTime !=  null) {
+				return;
+			}
+			if(lastTime == null) {
+				double score = member.getTi() == null ? 0 :  member.getTi().doubleValue();
+				MemberVO vo = new MemberVO();
+				vo.setId(member.getId());
+				vo.setTi(Math.min(score+10, 50));
+				this.memberService.merge(vo);
+				//每三个小时计算一次
+				this.cache.put(CacheType.Action, String.valueOf(event.getEventData().getUserId()), System.currentTimeMillis(),3,TimeUnit.HOURS);
+			}
 		}
-		if(lastTime == null) {
-			double score = member.getTi() == null ? 0 :  member.getTi().doubleValue();
-			MemberVO vo = new MemberVO();
-			vo.setId(member.getId());
-			vo.setTi(Math.min(score+10, 50));
-			this.memberService.merge(vo);
-			//每三个小时计算一次
-			this.cache.put(CacheType.Action, String.valueOf(event.getEventData().getUserId()), System.currentTimeMillis(),3,TimeUnit.HOURS);
-		}
+		
 		
 	}
 //	每天从9:00-12:00, 12:00-15:00, 15:00-18:00, 18:00-21:00, 21:00-0:00，

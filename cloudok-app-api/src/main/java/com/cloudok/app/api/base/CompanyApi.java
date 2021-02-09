@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.base.mapping.CompanyMapping;
 import com.cloudok.base.service.CompanyService;
+import com.cloudok.core.mapping.Mapping;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
 import com.cloudok.log.annotation.LogModule;
@@ -32,6 +33,6 @@ public class CompanyApi {
 	@ApiOperation(value = "查询公司信息列表", notes = "查询公司信息列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(companyService.page(QueryBuilder.create(CompanyMapping.class).with(request)));
+		return Response.buildSuccess(companyService.page(QueryBuilder.create(CompanyMapping.class).with(request).sort(Mapping.ID).asc()));
 	} 
 }

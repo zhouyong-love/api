@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.base.mapping.SchoolMapping;
 import com.cloudok.base.service.SchoolService;
+import com.cloudok.core.mapping.Mapping;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
 import com.cloudok.log.annotation.LogModule;
@@ -32,6 +33,6 @@ public class SchoolApi {
 	@ApiOperation(value = "查询学校基础数据列表", notes = "查询学校基础数据列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(schoolService.list(QueryBuilder.create(SchoolMapping.class).with(request)));
+		return Response.buildSuccess(schoolService.list(QueryBuilder.create(SchoolMapping.class).with(request).sort(Mapping.ID).asc()));
 	}
 }

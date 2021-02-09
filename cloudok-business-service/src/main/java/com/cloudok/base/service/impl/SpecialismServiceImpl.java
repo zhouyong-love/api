@@ -1,6 +1,7 @@
 package com.cloudok.base.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class SpecialismServiceImpl extends AbstractService<SpecialismVO, Special
 
 	@Override
 	public List<SpecialismVO> listBySchool(Long schoolId) {
-		return convert2VO(repository.listBySchool(schoolId));
+		List<SpecialismVO> list =  convert2VO(repository.listBySchool(schoolId));
+		return list.stream().sorted((a,b)->a.getId().compareTo(b.getId())).collect(Collectors.toList());
 	}
 }

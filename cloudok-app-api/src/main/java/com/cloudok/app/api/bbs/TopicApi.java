@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudok.bbs.mapping.TopicMapping;
 import com.cloudok.bbs.service.PostService;
 import com.cloudok.bbs.service.TopicService;
+import com.cloudok.core.mapping.Mapping;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
 import com.cloudok.log.annotation.LogModule;
@@ -40,7 +41,7 @@ public class TopicApi {
 	@ApiOperation(value = "查询话题列表", notes = "查询话题列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(topicService.page(QueryBuilder.create(TopicMapping.class).with(request)));
+		return Response.buildSuccess(topicService.page(QueryBuilder.create(TopicMapping.class).with(request).sort(Mapping.ID).asc()));
 	} 
 	
 

@@ -33,6 +33,6 @@ public class CompanyApi {
 	@ApiOperation(value = "查询公司信息列表", notes = "查询公司信息列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(companyService.page(QueryBuilder.create(CompanyMapping.class).with(request).sort(Mapping.ID).asc()));
+		return Response.buildSuccess(companyService.page(QueryBuilder.create(CompanyMapping.class).with(request).sort(Mapping.ID).desc()));
 	} 
 }

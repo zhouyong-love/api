@@ -824,7 +824,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					.and(RecognizedMapping.SOURCEID, memberId)
 					.and(RecognizedMapping.TARGETID, currentUserId)
 					.end()
-					.and(RecognizedMapping.SOURCEID, currentUserId)
+					.or(RecognizedMapping.SOURCEID, currentUserId)
 					.and(RecognizedMapping.TARGETID, memberId)
 					.end()
 					);
@@ -910,20 +910,38 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(targetList.stream().map(item -> item.getId()).collect(Collectors.toList()));
 			
 			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
-					.and(RecognizedMapping.SOURCEID, currentUserId).end()
-					.or(RecognizedMapping.TARGETID,currentUserId).end());
-			
+					.and(RecognizedMapping.SOURCEID, currentUserId)
+					.and(RecognizedMapping.TARGETID,QueryOperator.IN, targetList.stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.end()
+					.or(RecognizedMapping.TARGETID,currentUserId)
+					.and(RecognizedMapping.SOURCEID,QueryOperator.IN, targetList.stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.end());
+			//填充分数，方便观察结果
+			memberList.stream().forEach(member -> {
+				Integer ri = riScore.get(member.getId());
+				member.setRi(ri == null ? 0 : ri.doubleValue());
+				suggestMemberList.stream().filter(a -> a.getId().equals(member.getId()))
+				.findAny().ifPresent(a ->{
+					 member.setScore(a.getScore());
+				});
+			});
 			if(!CollectionUtils.isEmpty(recoginzedList)) {
 				memberList.stream().forEach(member -> {
-					recoginzedList.stream().filter(item -> item.getSourceId().equals(currentUserId)).findAny().ifPresent(item ->{
+					recoginzedList.stream().filter(item -> 
+					   item.getSourceId().equals(currentUserId)
+					&& item.getTargetId().equals(member.getId())
+							).findAny().ifPresent(item ->{
 						member.setTo(true);
 					});
-					recoginzedList.stream().filter(item -> item.getTargetId().equals(currentUserId)).findAny().ifPresent(item ->{
+					recoginzedList.stream().filter(item ->
+					item.getTargetId().equals(currentUserId)
+					&& item.getSourceId().equals(member.getId())
+							).findAny().ifPresent(item ->{
 						member.setFrom(true);
 					});
 				});
 			}
-			page.setData(memberList);
+			page.setData(memberList.stream().sorted((b,a)->a.getScore().compareTo(b.getScore())).collect(Collectors.toList()));
 		}
 		return page;
 	}
@@ -982,7 +1000,6 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			default:
 				break;
 		}
-		
 		return resultPage;
 	}
 	/**
@@ -1001,11 +1018,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.enablePaging().page(pageNo, pageSize).end());
 		BeanUtils.copyProperties(page, resultPage);
 		if(!CollectionUtils.isEmpty(page.getData())) {
-			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()));
+			List<WholeMemberDTO> memberList = this.getBaseInfo(page.getData().stream().map(item -> item.getSourceId()).collect(Collectors.toList()));
 			//查我关注的
 			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
 					.and(RecognizedMapping.SOURCEID, currentUserId)
-					.and(RecognizedMapping.TARGETID, QueryOperator.IN,page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.and(RecognizedMapping.TARGETID, QueryOperator.IN,page.getData().stream().map(item -> item.getSourceId()).collect(Collectors.toList()))
 					.end()
 					.sort(RecognizedMapping.CREATETIME).desc());
 			memberList.forEach(item -> {
@@ -1017,7 +1034,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				});
 				
 			});
-			resultPage.setData(memberList);
+			List<WholeMemberDTO> resultList = page.getData().stream().map( item ->{
+				return memberList.stream().filter(m -> m.getId().equals(item.getSourceId())).findAny().get();
+			}).collect(Collectors.toList());
+			resultPage.setData(resultList);
 		}
 		return resultPage;
 	}
@@ -1036,11 +1056,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.enablePaging().page(pageNo, pageSize).end());
 		BeanUtils.copyProperties(page, resultPage);
 		if(!CollectionUtils.isEmpty(page.getData())) {
-			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()));
+			List<WholeMemberDTO> memberList = this.getBaseInfo(page.getData().stream().map(item -> item.getSourceId()).collect(Collectors.toList()));
 			//查我关注的
 			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
 					.and(RecognizedMapping.SOURCEID, currentUserId)
-					.and(RecognizedMapping.TARGETID, QueryOperator.IN,page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.and(RecognizedMapping.TARGETID, QueryOperator.IN,page.getData().stream().map(item -> item.getSourceId()).collect(Collectors.toList()))
 					.end()
 					.sort(RecognizedMapping.CREATETIME).desc());
 					
@@ -1052,7 +1072,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				});
 				item.setFrom(true);
 			});
-			resultPage.setData(memberList);
+			List<WholeMemberDTO> resultList = page.getData().stream().map( item ->{
+				return memberList.stream().filter(m -> m.getId().equals(item.getSourceId())).findAny().get();
+			}).collect(Collectors.toList());
+			resultPage.setData(resultList);
 		}
 		return resultPage;
 	}
@@ -1073,11 +1096,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.enablePaging().page(pageNo, pageSize).end());
 		BeanUtils.copyProperties(page, resultPage);
 		if(!CollectionUtils.isEmpty(page.getData())) {
-			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()));
+			List<WholeMemberDTO> memberList = this.getBaseInfo(page.getData().stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
 			//查我关注的
 			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
 					.and(RecognizedMapping.TARGETID, currentUserId)
-					.and(RecognizedMapping.SOURCEID, QueryOperator.IN,page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.and(RecognizedMapping.SOURCEID, QueryOperator.IN,page.getData().stream().map(item -> item.getTargetId()).collect(Collectors.toList()))
 					.end()
 					.sort(RecognizedMapping.CREATETIME).desc());
 					
@@ -1089,7 +1112,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					item.setFrom(true);
 				});
 			});
-			resultPage.setData(memberList);
+			List<WholeMemberDTO> resultList = page.getData().stream().map( item ->{
+				return memberList.stream().filter(m -> m.getId().equals(item.getTargetId())).findAny().get();
+			}).collect(Collectors.toList());
+			resultPage.setData(resultList);
 		}
 		return resultPage;
 	}
@@ -1108,13 +1134,43 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.enablePaging().page(pageNo, pageSize).end());
 		BeanUtils.copyProperties(page, resultPage);
 		if(!CollectionUtils.isEmpty(page.getData())) {
-			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()));
+			List<WholeMemberDTO> memberList = this.getBaseInfo(page.getData().stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
 			memberList.forEach(item -> {
 				item.setFrom(true);
 				item.setTo(true);
 			});
-			resultPage.setData(memberList);
+			List<WholeMemberDTO> resultList = page.getData().stream().map( item ->{
+				return memberList.stream().filter(m -> m.getId().equals(item.getTargetId())).findAny().get();
+			}).collect(Collectors.toList());
+			resultPage.setData(resultList);
 		}
 		return resultPage;
+	}
+	
+	private List<WholeMemberDTO> getBaseInfo(List<Long> memberIdList){
+		if(CollectionUtils.isEmpty(memberIdList)) {
+			return java.util.Collections.emptyList();
+		}
+		
+		List<MemberVO>  memberList =  this.get(memberIdList);
+		List<WholeMemberDTO> list = memberList.stream().map(item -> {
+			WholeMemberDTO dto = new WholeMemberDTO();
+			BeanUtils.copyProperties(item, dto);
+			return dto;
+		}).collect(Collectors.toList());
+		if (!CollectionUtils.isEmpty(list)) {
+			educationExperienceService
+					.list(QueryBuilder.create(EducationExperienceMapping.class)
+							.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, list.stream().map(item->item.getId()).collect(Collectors.toList())).end()
+							.sort(EducationExperienceMapping.GRADE).desc())
+					.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
+					.forEach((memberId, valueList) -> {
+						list.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+							item.setEducationList(valueList);
+						});
+					});
+		}
+		
+		return list;
 	}
 }

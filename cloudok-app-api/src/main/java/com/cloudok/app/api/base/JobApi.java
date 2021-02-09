@@ -33,7 +33,7 @@ public class JobApi {
 	@ApiOperation(value = "查询岗位列表", notes = "查询岗位列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(jobService.page(QueryBuilder.create(JobMapping.class).with(request).sort(Mapping.ID).asc()));
+		return Response.buildSuccess(jobService.page(QueryBuilder.create(JobMapping.class).with(request).sort(Mapping.ID).desc()));
 	}
  
 }

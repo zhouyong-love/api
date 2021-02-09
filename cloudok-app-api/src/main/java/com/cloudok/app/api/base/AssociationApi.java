@@ -33,6 +33,6 @@ public class AssociationApi {
 	@ApiOperation(value = "查询社团数据列表", notes = "查询社团数据列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(associationService.page(QueryBuilder.create(AssociationMapping.class).with(request).sort(Mapping.ID).asc()));
+		return Response.buildSuccess(associationService.page(QueryBuilder.create(AssociationMapping.class).with(request).sort(Mapping.ID).desc()));
 	} 
 }

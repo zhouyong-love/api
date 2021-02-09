@@ -55,6 +55,10 @@ public class MemberVO extends VO {
 	
 	private Double ti;
 	
+	private Double ri;
+	
+	private Double score;
+	
 	public MemberVO(Long id) {
 		this.setId(id);
 	}

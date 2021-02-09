@@ -33,6 +33,6 @@ public class IndustryApi {
 	@ApiOperation(value = "查询行业信息列表", notes = "查询行业信息列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(industryService.list(QueryBuilder.create(IndustryMapping.class).with(request).disenablePaging().sort(Mapping.ID).asc()));
+		return Response.buildSuccess(industryService.list(QueryBuilder.create(IndustryMapping.class).with(request).disenablePaging().sort(Mapping.ID).desc()));
 	} 
 }

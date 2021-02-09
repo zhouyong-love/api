@@ -33,6 +33,6 @@ public class ResearchDomainApi {
 	@ApiOperation(value = "查询研究领域列表", notes = "查询研究领域列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(researchDomainService.page(QueryBuilder.create(ResearchDomainMapping.class).with(request).sort(Mapping.ID).asc()));
+		return Response.buildSuccess(researchDomainService.page(QueryBuilder.create(ResearchDomainMapping.class).with(request).sort(Mapping.ID).desc()));
 	} 
 }

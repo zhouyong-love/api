@@ -33,6 +33,6 @@ public class SchoolApi {
 	@ApiOperation(value = "查询学校基础数据列表", notes = "查询学校基础数据列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(schoolService.list(QueryBuilder.create(SchoolMapping.class).with(request).sort(Mapping.ID).asc()));
+		return Response.buildSuccess(schoolService.list(QueryBuilder.create(SchoolMapping.class).with(request).sort(Mapping.ID).desc()));
 	}
 }

@@ -84,7 +84,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 		if(!CollectionUtils.isEmpty(member.getResearchList())) {
 			double temScore = 0;
 			for(ResearchExperienceVO vo : member.getResearchList()) {
-				temScore = temScore + (vo.getDomain()==null ? 0 : 2)+ (StringUtils.isEmpty(vo.getName()) ? 0 : 3) + (StringUtils.isEmpty(vo.getDescription()) ? 0 : Math.min(5, vo.getDescription().length()/3));
+				temScore = temScore + (vo.getDomain()==null ? 0 : 2)+ (StringUtils.isEmpty(vo.getDescription()) ? 0 : Math.min(5, vo.getDescription().length()/3));
 			}
 			score = score + Math.min(temScore, 20);
 		}

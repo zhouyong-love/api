@@ -12,5 +12,7 @@ public class SchoolMapping extends Mapping {
 	public static final Mapping EMAILPOSTFIX = new Mapping("emailPostfix", "t.email_postfix");
 	
 	public static final Mapping ABBREVIATION = new Mapping("abbreviation", "t.abbreviation");
+	
+	public static final Mapping SN = new Mapping("sn", "t.sn");
 
 }

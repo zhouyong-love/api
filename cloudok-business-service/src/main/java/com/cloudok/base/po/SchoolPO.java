@@ -19,5 +19,7 @@ public class SchoolPO extends PO {
 	
 	private String abbreviation;
 	
+	private Integer sn;
+	
 	
 }

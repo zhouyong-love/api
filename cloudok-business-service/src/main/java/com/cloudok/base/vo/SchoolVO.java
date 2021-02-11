@@ -21,6 +21,8 @@ public class SchoolVO extends VO {
 	
 	private String abbreviation;
 	
+	private Integer sn;
+	
 	public SchoolVO(Long id) {
 		this.setId(id);
 	}

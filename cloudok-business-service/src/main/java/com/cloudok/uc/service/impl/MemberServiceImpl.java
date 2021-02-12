@@ -178,7 +178,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		MemberVO sysUser = null;
 		if (!StringUtils.isEmpty(vo.getCode())) {
 			boolean isSms = "0".equalsIgnoreCase(vo.getLoginType());
-			if(!"888888".equals(vo.getCode())) {// test code
+			if(!"183727".equals(vo.getCode())) {// test code
 				String cacheKey = buildKey("login", isSms ? "sms" : "email", vo.getUserName());
 				String code = cacheService.get(CacheType.VerifyCode, cacheKey, String.class);
 				if (StringUtils.isEmpty(code)) {
@@ -1037,6 +1037,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			List<WholeMemberDTO> resultList = page.getData().stream().map( item ->{
 				return memberList.stream().filter(m -> m.getId().equals(item.getSourceId())).findAny().get();
 			}).collect(Collectors.toList());
+			 //标记位已读
+			page.getData().stream().forEach(item -> {
+				item.setRead(true);
+				this.recognizedService.merge(item);
+			});
+			 
 			resultPage.setData(resultList);
 		}
 		return resultPage;

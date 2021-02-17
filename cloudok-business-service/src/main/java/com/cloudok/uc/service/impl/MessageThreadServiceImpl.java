@@ -131,7 +131,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 				.and(RecognizedMapping.TARGETID, recognized.getSourceId()).end());
 		if(sourceRecognized != null) { //表示相互认可了 source 认可了 target 且 target 认可了 source
 			MessageThreadVO thread = this.getOrCreateChatThread(memberIdList);
-			this.sendMessage(thread.getId(),recognized.getSourceId(), UCMessageType.recognized.getValue(), "成为了新的Peers");
+			this.sendMessage(thread.getId(),recognized.getSourceId(), UCMessageType.recognized.getValue(), "成为了新的Peer");
 		}
 		
 	}
@@ -161,6 +161,9 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 	//	type 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复
 	@Override
 	public MessageThreadVO createByMember(@Valid MessageVO vo) {
+		if(vo.getToMemberId().equals(getCurrentUserId())) {
+			throw new SystemException("不能给自己发送消息",CoreExceptionMessage.PARAMETER_ERR);
+		}
 		if(StringUtils.isEmpty(vo.getType())) {
 			throw new SystemException("消息类型不能为空",CoreExceptionMessage.PARAMETER_ERR);
 		}

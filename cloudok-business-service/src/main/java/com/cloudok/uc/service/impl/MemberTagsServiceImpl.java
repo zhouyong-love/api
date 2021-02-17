@@ -38,6 +38,10 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 
 	@Override
 	public MemberTagsVO create(MemberTagsVO d) {
+		List<MemberTagsVO> list = super.list(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.TAGID, d.getTag().getId()).and(MemberTagsMapping.MEMBERID, getCurrentUserId()).end());
+		if(!CollectionUtils.isEmpty(list)) {
+			super.remove(list.stream().map(item->item.getId()).collect(Collectors.toList()));
+		}
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		if(d.getTag().getId() == null) {
 			d.getTag().setType(TaggedType.CUSTOM.getValue());

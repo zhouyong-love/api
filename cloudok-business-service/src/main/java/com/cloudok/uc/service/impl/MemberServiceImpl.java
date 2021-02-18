@@ -170,7 +170,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Override
 	public TokenVO login(LoginVO vo) {
 		List<MemberVO> memberList = this
-				.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.EMAIL, vo.getUserName()).end() // email
+				.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.EMAIL, vo.getUserName()) // email
 						.or(MemberMapping.PHONE, vo.getUserName()) // phone
 						.or(MemberMapping.USERNAME, vo.getUserName()) // userName
 						.end());
@@ -941,7 +941,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					});
 				});
 			}
-			page.setData(memberList.stream().sorted((b,a)->a.getScore().compareTo(b.getScore())).collect(Collectors.toList()));
+			page.setData(memberList.stream().filter(item->!StringUtils.isEmpty(item.getNickName())&&!CollectionUtils.isEmpty(item.getEducationList())).sorted((b,a)->a.getScore().compareTo(b.getScore())).collect(Collectors.toList()));
 		}
 		return page;
 	}

@@ -1,5 +1,6 @@
 package com.cloudok.uc.vo;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import com.cloudok.core.vo.VO;
@@ -29,6 +30,8 @@ public class MessageThreadVO extends VO {
 	private Boolean isPublic;
 
 	private Integer unReadCount;
+	
+	private Timestamp lastUpdate;
 	
 	/**
 	 * 参与者

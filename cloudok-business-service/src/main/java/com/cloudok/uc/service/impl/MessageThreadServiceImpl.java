@@ -249,7 +249,12 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		//递归造成了数据排序混乱，回复排序
 		return threadList.stream().map(item -> {
 			Optional<MessageThreadVO>  opt = list.stream().filter( t -> t.getId().equals(item.getId())).findAny();
-			return opt.isPresent() ? opt.get() : null;
+			if(opt.isPresent()) {
+				MessageThreadVO message = opt.get();
+				message.setLastUpdate(item.getUpdateTs());
+				return message;
+			}
+			return null;
 		}).filter(item -> item != null).collect(Collectors.toList());
 	}
 	
@@ -357,7 +362,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 	@Override
 	public MessageThreadVO getMessageThreadByMemberId(Long currentUserId, Long memberId, Integer latestMessageCount) {
 		//检查是否好友
-		if(this.firendService.isFirends(currentUserId,memberId)) {
+		if(!this.firendService.isFirends(currentUserId,memberId)) {
 			throw new SystemException("只有相互认可后才能发送私信",CoreExceptionMessage.NO_PERMISSION);
 		}
 		

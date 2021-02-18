@@ -111,7 +111,7 @@ public class UCMessageApi {
 	@ApiOperation(value = "查询与某一个人的私信--点击头像等进入与某一个人的私信聊天，要先获取与这个人的私信thread与最新的n条信息", notes = "查询与某一个人的私信")
 	@Loggable
 	public Response getMessageThreadByMemberId(
-			@RequestParam(name = "memberId",required = false) Long memberId,
+			@PathVariable(name = "memberId",required = false) Long memberId,
 			@RequestParam(name = "latestMessageCount", defaultValue = "10") Integer latestMessageCount) {
 		return Response.buildSuccess(messageThreadService.getMessageThreadByMemberId(SecurityContextHelper.getCurrentUserId(), memberId, latestMessageCount));
 	}

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -1081,8 +1082,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				item.setFrom(true);
 			});
 			List<WholeMemberDTO> resultList = page.getData().stream().map( item ->{
-				return memberList.stream().filter(m -> m.getId().equals(item.getSourceId())).findAny().get();
-			}).collect(Collectors.toList());
+				Optional<WholeMemberDTO> opt=memberList.stream().filter(m -> m.getId().equals(item.getSourceId())).findAny();
+				return opt.isPresent()?opt.get():null;
+			}).filter(item->item!=null).collect(Collectors.toList());
 			resultPage.setData(resultList);
 		}
 		return resultPage;

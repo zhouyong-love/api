@@ -6,6 +6,10 @@ server:
       timeout: 1800s
       
 spring:
+  servlet:
+    multipart:
+      max-file-size: 50M
+      max-request-size: 50M
   profiles:
     include:
       -local

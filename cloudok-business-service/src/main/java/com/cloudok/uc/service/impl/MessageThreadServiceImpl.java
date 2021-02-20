@@ -131,7 +131,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 				.and(RecognizedMapping.TARGETID, recognized.getSourceId()).end());
 		if(sourceRecognized != null) { //表示相互认可了 source 认可了 target 且 target 认可了 source
 			MessageThreadVO thread = this.getOrCreateChatThread(memberIdList);
-			this.sendMessage(thread.getId(),recognized.getSourceId(), UCMessageType.recognized.getValue(), "成为了新的Peer");
+			this.sendMessage(thread.getId(),recognized.getSourceId(), UCMessageType.recognized.getValue(), "成为了新的Peer！发条私信吧");
 		}
 		
 	}

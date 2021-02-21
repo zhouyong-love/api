@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
@@ -48,8 +47,6 @@ import com.cloudok.uc.vo.MessageThreadMembersVO;
 import com.cloudok.uc.vo.MessageThreadVO;
 import com.cloudok.uc.vo.MessageVO;
 import com.cloudok.uc.vo.RecognizedVO;
-
-import ch.qos.logback.core.joran.util.beans.BeanUtil;
 
 @Service
 public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, MessageThreadPO> implements MessageThreadService,ApplicationListener<BusinessEvent<?>>{
@@ -134,7 +131,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 				.and(RecognizedMapping.TARGETID, recognized.getSourceId()).end());
 		if(sourceRecognized != null) { //表示相互认可了 source 认可了 target 且 target 认可了 source
 			MessageThreadVO thread = this.getOrCreateChatThread(memberIdList);
-			this.sendMessage(thread.getId(),recognized.getSourceId(), UCMessageType.recognized.getValue(), "成为了新的Peers");
+			this.sendMessage(thread.getId(),recognized.getSourceId(), UCMessageType.recognized.getValue(), "成为了新的Peer！发条私信吧");
 		}
 		
 	}
@@ -164,6 +161,9 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 	//	type 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复
 	@Override
 	public MessageThreadVO createByMember(@Valid MessageVO vo) {
+		if(vo.getToMemberId().equals(getCurrentUserId())) {
+			throw new SystemException("不能给自己发送消息",CoreExceptionMessage.PARAMETER_ERR);
+		}
 		if(StringUtils.isEmpty(vo.getType())) {
 			throw new SystemException("消息类型不能为空",CoreExceptionMessage.PARAMETER_ERR);
 		}
@@ -249,9 +249,12 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		//递归造成了数据排序混乱，回复排序
 		return threadList.stream().map(item -> {
 			Optional<MessageThreadVO>  opt = list.stream().filter( t -> t.getId().equals(item.getId())).findAny();
-			MessageThreadVO thread = opt.isPresent() ? opt.get() : null;
-			BeanUtils.copyProperties(item, thread); //复制属性
-			return thread;
+			if(opt.isPresent()) {
+				MessageThreadVO message = opt.get();
+				message.setLastUpdate(item.getUpdateTs());
+				return message;
+			}
+			return null;
 		}).filter(item -> item != null).collect(Collectors.toList());
 	}
 	
@@ -359,7 +362,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 	@Override
 	public MessageThreadVO getMessageThreadByMemberId(Long currentUserId, Long memberId, Integer latestMessageCount) {
 		//检查是否好友
-		if(this.firendService.isFirends(currentUserId,memberId)) {
+		if(!this.firendService.isFirends(currentUserId,memberId)) {
 			throw new SystemException("只有相互认可后才能发送私信",CoreExceptionMessage.NO_PERMISSION);
 		}
 		

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -170,7 +171,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Override
 	public TokenVO login(LoginVO vo) {
 		List<MemberVO> memberList = this
-				.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.EMAIL, vo.getUserName()).end() // email
+				.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.EMAIL, vo.getUserName()) // email
 						.or(MemberMapping.PHONE, vo.getUserName()) // phone
 						.or(MemberMapping.USERNAME, vo.getUserName()) // userName
 						.end());
@@ -946,7 +947,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					});
 				});
 			}
-			page.setData(memberList.stream().sorted((b,a)->a.getScore().compareTo(b.getScore())).collect(Collectors.toList()));
+			//前端过滤， 不然分页会有bug
+			page.setData(memberList.stream()/**.filter(item->{
+				return (!StringUtils.isEmpty(item.getNickName()))&&(!CollectionUtils.isEmpty(item.getEducationList()));
+			})**/.sorted((b,a)->a.getScore().compareTo(b.getScore())).collect(Collectors.toList()));
 		}
 		return page;
 	}
@@ -1084,8 +1088,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				item.setFrom(true);
 			});
 			List<WholeMemberDTO> resultList = page.getData().stream().map( item ->{
-				return memberList.stream().filter(m -> m.getId().equals(item.getSourceId())).findAny().get();
-			}).collect(Collectors.toList());
+				Optional<WholeMemberDTO> opt=memberList.stream().filter(m -> m.getId().equals(item.getSourceId())).findAny();
+				return opt.isPresent()?opt.get():null;
+			}).filter(item->item!=null).collect(Collectors.toList());
 			resultPage.setData(resultList);
 		}
 		return resultPage;

@@ -850,6 +850,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	@Autowired
 	private Cache cache;
 	
+	private static final int defaultRI = 80;
+	
+	private static final int recognized =  -50;
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Page<WholeMemberDTO> suggest(Integer filterType,String threadId,Integer pageNo, Integer pageSize) {
@@ -872,13 +876,13 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				try {
 					SecureRandom random  = SecureRandom.getInstanceStrong();
 					suggestMemberList.stream().forEach(item -> {
-						riScore.put(item.getId(), random.nextInt(50));
+						riScore.put(item.getId(), random.nextInt(defaultRI));
 					});
 				} catch (NoSuchAlgorithmException e) {
 					 log.error(e.getMessage(),e);
 					 Random random  = new Random();
 					 suggestMemberList.stream().forEach(item -> {
-						riScore.put(item.getId(), random.nextInt(50));
+						riScore.put(item.getId(), random.nextInt(defaultRI));
 					});
 				}
 				//超时60分钟
@@ -897,12 +901,13 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				}
 				item.setScore(ri+s);
 			});
-			List<FirendVO> firendList = this.firendService.list(QueryBuilder.create(FirendMapping.class)
-					.and(FirendMapping.SOURCEID, currentUserId).end());
-			firendList.stream().forEach(item -> {
+			List<RecognizedVO> myRecoginzedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.SOURCEID, currentUserId)
+					.end());
+			myRecoginzedList.stream().forEach(item -> {
 				suggestMemberList.stream().filter(a -> a.getId().equals(item.getTargetId()))
 					.findAny().ifPresent(a ->{
-						a.setScore(Math.max(a.getScore()-30,0)); //好友压制30分
+						a.setScore(Math.max(a.getScore()+recognized,0)); //好友压制30分
 					});
 			});
 			List<SuggsetMemberScorePO> targetList = suggestMemberList.stream().sorted((a,b)->b.getScore().compareTo(a.getScore()))

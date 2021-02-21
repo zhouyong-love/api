@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,8 @@ import com.cloudok.uc.vo.MessageThreadMembersVO;
 import com.cloudok.uc.vo.MessageThreadVO;
 import com.cloudok.uc.vo.MessageVO;
 import com.cloudok.uc.vo.RecognizedVO;
+
+import ch.qos.logback.core.joran.util.beans.BeanUtil;
 
 @Service
 public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, MessageThreadPO> implements MessageThreadService,ApplicationListener<BusinessEvent<?>>{
@@ -246,7 +249,9 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		//递归造成了数据排序混乱，回复排序
 		return threadList.stream().map(item -> {
 			Optional<MessageThreadVO>  opt = list.stream().filter( t -> t.getId().equals(item.getId())).findAny();
-			return opt.isPresent() ? opt.get() : null;
+			MessageThreadVO thread = opt.isPresent() ? opt.get() : null;
+			BeanUtils.copyProperties(item, thread); //复制属性
+			return thread;
 		}).filter(item -> item != null).collect(Collectors.toList());
 	}
 	

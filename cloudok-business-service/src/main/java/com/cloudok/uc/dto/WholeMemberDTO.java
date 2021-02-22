@@ -51,8 +51,6 @@ public class WholeMemberDTO extends LinkMemberVO {
 
 	private List<Long> recognizedByList; // 被那些人认可
 	 
-	private Integer secondDegreeRecognizedCount; //我关注的人也关注了他
-
 	public RecognizedMemberDTO toRecognized() {
 		RecognizedMemberDTO target = new RecognizedMemberDTO();
 		BeanUtils.copyProperties(this, target);

@@ -853,7 +853,6 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					member.setFrom(true);
 				});
 			}
-			member.setSecondDegreeRecognizedCount(this.recognizedService.getSecondDegreeRecognizedCount(currentUserId,memberId));
 		}
 		if(!SecurityContextHelper.getCurrentUserId().equals(memberId)) {
 			SpringApplicationContext.publishEvent(new ViewMemberDetailEvent( Pair.of(currentUserId,memberId)));

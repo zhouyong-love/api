@@ -17,7 +17,5 @@ public interface RecognizedService extends IService<RecognizedVO,RecognizedPO>{
 	
 	void unRecognized(Long memberId);
 
-	Integer getSecondDegreeRecognizedCount(Long currentUserId, Long memberId);
-
 	Page<RecognizedVO> getSecondDegreeRecognized(Long currentUserId, Long memberId, Integer pageNo, Integer pageSize);
 }

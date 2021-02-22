@@ -109,11 +109,6 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	}
 
 	@Override
-	public Integer getSecondDegreeRecognizedCount(Long currentUserId, Long memberId) {
-		return repository.getSecondDegreeRecognizedCount(currentUserId,memberId);
-	}
-
-	@Override
 	public Page<RecognizedVO> getSecondDegreeRecognized(Long currentUserId, Long memberId, Integer pageNo,
 			Integer pageSize) {
 			Page<RecognizedVO> page=new Page<>();

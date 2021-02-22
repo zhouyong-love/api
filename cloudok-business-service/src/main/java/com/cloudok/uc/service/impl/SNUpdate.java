@@ -13,14 +13,17 @@ import org.springframework.util.CollectionUtils;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.uc.mapping.EducationExperienceMapping;
 import com.cloudok.uc.mapping.InternshipExperienceMapping;
+import com.cloudok.uc.mapping.MemberTagsMapping;
 import com.cloudok.uc.mapping.ProjectExperienceMapping;
 import com.cloudok.uc.mapping.ResearchExperienceMapping;
 import com.cloudok.uc.service.EducationExperienceService;
 import com.cloudok.uc.service.InternshipExperienceService;
+import com.cloudok.uc.service.MemberTagsService;
 import com.cloudok.uc.service.ProjectExperienceService;
 import com.cloudok.uc.service.ResearchExperienceService;
 import com.cloudok.uc.vo.EducationExperienceVO;
 import com.cloudok.uc.vo.InternshipExperienceVO;
+import com.cloudok.uc.vo.MemberTagsVO;
 import com.cloudok.uc.vo.ProjectExperienceVO;
 import com.cloudok.uc.vo.ResearchExperienceVO;
 
@@ -37,6 +40,9 @@ public class SNUpdate implements InitializingBean{
 	
 	@Autowired
 	private ResearchExperienceService researchExperienceService; 
+	
+	@Autowired
+	private MemberTagsService memberTagsService;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -55,6 +61,7 @@ public class SNUpdate implements InitializingBean{
 		this.updateInternshipExperience();
 		this.updateProjectExperience();
 		this.updateResearchExperience();
+		this.updateMemberTags();
 	}
 	private void updateEducationExperience() {
 		List<EducationExperienceVO> list = educationExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class)
@@ -149,6 +156,29 @@ public class SNUpdate implements InitializingBean{
 						continue;
 					}
 					this.researchExperienceService.merge(m);
+				}
+			});
+		}
+	}
+	
+	private void updateMemberTags() {
+		List<MemberTagsVO> list = memberTagsService.list(QueryBuilder.create(MemberTagsMapping.class)
+				.and(MemberTagsMapping.SN, 0).end()
+				.disenablePaging());
+		if(!CollectionUtils.isEmpty(list)) {
+			Map<Long,List<MemberTagsVO>> map = list.stream().collect(Collectors.groupingBy(MemberTagsVO::getMemberId));
+			map.forEach((key,value)->{
+				List<MemberTagsVO> memberList = memberTagsService.list(QueryBuilder.create(MemberTagsMapping.class)
+						.and(MemberTagsMapping.MEMBERID, key).end().sort(MemberTagsMapping.ID).asc());
+				int lastSN  = memberList.stream().mapToInt(item -> item.getSn()).max().getAsInt();
+				for(int i = 0;i<memberList.size();i++) {
+					MemberTagsVO m = memberList.get(i);
+					if(m.getSn() == 0) {
+						m.setSn(lastSN+i+1);
+					}else {
+						continue;
+					}
+					this.memberTagsService.merge(m);
 				}
 			});
 		}

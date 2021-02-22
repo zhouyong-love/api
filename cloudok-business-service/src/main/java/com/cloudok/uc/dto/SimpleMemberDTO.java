@@ -29,4 +29,6 @@ public class SimpleMemberDTO implements Serializable{
 	private long toCount;
 	
 	private long newFrom;
+	
+	private boolean imperfect;
 }

@@ -797,9 +797,29 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.create(EducationExperienceMapping.class).and(EducationExperienceMapping.MEMBERID, getCurrentUserId())
 				.end().sort(EducationExperienceMapping.GRADE).desc().enablePaging().pageNo(1).pageSize(1).end());
 		long friendCount = recognizedService.getFriendCount();
+		
+		boolean imperfect = true;
+		if(internshipExperienceService
+				.count(QueryBuilder.create(InternshipExperienceMapping.class)
+						.and(InternshipExperienceMapping.MEMBERID, getCurrentUserId()).end())==0) {
+			if(memberTagsService
+					.count(QueryBuilder.create(MemberTagsMapping.class)
+							.and(InternshipExperienceMapping.MEMBERID, getCurrentUserId()).end())==0) {
+				if(projectExperienceService
+						.count(QueryBuilder.create(ProjectExperienceMapping.class)
+								.and(InternshipExperienceMapping.MEMBERID, getCurrentUserId()).end())==0) {
+					if(researchExperienceService
+							.count(QueryBuilder.create(ResearchExperienceMapping.class)
+									.and(InternshipExperienceMapping.MEMBERID, getCurrentUserId()).end())==0) {
+						imperfect =false;
+					}
+				}
+			}
+		}
 		return SimpleMemberDTO.builder().member(this.get(getCurrentUserId()))
 				.eduExperience(CollectionUtils.isEmpty(edu) ? null : edu.get(0))
 				.friendCount(friendCount)
+				.imperfect(imperfect)
 				.fromCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).end()) )
 				.toCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).end()) )
 				.newFrom(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).and(RecognizedMapping.READ, false).end()))

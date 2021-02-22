@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.CompleteMultipartUploadRequest;
 import com.aliyun.oss.model.CompleteMultipartUploadResult;
+import com.aliyun.oss.model.GeneratePresignedUrlRequest;
 import com.aliyun.oss.model.InitiateMultipartUploadRequest;
 import com.aliyun.oss.model.InitiateMultipartUploadResult;
 import com.aliyun.oss.model.PartETag;
@@ -45,7 +46,12 @@ public class IoHandle implements AttachIoHandle {
     @Override
     public String sign(AttachVO attachVO) {
         Date expiration = new Date(new Date().getTime() + TimeUnit.SECONDS.toMillis(ossProperties.getSignTimeout()));
-        return ossClient.generatePresignedUrl(ossProperties.getBucket(), attachVO.getAddress(), expiration).toString();
+		GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(ossProperties.getBucket(), attachVO.getAddress());
+		request.setExpiration(expiration);
+		if("image".equals(attachVO.getFileType())) { //图片压缩
+			request.addQueryParameter("x-oss-process", "style/image_compression_jpg_h150");
+		}
+		return ossClient.generatePresignedUrl(request).toString();
     }
 
     @Override

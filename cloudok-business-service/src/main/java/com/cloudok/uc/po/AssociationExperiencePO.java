@@ -23,5 +23,6 @@ public class AssociationExperiencePO extends PO {
 	
 	private String description;
 	
+	private Integer sn;
 	
 }

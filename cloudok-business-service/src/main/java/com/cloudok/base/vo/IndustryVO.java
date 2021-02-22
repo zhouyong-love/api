@@ -18,6 +18,8 @@ public class IndustryVO extends VO {
 	
 	private String category;
 	
+	private Integer sn = 9999999;
+	
 
 	public IndustryVO(Long id) {
 		this.setId(id);

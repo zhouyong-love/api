@@ -29,10 +29,10 @@
 	
 	<select id="searchMyInteractionMessageThreads" parameterType="Map" resultMap="messageThreadMap">
 		SELECT distinct t.* FROM uc_message_thread t
-		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=2  and tm.member_id = #{memberId}
+		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type in (2,3)  and tm.member_id = #{memberId}
 		inner join uc_message m on m.thread_id = t.id and m.deleted=false
 		<if test="viewType ==1">
-			 and m.type =  3 	and m.member_id != #{memberId}
+			 and m.type =  3 and m.member_id != #{memberId}
 		</if>
 		<if test="viewType ==2">
 			 and m.type=3 and m.member_id=#{memberId} 
@@ -43,7 +43,7 @@
 
 	<select id="searchMyInteractionMessageThreadsCount" parameterType="Map" resultType="Long">
 		SELECT count(distinct t.id) FROM uc_message_thread t INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id 
-		AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=2 and tm.member_id = #{memberId}
+		AND t.deleted = FALSE AND tm.deleted = FALSE and t.type in (2,3) and tm.member_id = #{memberId}
 		inner join uc_message m on m.thread_id = t.id and m.deleted=false
 		<if test="viewType ==1">
 			 and m.type =  3 and m.member_id != #{memberId}
@@ -54,7 +54,7 @@
 	</select>
 	<select id="searchInteractionMessageThreads" parameterType="Map" resultMap="messageThreadMap">
 		SELECT distinct t.* FROM uc_message_thread t
-		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=2  and t.owner_id = #{memberId}
+		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type in (2,3) and t.owner_id = #{memberId}
 	 	<if test="seeOthers == 1">
 	 		inner join uc_message m on m.thread_id = t.id and m.deleted=false
 	 		and ( t.is_public = true or ( m.member_id= #{currentUserId}) )
@@ -65,7 +65,7 @@
 
 	<select id="searchInteractionMessageThreadsCount" parameterType="Map" resultType="Long">
 		SELECT count(distinct t.id) FROM  uc_message_thread t
-		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type=2  and t.owner_id = #{memberId}
+		INNER JOIN uc_message_thread_members tm ON t.id = tm.thread_id AND t.deleted = FALSE AND tm.deleted = FALSE and t.type in (2,3)  and t.owner_id = #{memberId}
 	 	<if test="seeOthers == 1">
 	 		inner join uc_message m on m.thread_id = t.id and m.deleted=false
 	 		and ( t.is_public = true or ( m.member_id= #{currentUserId}) )
@@ -97,5 +97,10 @@
 			</foreach>
 		</if>
 		   group by t.thread_id 
+	</select>
+	
+	<select id="getLatestMessageCount" parameterType="Long" resultType="Integer">
+		select count(1) from uc_message_thread t inner join uc_message_thread_members m on t.id = m.thread_id
+		and  t.last_message_id > m.last_position and m.member_id= #{member_id} and t.deleted=false and m.deleted=false
 	</select>
 </mapper>

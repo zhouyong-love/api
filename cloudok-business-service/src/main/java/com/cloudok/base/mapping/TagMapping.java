@@ -18,5 +18,7 @@ public class TagMapping extends Mapping {
 	public static final Mapping ICON = new Mapping("icon", "t.icon");
 
 	public static final Mapping COLOR = new Mapping("color", "t.color");
+	
+	public static final Mapping SN = new Mapping("sn", "t.sn",true);
 
 }

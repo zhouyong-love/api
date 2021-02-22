@@ -20,6 +20,7 @@ import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.ResearchExperienceService;
 import com.cloudok.uc.vo.ResearchExperienceVO;
+import com.cloudok.uc.vo.SwitchSNRequest;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -74,4 +75,12 @@ public class ResearchExperienceApi {
 		return Response.buildSuccess(researchExperienceService.remove(id));
 	}
  
+
+	@PreAuthorize("isFullyAuthenticated()")
+	@PutMapping("/switchSN")
+	@Loggable
+	@ApiOperation(value = "调整排序", notes = "调整排序")
+	public Response switchSN(@RequestBody @Valid SwitchSNRequest switchSNRequest) {
+		return Response.buildSuccess(researchExperienceService.switchSN(switchSNRequest));
+	}
 }

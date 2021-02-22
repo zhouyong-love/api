@@ -10,4 +10,36 @@
 		select count(1) from uc_recognized t where t.source_id not in ( SELECT target_id FROM uc_recognized t where t.source_id=#{userId})
  			and t.target_id=#{userId}
 	</select>
+	
+	
+	
+	<select id="getSecondDegreeRecognizedCount" resultType="int" parameterType="map">
+		SELECT 
+		   count(t1.id)
+		FROM
+		    uc_recognized t
+		        INNER JOIN
+		    uc_recognized t1 ON t1.source_id = #{currentUserId}
+		        AND t1.target_id = t.source_id
+		        AND t.target_id = #{memberId}
+		        AND t.deleted = FALSE
+		        AND t1.deleted = FALSE
+	</select>
+	
+	<select id="getSecondDegreeRecognized" resultMap="recognizedMap" parameterType="map">
+		SELECT 
+		   t1.*
+		FROM
+		    uc_recognized t
+		        INNER JOIN
+		    uc_recognized t1 ON t1.source_id = #{currentUserId}
+		        AND t1.target_id = t.source_id
+		        AND t.target_id = #{memberId}
+		        AND t.deleted = FALSE
+		        AND t1.deleted = FALSE
+		    order by t1.id desc
+		    limit #{start},#{end}
+	</select>
+	
+	
 </mapper>

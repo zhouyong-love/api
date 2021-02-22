@@ -36,11 +36,20 @@ public class UCMessageApi {
 	
 	@Autowired
 	private MessageThreadService messageThreadService;
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@PostMapping("/latest")
+	@ApiOperation(value = "获取最新消息数量",notes = "获取最新消息数量")
+	@Loggable
+	public Response getLatestMessageCount() {
+		return Response.buildSuccess(messageThreadService.getLatestMessageCount(SecurityContextHelper.getCurrentUserId()));
+	}
+
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping("/{threadId}/message")
-	@ApiOperation(value = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复, threadId为空时，后端自动生成，to的id必传",
-	notes = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复，threadId为空时，后端自动生成，to的id必传")
+	@ApiOperation(value = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复, threadId为空时，后端自动生成，to的id必传，anonymous=true表示匿名留言",
+	notes = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复，threadId为空时，后端自动生成，to的id必传，anonymous=true表示匿名留言")
 	@Loggable
 	public Response sendMessage(@PathVariable("threadId") Long threadId,
 			@RequestBody @Valid MessageVO vo) {

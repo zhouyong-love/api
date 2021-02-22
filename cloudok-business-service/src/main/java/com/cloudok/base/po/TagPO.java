@@ -22,5 +22,7 @@ public class TagPO extends PO {
 	private String icon;
 
 	private String color;
+	
+	private Integer sn;
 
 }

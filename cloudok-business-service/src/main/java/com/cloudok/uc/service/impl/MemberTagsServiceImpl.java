@@ -1,7 +1,10 @@
 package com.cloudok.uc.service.impl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.enums.TaggedType;
+import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.mapper.MemberTagsMapper;
@@ -23,6 +27,7 @@ import com.cloudok.uc.po.MemberTagsPO;
 import com.cloudok.uc.service.MemberTagsService;
 import com.cloudok.uc.vo.MemberTagsVO;
 import com.cloudok.uc.vo.MemberVO;
+import com.cloudok.uc.vo.SwitchSNRequest;
 
 @Service
 public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberTagsPO> implements MemberTagsService{
@@ -48,6 +53,15 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 			d.setTag(this.tagService.create(d.getTag()));
 		}
 		d.setType(Integer.parseInt(TaggedType.CUSTOM.getValue()));
+		if(d.getSn() == null || d.getSn() == 0) {
+			List<MemberTagsVO> r = this.list(QueryBuilder.create(MemberTagsMapping.class)
+					.and(MemberTagsMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).end());
+			if(!CollectionUtils.isEmpty(r)) {
+				d.setSn(r.stream().mapToInt(item -> item.getSn()).max().getAsInt()+1);
+			}else {
+				d.setSn(1);
+			}
+		}
 		MemberTagsVO m = super.create(d);
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return m;
@@ -127,5 +141,27 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 	public MemberTagsVO getByMember(Long currentUserId, Long id) {
 		return this.list(QueryBuilder.create(MemberTagsMapping.class)
 				.and(MemberTagsMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).and(MemberTagsMapping.ID, id).end()).get(0);
+	}
+	
+	@Override
+	public Object switchSN(@Valid SwitchSNRequest switchSNRequest) {
+		if(switchSNRequest.getSourceId() == null || switchSNRequest.getTargetId() == null) {
+			throw new SystemException("数据记录不存在",CloudOKExceptionMessage.DEFAULT_ERROR);
+		}
+		List<MemberTagsVO> list = this.get(Arrays.asList(switchSNRequest.getSourceId(),switchSNRequest.getTargetId()));
+		if(CollectionUtils.isEmpty(list) || list.size() != 2) {
+			throw new SystemException("数据记录不存在",CloudOKExceptionMessage.DEFAULT_ERROR);
+		}
+		MemberTagsVO source = list.get(0);
+		MemberTagsVO target = list.get(1);
+		int sourceSn = source.getSn();
+		int targetSn = target.getSn();
+		source.setSn(targetSn);
+		target.setSn(sourceSn);
+		
+		this.merge(source);
+		this.merge(target);
+		
+		return true;
 	}
 }

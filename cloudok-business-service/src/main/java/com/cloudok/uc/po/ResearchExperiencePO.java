@@ -23,5 +23,6 @@ public class ResearchExperiencePO extends PO {
 	
 	private String description;
 	
+	private Integer sn;
 	
 }

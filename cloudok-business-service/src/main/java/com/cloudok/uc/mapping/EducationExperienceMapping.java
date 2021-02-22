@@ -17,4 +17,5 @@ public class EducationExperienceMapping extends Mapping {
 
 	public static final Mapping DEGREE = new Mapping("degree", "t.degree", QueryOperator.EQ);
 
+	public static final Mapping SN = new Mapping("sn", "t.sn");
 }

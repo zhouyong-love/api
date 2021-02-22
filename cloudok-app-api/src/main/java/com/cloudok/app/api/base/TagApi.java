@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudok.base.mapping.TagMapping;
 import com.cloudok.base.service.TagService;
 import com.cloudok.base.vo.TagVO;
-import com.cloudok.core.mapping.Mapping;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
 import com.cloudok.log.annotation.LogModule;
@@ -48,7 +47,7 @@ public class TagApi {
 	@Loggable
 	@ApiOperation(value = "查询标签列表", notes = "查询标签列表")
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(tagService.list(QueryBuilder.create(TagMapping.class).with(request).disenablePaging().sort(Mapping.ID).asc()));
+		return Response.buildSuccess(tagService.list(QueryBuilder.create(TagMapping.class).with(request).disenablePaging().sort(TagMapping.SN).asc()));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

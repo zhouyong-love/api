@@ -21,5 +21,7 @@ public class MemberTagsVO extends VO {
 	private Integer weight;
 
 	private String description;
+	
+	private Integer sn =  0;
 
 }

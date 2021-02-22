@@ -20,5 +20,6 @@ public class UCMessageType {
 	
 	@EnumValue(sn = 5)
 	public static final EnumInfo privateInteractionReply = new EnumInfo("私密回复", "5", "私密回复");
+	 
 
 }

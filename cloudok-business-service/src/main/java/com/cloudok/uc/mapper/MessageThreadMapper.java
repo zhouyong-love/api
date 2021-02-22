@@ -33,4 +33,6 @@ public interface MessageThreadMapper extends IMapper<MessageThreadPO>{
 
 	public List<MessageThreadPO> searchInteractionMessageThreads(@Param("memberId")Long memberId, @Param("currentUserId")Long currentUserId,@Param("status")Integer status,
 			@Param("seeOthers")Integer seeOthers,@Param("start")int start, @Param("end")int end);
+
+	public Integer getLatestMessageCount(@Param("memberId")Long currentUserId);
 }

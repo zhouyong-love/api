@@ -12,19 +12,21 @@
 		
 		<result property="description" column="description"/>
 		
+		<result property="sn" column="sn"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.member_id,t.domain_id,t.name,t.description,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.member_id,t.domain_id,t.name,t.description,t.sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.ResearchExperiencePO">
-		insert into uc_research_experience(member_id,domain_id,name,description,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{memberId},#{domainId},#{name},#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_research_experience(member_id,domain_id,name,description,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{memberId},#{domainId},#{name},#{description},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.ResearchExperiencePO">
-		update uc_research_experience set member_id=#{memberId},domain_id=#{domainId},name=#{name},description=#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_research_experience set member_id=#{memberId},domain_id=#{domainId},name=#{name},description=#{description},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -40,6 +42,8 @@
 			<if test="name != null ">name = #{name},</if>
 			
 			<if test="description != null ">description = #{description},</if>
+			
+			<if test="sn != null ">sn = #{sn},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

@@ -14,5 +14,6 @@ public class AssociationPO extends PO {
 	
 	private String name;
 	
+	private Integer sn;
 	
 }

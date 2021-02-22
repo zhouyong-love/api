@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.base.mapping.AssociationMapping;
 import com.cloudok.base.service.AssociationService;
-import com.cloudok.core.mapping.Mapping;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
 import com.cloudok.log.annotation.LogModule;
@@ -33,6 +32,6 @@ public class AssociationApi {
 	@ApiOperation(value = "查询社团数据列表", notes = "查询社团数据列表")
 	@Loggable
 	public Response search(HttpServletRequest request) {
-		return Response.buildSuccess(associationService.page(QueryBuilder.create(AssociationMapping.class).with(request).sort(Mapping.ID).desc()));
+		return Response.buildSuccess(associationService.page(QueryBuilder.create(AssociationMapping.class).with(request).sort(AssociationMapping.SN).asc()));
 	} 
 }

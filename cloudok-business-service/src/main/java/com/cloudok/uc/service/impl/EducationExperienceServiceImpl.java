@@ -1,7 +1,10 @@
 package com.cloudok.uc.service.impl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.mapper.EducationExperienceMapper;
@@ -25,6 +29,7 @@ import com.cloudok.uc.service.EducationExperienceService;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.vo.EducationExperienceVO;
 import com.cloudok.uc.vo.MemberVO;
+import com.cloudok.uc.vo.SwitchSNRequest;
 
 @Service
 public class EducationExperienceServiceImpl extends AbstractService<EducationExperienceVO, EducationExperiencePO>
@@ -50,6 +55,16 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 		member.getState().setFillEduInfo(true);
 		member.setId(d.getMemberId());
 		memberService.merge(member);
+		
+		if(d.getSn() == null || d.getSn() == 0) {
+			List<EducationExperienceVO> list = this.list(QueryBuilder.create(EducationExperienceMapping.class)
+					.and(EducationExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).end());
+			if(!CollectionUtils.isEmpty(list)) {
+				d.setSn(list.stream().mapToInt(item -> item.getSn()).max().getAsInt()+1);
+			}else {
+				d.setSn(1);
+			}
+		}
 		EducationExperienceVO vo = super.create(d);
 		
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(member));
@@ -130,5 +145,27 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 	public EducationExperienceVO getByMember(Long currentUserId, Long educationId) {
 		return this.list(QueryBuilder.create(EducationExperienceMapping.class)
 				.and(EducationExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).and(EducationExperienceMapping.ID, educationId).end()).get(0);
+	}
+	
+	@Override
+	public Object switchSN(@Valid SwitchSNRequest switchSNRequest) {
+		if(switchSNRequest.getSourceId() == null || switchSNRequest.getTargetId() == null) {
+			throw new SystemException("数据记录不存在",CloudOKExceptionMessage.DEFAULT_ERROR);
+		}
+		List<EducationExperienceVO> list = this.get(Arrays.asList(switchSNRequest.getSourceId(),switchSNRequest.getTargetId()));
+		if(CollectionUtils.isEmpty(list) || list.size() != 2) {
+			throw new SystemException("数据记录不存在",CloudOKExceptionMessage.DEFAULT_ERROR);
+		}
+		EducationExperienceVO source = list.get(0);
+		EducationExperienceVO target = list.get(1);
+		int sourceSn = source.getSn();
+		int targetSn = target.getSn();
+		source.setSn(targetSn);
+		target.setSn(sourceSn);
+		
+		this.merge(source);
+		this.merge(target);
+		
+		return true;
 	}
 }

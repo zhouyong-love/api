@@ -16,6 +16,7 @@ public class JobVO extends VO {
 	
 	private String name;
 	
+	private Integer sn = 9999999;
 
 	public JobVO(Long id) {
 		this.setId(id);

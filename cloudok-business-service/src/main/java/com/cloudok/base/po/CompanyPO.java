@@ -14,5 +14,6 @@ public class CompanyPO extends PO {
 	
 	private String name;
 	
+	private Integer sn;
 	
 }

@@ -8,5 +8,7 @@ public class JobMapping extends Mapping {
 	private static final long serialVersionUID = 0L;
 
 	public static final Mapping NAME = new Mapping("name", "t.name", QueryOperator.LIKE);
+	
+	public static final Mapping SN = new Mapping("sn", "t.sn",true);
 
 }

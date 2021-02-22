@@ -31,6 +31,12 @@ public class JobServiceImpl extends AbstractService<JobVO, JobPO> implements Job
 		}
 		JobVO vo = new JobVO();
 		vo.setName(name.trim());
+		JobVO v = this.get(QueryBuilder.create(JobMapping.class).sort(JobMapping.SN).desc());
+		if(v != null) {
+			vo.setSn(v.getSn()+1);
+		}else {
+			vo.setSn(99999);
+		}
 		this.create(vo);
 		return vo;
 	}

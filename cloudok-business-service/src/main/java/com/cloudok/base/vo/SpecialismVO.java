@@ -19,6 +19,8 @@ public class SpecialismVO extends VO {
 	
 	private String category;
 	
+	private Integer sn = 9999999;
+	
 
 	public SpecialismVO(Long id) {
 		this.setId(id);

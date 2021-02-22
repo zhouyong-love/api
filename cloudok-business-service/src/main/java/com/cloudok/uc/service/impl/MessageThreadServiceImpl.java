@@ -75,11 +75,11 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 	}
 	
 	
-	private MessageThreadVO createInteractionThread(Long ownerId,List<Long> memberIdList) {
+	private MessageThreadVO createInteractionThread(Long ownerId,boolean isAnonymous,List<Long> memberIdList) {
 		MessageThreadVO thread = new MessageThreadVO();
 		thread.setIsPublic(false);
 		thread.setOwnerId(ownerId);
-		thread.setType(UCMessageThreadType.interaction.getValue());
+		thread.setType(isAnonymous ? UCMessageThreadType.anonymousInteraction.getValue() : UCMessageThreadType.interaction.getValue());
 		this.create(thread);
 		List<MessageThreadMembersVO> list =	memberIdList.stream().map(item -> {
 			MessageThreadMembersVO v = new MessageThreadMembersVO();
@@ -176,7 +176,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 			if(!UCMessageType.interaction.getValue().equals(vo.getType()) ) { //非留言，不行有threadId
 				throw new SystemException("ThreadId不能为空",CoreExceptionMessage.PARAMETER_ERR);
 			}
-			thread = this.createInteractionThread(vo.getToMemberId(),Arrays.asList(vo.getMemberId(),vo.getToMemberId()));
+			thread = this.createInteractionThread(vo.getToMemberId(),vo.isAnonymous(),Arrays.asList(vo.getMemberId(),vo.getToMemberId()));
 			//填充下基本信息
 			thread = this.getBaseInfo(thread.getId());
 		}else {
@@ -354,6 +354,20 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 						return opt.isPresent() ? opt.get() : null;
 						}).distinct().collect(Collectors.toList()));
 					}
+					//匿名聊天不保留memberId
+					if(UCMessageThreadType.anonymousInteraction.getValue().equals(item.getType())
+							&& !CollectionUtils.isEmpty(item.getMemberList())
+							) {
+						//隐藏头像，图片
+						item.getMemberList().stream().forEach(m -> {
+							//干掉留言人的头像，id，昵称
+							if(!m.getId().equals(item.getOwnerId())) {
+								m.setId(null);
+								m.setNickName(null);
+								m.setAvatar(null);
+							}
+						});
+					}
 				});
 			}
 		}
@@ -412,6 +426,12 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 				.get(0).getId());
 		mtmv.setLastPosition(messageId);
 		messageThreadMembersService.merge(mtmv);
+	}
+
+
+	@Override
+	public Integer getLatestMessageCount(Long currentUserId) {
+		return this.repository.getLatestMessageCount(currentUserId);
 	}
 
 

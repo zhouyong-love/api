@@ -79,4 +79,6 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	Page<WholeMemberDTO> friend(Integer type, Integer pageNo, Integer pageSize);
 
+	Page<WholeMemberDTO>  getSecondDegreeRecognized(Long memberId, Integer pageNo, Integer pageSize);
+
 }

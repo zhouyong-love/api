@@ -26,4 +26,6 @@ public class MessageVO extends VO {
 	private Long memberId;
 
 	private Long toMemberId;
+	
+	private boolean anonymous;
 }

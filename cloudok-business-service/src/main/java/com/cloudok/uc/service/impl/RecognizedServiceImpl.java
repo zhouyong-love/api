@@ -12,6 +12,7 @@ import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.core.vo.Page;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.event.RecognizedCreateEvent;
@@ -105,6 +106,24 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 				remove(vo.getId());
 			});
 		}
+	}
+
+	@Override
+	public Integer getSecondDegreeRecognizedCount(Long currentUserId, Long memberId) {
+		return repository.getSecondDegreeRecognizedCount(currentUserId,memberId);
+	}
+
+	@Override
+	public Page<RecognizedVO> getSecondDegreeRecognized(Long currentUserId, Long memberId, Integer pageNo,
+			Integer pageSize) {
+			Page<RecognizedVO> page=new Page<>();
+			page.setTotalCount(repository.getSecondDegreeRecognizedCount(currentUserId,memberId).longValue());
+			page.setPageNo(pageNo);
+			page.setPageSize(pageSize);
+			if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
+				page.setData(this.convert2VO(repository.getSecondDegreeRecognized(currentUserId,memberId,(pageNo-1)*pageSize,pageNo*pageSize)));
+			}
+			return page;
 	}
 
 }

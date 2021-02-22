@@ -26,5 +26,7 @@ public class ProjectExperiencePO extends PO {
 	
 	private String description;
 	
+	private Integer sn;
+	
 	
 }

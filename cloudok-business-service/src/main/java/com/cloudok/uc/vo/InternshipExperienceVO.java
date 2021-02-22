@@ -30,4 +30,5 @@ public class InternshipExperienceVO extends VO {
 
 	private String description;
 
+	private Integer sn =  0;
 }

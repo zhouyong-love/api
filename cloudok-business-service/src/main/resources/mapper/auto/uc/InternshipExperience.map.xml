@@ -14,19 +14,21 @@
 		
 		<result property="description" column="description"/>
 		
+		<result property="sn" column="sn"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.member_id,t.company_id,t.job_id,t.industry_id,t.description,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.member_id,t.company_id,t.job_id,t.industry_id,t.description,t.sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.InternshipExperiencePO">
-		insert into uc_internship_experience(member_id,company_id,job_id,industry_id,description,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{memberId},#{companyId},#{jobId},#{industryId},#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_internship_experience(member_id,company_id,job_id,industry_id,description,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{memberId},#{companyId},#{jobId},#{industryId},#{description},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.InternshipExperiencePO">
-		update uc_internship_experience set member_id=#{memberId},company_id=#{companyId},job_id=#{jobId},industry_id=#{industryId},description=#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_internship_experience set member_id=#{memberId},company_id=#{companyId},job_id=#{jobId},industry_id=#{industryId},description=#{description},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -44,6 +46,8 @@
 			<if test="industryId != null ">industry_id = #{industryId},</if>
 			
 			<if test="description != null ">description = #{description},</if>
+			
+			<if test="sn != null ">sn = #{sn},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

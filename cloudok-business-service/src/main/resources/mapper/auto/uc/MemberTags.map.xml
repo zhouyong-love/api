@@ -14,19 +14,21 @@
 		
 		<result property="description" column="description"/>
 		
+		<result property="sn" column="sn"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.type,t.tag_id,t.member_id,t.weight,t.description,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.type,t.tag_id,t.member_id,t.weight,t.description,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.MemberTagsPO">
-		insert into uc_member_tags(type,tag_id,member_id,weight,description,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{type},#{tagId},#{memberId},#{weight},#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_member_tags(type,tag_id,member_id,weight,description,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{type},#{tagId},#{memberId},#{weight},#{description},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.MemberTagsPO">
-		update uc_member_tags set type=#{type},tag_id=#{tagId},member_id=#{memberId},weight=#{weight},description=#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_member_tags set type=#{type},tag_id=#{tagId},member_id=#{memberId},weight=#{weight},description=#{description},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -44,6 +46,8 @@
 			<if test="weight != null ">weight = #{weight},</if>
 			
 			<if test="description != null ">description = #{description},</if>
+			
+			<if test="sn != null ">sn = #{sn},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

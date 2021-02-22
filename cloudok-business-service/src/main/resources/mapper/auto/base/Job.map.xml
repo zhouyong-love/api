@@ -6,19 +6,21 @@
 		
 		<result property="name" column="name"/>
 		
+		<result property="sn" column="sn"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.name,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.name,t.sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.base.po.JobPO">
-		insert into base_job(name,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{name},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into base_job(name,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{name},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.base.po.JobPO">
-		update base_job set name=#{name},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update base_job set name=#{name},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -28,6 +30,7 @@
 		update base_job set 
 			
 			<if test="name != null ">name = #{name},</if>
+			<if test="sn != null ">sn = #{sn},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

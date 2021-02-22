@@ -26,5 +26,5 @@ public class InternshipExperiencePO extends PO {
 	
 	private String description;
 	
-	
+	private Integer sn;
 }

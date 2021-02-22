@@ -31,6 +31,12 @@ public class ResearchDomainServiceImpl extends AbstractService<ResearchDomainVO,
 		}
 		ResearchDomainVO vo  = new ResearchDomainVO();
 		vo.setName(name.trim());
+		ResearchDomainVO v = this.get(QueryBuilder.create(ResearchDomainMapping.class).sort(ResearchDomainMapping.SN).desc());
+		if(v != null) {
+			vo.setSn(v.getSn()+1);
+		}else {
+			vo.setSn(99999);
+		}
 		this.create(vo);
 		return vo;
 	}

@@ -19,6 +19,7 @@ import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.MemberTagsService;
 import com.cloudok.uc.vo.MemberTagsVO;
+import com.cloudok.uc.vo.SwitchSNRequest;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -71,5 +72,13 @@ public class MemberTagsApi {
 	@Loggable
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(memberTagsService.remove(id));
+	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@PutMapping("/switchSN")
+	@Loggable
+	@ApiOperation(value = "调整排序", notes = "调整排序")
+	public Response switchSN(@RequestBody @Valid SwitchSNRequest switchSNRequest) {
+		return Response.buildSuccess(memberTagsService.switchSN(switchSNRequest));
 	}
 }

@@ -14,7 +14,9 @@ public class CompanyVO extends VO {
 	private static final long serialVersionUID = 324021789966742140L;
 
 	private String name;
-
+	
+	private Integer sn = 9999999;
+	
 	public CompanyVO(Long id) {
 		this.setId(id);
 	}

@@ -21,6 +21,7 @@ import com.cloudok.log.annotation.Loggable;
 import com.cloudok.uc.mapping.AssociationExperienceMapping;
 import com.cloudok.uc.service.AssociationExperienceService;
 import com.cloudok.uc.vo.AssociationExperienceVO;
+import com.cloudok.uc.vo.SwitchSNRequest;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -65,6 +66,15 @@ public class AssociationExperienceApi {
 	@ApiOperation(value = "删除社团经历", notes = "删除社团经历")
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(associationExperienceService.remove(id));
+	}
+	
+
+	@PreAuthorize("isFullyAuthenticated()")
+	@PutMapping("/switchSN")
+	@Loggable
+	@ApiOperation(value = "调整排序", notes = "调整排序")
+	public Response switchSN(@RequestBody @Valid SwitchSNRequest switchSNRequest) {
+		return Response.buildSuccess(associationExperienceService.switchSN(switchSNRequest));
 	}
 
 }

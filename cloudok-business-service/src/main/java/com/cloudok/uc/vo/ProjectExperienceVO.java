@@ -32,5 +32,7 @@ public class ProjectExperienceVO extends VO {
 	
 	private String description;
 	
+	private Integer sn =  0;
+	
 	
 }

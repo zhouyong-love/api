@@ -31,6 +31,12 @@ public class CompanyServiceImpl extends AbstractService<CompanyVO, CompanyPO> im
 		}
 		CompanyVO vo = new CompanyVO();
 		vo.setName(name.trim());
+		CompanyVO v = this.get(QueryBuilder.create(CompanyMapping.class).sort(CompanyMapping.SN).desc());
+		if(v != null) {
+			vo.setSn(v.getSn()+1);
+		}else {
+			vo.setSn(99999);
+		}
 		this.create(vo);
 		return vo;
 	}

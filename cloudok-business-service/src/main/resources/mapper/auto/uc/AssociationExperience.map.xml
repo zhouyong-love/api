@@ -12,19 +12,21 @@
 		
 		<result property="description" column="description"/>
 		
+		<result property="sn" column="sn"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.member_id,t.association_id,t.title,t.description,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.member_id,t.association_id,t.title,t.description,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.AssociationExperiencePO">
-		insert into uc_association_experience(member_id,association_id,title,description,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{memberId},#{associationId},#{title},#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_association_experience(member_id,association_id,title,description,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{memberId},#{associationId},#{title},#{description},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.AssociationExperiencePO">
-		update uc_association_experience set member_id=#{memberId},association_id=#{associationId},title=#{title},description=#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_association_experience set member_id=#{memberId},association_id=#{associationId},title=#{title},description=#{description},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -40,6 +42,8 @@
 			<if test="title != null ">title = #{title},</if>
 			
 			<if test="description != null ">description = #{description},</if>
+			
+			<if test="sn != null ">sn = #{sn},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

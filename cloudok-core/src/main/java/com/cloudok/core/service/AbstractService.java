@@ -246,7 +246,7 @@ public abstract class AbstractService<D extends VO, E extends PO>
 
 	@Override
 	public D get(QueryBuilder queryStream) {
-		List<E> es = repository.select(queryStream);
+		List<E> es = repository.select(queryStream.enablePaging().page(1, 1).end());
 		if(CollectionUtils.isEmpty(es)) {
 			return null;
 		}

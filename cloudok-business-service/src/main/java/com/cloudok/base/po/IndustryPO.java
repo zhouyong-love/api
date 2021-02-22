@@ -16,4 +16,6 @@ public class IndustryPO extends PO {
 	
 	private String category;
 	
+	private Integer sn;
+	
 }

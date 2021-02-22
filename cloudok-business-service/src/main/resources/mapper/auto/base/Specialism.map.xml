@@ -8,19 +8,21 @@
 		
 		<result property="category" column="category"/>
 		
+		<result property="sn" column="sn"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.name,t.category,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.name,t.category,t.sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.base.po.SpecialismPO">
-		insert into base_specialism(name,category,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{name},#{category},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into base_specialism(name,category,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{name},#{category},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.base.po.SpecialismPO">
-		update base_specialism set name=#{name},category=#{category},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update base_specialism set name=#{name},category=#{category},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -30,7 +32,7 @@
 		update base_specialism set 
 			
 			<if test="name != null ">name = #{name},</if>
-			
+			<if test="sn != null ">sn = #{sn},</if>
 			<if test="category != null ">category = #{category},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>

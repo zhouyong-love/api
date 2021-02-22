@@ -14,19 +14,21 @@
 		
 		<result property="description" column="description"/>
 		
+		<result property="sn" column="sn"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.member_id,t.category,t.name,t.job,t.description,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.member_id,t.category,t.name,t.job,t.description,t.sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.ProjectExperiencePO">
-		insert into uc_project_experience(member_id,category,name,job,description,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{memberId},#{category},#{name},#{job},#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_project_experience(member_id,category,name,job,description,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{memberId},#{category},#{name},#{job},#{description},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.ProjectExperiencePO">
-		update uc_project_experience set member_id=#{memberId},category=#{category},name=#{name},job=#{job},description=#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_project_experience set member_id=#{memberId},category=#{category},name=#{name},job=#{job},description=#{description},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -44,6 +46,8 @@
 			<if test="job != null ">job = #{job},</if>
 			
 			<if test="description != null ">description = #{description},</if>
+			
+			<if test="sn != null ">sn = #{sn},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

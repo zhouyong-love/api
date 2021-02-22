@@ -14,5 +14,5 @@ public class JobPO extends PO {
 	
 	private String name;
 	
-	
+	private Integer sn;
 }

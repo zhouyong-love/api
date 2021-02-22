@@ -15,6 +15,8 @@ public class AssociationVO extends VO {
 
 	private String name;
 
+	private Integer sn = 9999999;
+	
 	public AssociationVO(Long id) {
 		this.setId(id);
 	}

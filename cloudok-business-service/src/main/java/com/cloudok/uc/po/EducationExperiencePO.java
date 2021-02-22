@@ -26,5 +26,7 @@ public class EducationExperiencePO extends PO {
 	
 	private String degree;
 	
+	private Integer sn;
+	
 	
 }

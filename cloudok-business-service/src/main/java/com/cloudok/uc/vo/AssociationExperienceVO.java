@@ -19,5 +19,7 @@ public class AssociationExperienceVO extends VO {
 	private String title;
 
 	private String description;
+	
+	private Integer sn =  0;
 
 }

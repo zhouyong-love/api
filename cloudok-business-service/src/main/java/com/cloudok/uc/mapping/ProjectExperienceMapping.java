@@ -17,4 +17,6 @@ public class ProjectExperienceMapping extends Mapping{
 	
 	public static final Mapping DESCRIPTION=new Mapping("description", "t.description");
 	
+	public static final Mapping SN = new Mapping("sn", "t.sn");
+	
 }

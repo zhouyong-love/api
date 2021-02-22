@@ -1,7 +1,10 @@
 package com.cloudok.uc.service.impl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.mapper.InternshipExperienceMapper;
@@ -26,6 +30,7 @@ import com.cloudok.uc.po.InternshipExperiencePO;
 import com.cloudok.uc.service.InternshipExperienceService;
 import com.cloudok.uc.vo.InternshipExperienceVO;
 import com.cloudok.uc.vo.MemberVO;
+import com.cloudok.uc.vo.SwitchSNRequest;
 
 @Service
 public class InternshipExperienceServiceImpl extends AbstractService<InternshipExperienceVO, InternshipExperiencePO>
@@ -50,6 +55,15 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		d.setCompany(companyService.createOrGet(d.getCompany().getName()));
 		d.setJob(jobService.createOrGet(d.getJob().getName()));
+		if(d.getSn() == null || d.getSn() == 0) {
+			List<InternshipExperienceVO> list = this.list(QueryBuilder.create(InternshipExperienceMapping.class)
+					.and(InternshipExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).end());
+			if(!CollectionUtils.isEmpty(list)) {
+				d.setSn(list.stream().mapToInt(item -> item.getSn()).max().getAsInt()+1);
+			}else {
+				d.setSn(1);
+			}
+		}
 		InternshipExperienceVO v = super.create(d);
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return v;
@@ -137,5 +151,27 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 	public InternshipExperienceVO getByMember(Long currentUserId, Long id) {
 		return this.list(QueryBuilder.create(InternshipExperienceMapping.class)
 				.and(InternshipExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).and(InternshipExperienceMapping.ID, id).end()).get(0);
+	}
+	
+	@Override
+	public Object switchSN(@Valid SwitchSNRequest switchSNRequest) {
+		if(switchSNRequest.getSourceId() == null || switchSNRequest.getTargetId() == null) {
+			throw new SystemException("数据记录不存在",CloudOKExceptionMessage.DEFAULT_ERROR);
+		}
+		List<InternshipExperienceVO> list = this.get(Arrays.asList(switchSNRequest.getSourceId(),switchSNRequest.getTargetId()));
+		if(CollectionUtils.isEmpty(list) || list.size() != 2) {
+			throw new SystemException("数据记录不存在",CloudOKExceptionMessage.DEFAULT_ERROR);
+		}
+		InternshipExperienceVO source = list.get(0);
+		InternshipExperienceVO target = list.get(1);
+		int sourceSn = source.getSn();
+		int targetSn = target.getSn();
+		source.setSn(targetSn);
+		target.setSn(sourceSn);
+		
+		this.merge(source);
+		this.merge(target);
+		
+		return true;
 	}
 }

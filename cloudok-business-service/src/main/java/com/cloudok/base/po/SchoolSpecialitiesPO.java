@@ -18,4 +18,5 @@ public class SchoolSpecialitiesPO extends PO {
 	private Long specialismId;
 	
 	
+	
 }

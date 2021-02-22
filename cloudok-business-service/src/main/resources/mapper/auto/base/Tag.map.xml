@@ -16,26 +16,28 @@
 		<result property="icon" column="icon" />
 
 		<result property="color" column="color" />
+		
+		<result property="sn" column="sn" />
 
 	</resultMap>
 
 	<sql id="columns">
-		t.name,t.type,t.category,t.parent_id,t.icon,t.color,
+		t.name,t.type,t.category,t.parent_id,t.icon,t.color,t.sn,
 		<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns" />
 	</sql>
 
 	<insert id="create" parameterType="com.cloudok.base.po.TagPO">
-		insert into base_tag(name,type,category,parent_id,icon,color,
+		insert into base_tag(name,type,category,parent_id,icon,color,sn,
 		<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns" />
 		)
-		values(#{name},#{type},#{category},#{parentId},#{icon},#{color},
+		values(#{name},#{type},#{category},#{parentId},#{icon},#{color},#{sn},
 		<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue" />
 		)
 	</insert>
 
 	<update id="update" parameterType="com.cloudok.base.po.TagPO">
 		update base_tag set
-		name=#{name},type=#{type},category=#{category},parent_id=#{parentId},icon=#{icon},color=#{color},
+		name=#{name},type=#{type},category=#{category},parent_id=#{parentId},icon=#{icon},color=#{color},sn=#{sn},
 		<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns" />
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId" />
@@ -56,6 +58,8 @@
 		<if test="icon != null ">icon = #{icon},</if>
 
 		<if test="color != null ">color = #{color},</if>
+		
+		<if test="sn != null ">sn = #{sn},</if>
 
 		<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns" />
 		<where>

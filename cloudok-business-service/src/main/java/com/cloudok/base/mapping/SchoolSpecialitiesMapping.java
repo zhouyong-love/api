@@ -10,5 +10,7 @@ public class SchoolSpecialitiesMapping extends Mapping {
 	public static final Mapping SCHOOLID = new Mapping("schoolId", "t.school_id", QueryOperator.EQ);
 
 	public static final Mapping SPECIALISMID = new Mapping("specialismId", "t.specialism_id", QueryOperator.EQ);
+	
+	
 
 }

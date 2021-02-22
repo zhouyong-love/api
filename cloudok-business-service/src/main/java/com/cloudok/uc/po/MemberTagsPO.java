@@ -26,5 +26,6 @@ public class MemberTagsPO extends PO {
 	
 	private String description;
 	
+	private Integer sn;
 	
 }

@@ -28,5 +28,7 @@ public class EducationExperienceVO extends VO {
 	private Integer grade;
 
 	private String degree;
+	
+	private Integer sn =  0;
 
 }

@@ -600,6 +600,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
 					.forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+							if(!CollectionUtils.isEmpty(valueList)) {
+								 valueList.sort((a,b)->a.getSn().compareTo(b.getSn()));
+							}
 							item.setEducationList(valueList);
 						});
 					});
@@ -610,6 +613,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					.stream().collect(Collectors.groupingBy(InternshipExperienceVO::getMemberId))
 					.forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+							if(!CollectionUtils.isEmpty(valueList)) {
+								 valueList.sort((a,b)->a.getSn().compareTo(b.getSn()));
+							}
 							item.setInternshipList(valueList);
 						});
 					});
@@ -620,6 +626,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					.stream().collect(Collectors.groupingBy(MemberTagsVO::getMemberId))
 					.forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+							if(!CollectionUtils.isEmpty(valueList)) {
+								 valueList.sort((a,b)->a.getSn().compareTo(b.getSn()));
+							}
 							item.setTagsList(valueList);
 						});
 					});
@@ -630,6 +639,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					.stream().collect(Collectors.groupingBy(ProjectExperienceVO::getMemberId))
 					.forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+							if(!CollectionUtils.isEmpty(valueList)) {
+								 valueList.sort((a,b)->a.getSn().compareTo(b.getSn()));
+							}
 							item.setProjectList(valueList);
 						});
 					});
@@ -640,6 +652,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					.stream().collect(Collectors.groupingBy(ResearchExperienceVO::getMemberId))
 					.forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+							if(!CollectionUtils.isEmpty(valueList)) {
+								 valueList.sort((a,b)->a.getSn().compareTo(b.getSn()));
+							}
 							item.setResearchList(valueList);
 						});
 					});
@@ -838,10 +853,13 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					member.setFrom(true);
 				});
 			}
+			member.setSecondDegreeRecognizedCount(this.recognizedService.getSecondDegreeRecognizedCount(currentUserId,memberId));
 		}
 		if(!SecurityContextHelper.getCurrentUserId().equals(memberId)) {
 			SpringApplicationContext.publishEvent(new ViewMemberDetailEvent( Pair.of(currentUserId,memberId)));
 		}
+		
+	
 		//当前不做数据权限过滤，后期会根据人脉网络去处理数据
 		return member;
 	}
@@ -987,7 +1005,36 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 //		}
 //		return page;
 //	}
-
+	@Override
+	public Page<WholeMemberDTO> getSecondDegreeRecognized(Long memberId, Integer pageNo, Integer pageSize) {
+		Long currentUserId = getCurrentUserId();
+		Page<WholeMemberDTO> resultPage = new Page<WholeMemberDTO>();
+		Page<RecognizedVO> page = this.recognizedService.getSecondDegreeRecognized(currentUserId,memberId,pageNo,pageSize);
+		BeanUtils.copyProperties(page, resultPage);
+		if(!CollectionUtils.isEmpty(page.getData())) {
+			List<WholeMemberDTO> memberList = this.getBaseInfo(page.getData().stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+			
+			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.TARGETID, currentUserId)
+					.and(RecognizedMapping.SOURCEID, QueryOperator.IN,page.getData().stream().map(item -> item.getTargetId()).collect(Collectors.toList()))
+					.end()
+					.sort(RecognizedMapping.CREATETIME).desc());
+					
+			memberList.forEach(item -> {
+				item.setFrom(false);
+				item.setTo(true);
+				//他是否关注了我  （这个member是否关注了当前登录用户）
+				list.stream().filter( a -> a.getSourceId().equals(item.getId())).findAny().ifPresent(a -> {
+					item.setFrom(true);
+				});
+			});
+			List<WholeMemberDTO> resultList = page.getData().stream().map( item ->{
+				return memberList.stream().filter(m -> m.getId().equals(item.getTargetId())).findAny().get();
+			}).collect(Collectors.toList());
+			resultPage.setData(resultList);
+		}
+		return resultPage;
+	}
 //	 0 互关 1 我关注 2 关注我 3 新关注
 	@Override
 	public Page<WholeMemberDTO> friend(Integer type, Integer pageNo, Integer pageSize) {
@@ -1123,7 +1170,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			memberList.forEach(item -> {
 				item.setFrom(false);
 				item.setTo(true);
-				//我是否关注了他
+				//他是否关注了我  （这个member是否关注了当前登录用户）
 				list.stream().filter( a -> a.getSourceId().equals(item.getId())).findAny().ifPresent(a -> {
 					item.setFrom(true);
 				});
@@ -1182,6 +1229,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
 					.forEach((memberId, valueList) -> {
 						list.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
+							if(!CollectionUtils.isEmpty(valueList)) {
+								 valueList.sort((a,b)->a.getSn().compareTo(b.getSn()));
+							}
 							item.setEducationList(valueList);
 						});
 					});

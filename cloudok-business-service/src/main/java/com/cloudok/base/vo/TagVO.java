@@ -24,6 +24,8 @@ public class TagVO extends VO {
 	private String icon;
 
 	private String color;
+	
+	private Integer sn = 9999999;
 
 	public TagVO(Long id) {
 		this.setId(id);

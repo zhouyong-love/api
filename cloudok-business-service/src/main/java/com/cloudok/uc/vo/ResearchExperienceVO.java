@@ -30,5 +30,7 @@ public class ResearchExperienceVO extends VO {
 	
 	private String description;
 	
+	private Integer sn;
+	
 	
 }

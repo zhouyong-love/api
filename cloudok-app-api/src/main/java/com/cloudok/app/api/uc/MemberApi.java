@@ -239,4 +239,14 @@ public class MemberApi {
 	public Response getMemberDetails(@PathVariable("memberId")Long memberId) {
 		return Response.buildSuccess(memberService.getMemberDetails(memberId));
 	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/{memberId}/secondDegreeRecognized")
+	@ApiOperation(value="我关注的人也关注了他分页",notes="我关注的人也关注了他分页")
+	@Loggable
+	public Response getSecondDegreeRecognized(@PathVariable("memberId")Long memberId,
+			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+		return Response.buildSuccess(memberService.getSecondDegreeRecognized(memberId,pageNo,pageSize));
+	}
 }

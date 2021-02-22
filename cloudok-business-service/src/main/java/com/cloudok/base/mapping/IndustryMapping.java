@@ -10,5 +10,7 @@ public class IndustryMapping extends Mapping{
 	public static final Mapping NAME=new Mapping("name", "t.name", QueryOperator.LIKE);
 	
 	public static final Mapping CATEGORY=new Mapping("category", "t.category", QueryOperator.EQ);
+	
+	public static final Mapping SN = new Mapping("sn", "t.sn",true);
 
 }

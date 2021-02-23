@@ -60,6 +60,9 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 			}
 		}
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
+		if(d.getSn() == null) {
+			d.setSn(vo.getSn());
+		}
 		ProjectExperienceVO v =  super.update(d);
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return v;

@@ -58,6 +58,9 @@ public class AssociationExperienceServiceImpl extends AbstractService<Associatio
 		}
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		if(d.getSn() == null) {
+			d.setSn(vo.getSn());
+		}
 		AssociationExperienceVO t = super.update(d);
 		return t;
 	}

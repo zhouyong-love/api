@@ -81,6 +81,9 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 			}
 		}
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
+		if(d.getSn() == null) {
+			d.setSn(vo.getSn());
+		}
 		EducationExperienceVO t = super.update(d);
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return t;

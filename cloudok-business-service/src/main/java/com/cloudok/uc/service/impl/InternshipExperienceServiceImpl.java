@@ -81,6 +81,9 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		d.setCompany(companyService.createOrGet(d.getCompany().getName()));
 		d.setJob(jobService.createOrGet(d.getJob().getName()));
+		if(d.getSn() == null) {
+			d.setSn(vo.getSn());
+		}
 		InternshipExperienceVO v = super.update(d);
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return v;

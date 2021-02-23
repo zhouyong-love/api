@@ -67,6 +67,9 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 		}
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
 		d.setDomain(researchDomainService.createOrGet(d.getDomain().getName()));
+		if(d.getSn() == null) {
+			d.setSn(vo.getSn());
+		}
 		ResearchExperienceVO v =  super.update(d);
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return v;

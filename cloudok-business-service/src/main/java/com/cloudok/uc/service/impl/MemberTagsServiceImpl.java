@@ -81,6 +81,9 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 		}
 		d.setType(Integer.parseInt(TaggedType.CUSTOM.getValue()));
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
+		if(d.getSn() == null) {
+			d.setSn(vo.getSn());
+		}
 		MemberTagsVO v = super.update(d);
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return v;

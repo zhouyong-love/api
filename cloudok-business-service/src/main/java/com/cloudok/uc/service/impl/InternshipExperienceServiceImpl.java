@@ -104,6 +104,9 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 		vo.setCompany(new CompanyVO(e.getCompanyId()));
 		vo.setIndustry(new IndustryVO(e.getIndustryId()));
 		vo.setJob(new JobVO(e.getJobId()));
+		if(vo.getSn()==null) {
+			vo.setSn(0);
+		}
 		return vo;
 	}
 

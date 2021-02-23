@@ -114,6 +114,9 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 	public MemberTagsVO convert2VO(MemberTagsPO e) {
 		MemberTagsVO vo = super.convert2VO(e);
 		vo.setTag(new TagVO(e.getTagId()));
+		if(vo.getSn()==null) {
+			vo.setSn(0);
+		}
 		return vo;
 	}
 

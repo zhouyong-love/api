@@ -100,6 +100,9 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 	public ResearchExperienceVO convert2VO(ResearchExperiencePO e) {
 		ResearchExperienceVO vo = super.convert2VO(e);
 		vo.setDomain(new ResearchDomainVO(e.getDomainId()));
+		if(vo.getSn()==null) {
+			vo.setSn(0);
+		}
 		return vo;
 	}
 

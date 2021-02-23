@@ -49,6 +49,14 @@ public class AssociationExperienceServiceImpl extends AbstractService<Associatio
 		return v;
 	}
 	@Override
+	public AssociationExperienceVO convert2VO(AssociationExperiencePO e) {
+		AssociationExperienceVO v =  super.convert2VO(e);
+		if(v.getSn() == null) {
+			v.setSn(0);
+		}
+		return v;
+	}
+	@Override
 	public AssociationExperienceVO update(AssociationExperienceVO d) {
 		AssociationExperienceVO vo = this.get(d.getId());
 		if (vo != null) {

@@ -100,6 +100,9 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 	@Override
 	public EducationExperienceVO convert2VO(EducationExperiencePO e) {
 		EducationExperienceVO vo = super.convert2VO(e);
+		if(vo.getSn() == null) {
+			vo.setSn(0);
+		}
 		vo.setSchool(new SchoolVO(e.getSchoolId()));
 		vo.setSpecialism(new SpecialismVO(e.getSpecialismId()));
 		return vo;

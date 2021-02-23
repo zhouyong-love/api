@@ -80,6 +80,14 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return r;
 	}
+	 @Override
+	public ProjectExperienceVO convert2VO(ProjectExperiencePO e) {
+		 ProjectExperienceVO vo = super.convert2VO(e);
+		 if(vo.getSn() == null) {
+			 vo.setSn(0);
+		 }
+		 return vo;
+	}
 
 	@Override
 	public List<ProjectExperienceVO> getByMember(Long currentUserId) {

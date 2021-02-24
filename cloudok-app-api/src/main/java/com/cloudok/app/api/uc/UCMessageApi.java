@@ -38,7 +38,7 @@ public class UCMessageApi {
 	private MessageThreadService messageThreadService;
 	
 	@PreAuthorize("isFullyAuthenticated()")
-	@PostMapping("/latest")
+	@GetMapping("/latest")
 	@ApiOperation(value = "获取最新消息数量",notes = "获取最新消息数量")
 	@Loggable
 	public Response getLatestMessageCount() {

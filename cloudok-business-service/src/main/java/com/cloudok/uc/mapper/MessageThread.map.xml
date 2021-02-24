@@ -101,6 +101,6 @@
 	
 	<select id="getLatestMessageCount" parameterType="Long" resultType="Integer">
 		select count(1) from uc_message_thread t inner join uc_message_thread_members m on t.id = m.thread_id
-		and  t.last_message_id > m.last_position and m.member_id= #{member_id} and t.deleted=false and m.deleted=false
+		and  t.last_message_id > m.last_position and m.member_id= #{memberId} and t.deleted=false and m.deleted=false
 	</select>
 </mapper>

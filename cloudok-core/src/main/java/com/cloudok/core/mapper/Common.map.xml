@@ -50,6 +50,7 @@
 	<sql id="condition">
 		t.deleted=false 
 		<if test="conditions!=null">
+			and ( 1 = 1
 			<foreach collection="conditions" item="condition">
 				${condition.querySymbol} (
 				<foreach collection="condition.properties" item="propertie">
@@ -97,6 +98,7 @@
 				</foreach>
 				)
 			</foreach>
+			)
 		</if>
 		<if test="sortConditions!=null">
 			<foreach collection="sortConditions" item="sortCondition" separator="," open=" order by ">

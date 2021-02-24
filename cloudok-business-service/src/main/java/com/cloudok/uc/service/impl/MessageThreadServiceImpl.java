@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
@@ -154,7 +155,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		}
 		List<Long> threadIdList = messageThreadList.stream().distinct().collect(Collectors.toList());
 		List<MessageThreadVO> list = this.get(threadIdList);
-		this.fillThreadInfo(list);
+		this.fillThreadInfo(list,0);
 		return list;
 	}
 
@@ -220,7 +221,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 
 
 	@Override
-	public Page<MessageThreadVO> searchChatMessageThreads(Long memberId, Integer pageNo, Integer pageSize) {
+	public Page<MessageThreadVO> searchChatMessageThreads(Long memberId, Integer read,Integer pageNo, Integer pageSize) {
 		Page<MessageThreadVO> page=new Page<>();
 		page.setTotalCount(repository.searchChatMessageThreadsCount(memberId));
 		page.setPageNo(pageNo);
@@ -235,7 +236,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 					});
 				});
 			}
-			this.fillThreadInfo(list);
+			this.fillThreadInfo(list,read);
 			page.setData(list);
 		}
 		return page;
@@ -251,7 +252,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 			Optional<MessageThreadVO>  opt = list.stream().filter( t -> t.getId().equals(item.getId())).findAny();
 			if(opt.isPresent()) {
 				MessageThreadVO message = opt.get();
-				message.setLastUpdate(item.getUpdateTs());
+				BeanUtils.copyProperties(item, message);
 				return message;
 			}
 			return null;
@@ -312,7 +313,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
 			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchInteractionMessageThreads(memberId,getCurrentUserId(),status,seeOthers,(pageNo-1)*pageSize,pageNo*pageSize),2);
-			this.fillThreadInfo(dataList);
+			this.fillThreadInfo(dataList,0);
 			page.setData(dataList);
 		}
 		return page;
@@ -321,7 +322,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 
 //	 viewType=1 我收到的 viewType=2 回复我的
 	@Override
-	public Page<MessageThreadVO> searchMyInteractionMessageThreads(Integer viewType, Integer pageNo, Integer pageSize) {
+	public Page<MessageThreadVO> searchMyInteractionMessageThreads(Integer read,Integer viewType, Integer pageNo, Integer pageSize) {
 		//看自己的，查询所有相关数据就可以
 		//如果是看别人的，则 要求必须已经公开回复的 或者  回复给自己的
 		Page<MessageThreadVO> page=new Page<>();
@@ -331,13 +332,13 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
 			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchMyInteractionMessageThreads(memberId,viewType,(pageNo-1)*pageSize,pageNo*pageSize),2);
-			this.fillThreadInfo(dataList);
+			this.fillThreadInfo(dataList,read);
 			page.setData(dataList);
 		}
 		return page;
 	}
 	
-	private void fillThreadInfo(List<MessageThreadVO> list) {
+	private void fillThreadInfo(List<MessageThreadVO> list,Integer read) {
 		if(!CollectionUtils.isEmpty(list)) {
 			List<Long> threadIdList = list.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
 			List<MessageThreadMembersVO> tempList = this.messageThreadMembersService.list(QueryBuilder.create(MessageThreadMembersMapping.class)
@@ -371,10 +372,22 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 				});
 			}
 		}
+		if(read != null && read == 1) {
+			List<MessageThreadMembersVO> readList = new ArrayList<MessageThreadMembersVO>();
+			list.stream().forEach(item ->{
+				Long lastMessageId = item.getLastMessageId();
+				MessageThreadMembersVO mtmv = new MessageThreadMembersVO();
+				mtmv.setLastPosition(lastMessageId);
+				mtmv.setMemberId(SecurityContextHelper.getCurrentUserId());
+				mtmv.setThreadId(item.getId());
+				readList.add(mtmv);
+			});
+			this.messageThreadMembersService.batchRead(readList);
+		}
 	}
 	
 	@Override
-	public MessageThreadVO getMessageThreadByMemberId(Long currentUserId, Long memberId, Integer latestMessageCount) {
+	public MessageThreadVO getMessageThreadByMemberId(Long currentUserId,Integer read, Long memberId, Integer latestMessageCount) {
 		//检查是否好友
 		if(!this.firendService.isFirends(currentUserId,memberId)) {
 			throw new SystemException("只有相互认可后才能发送私信",CoreExceptionMessage.NO_PERMISSION);

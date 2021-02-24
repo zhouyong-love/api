@@ -1,8 +1,11 @@
 package com.cloudok.uc.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.query.QueryBuilder;
@@ -18,6 +21,9 @@ import com.cloudok.uc.vo.MessageVO;
 @Service
 public class MessageThreadMembersServiceImpl extends AbstractService<MessageThreadMembersVO, MessageThreadMembersPO> implements MessageThreadMembersService,ApplicationListener<BusinessEvent<?>>{
 
+	@Autowired
+	private MessageThreadMembersMapper repository;
+	
 	@Autowired
 	public MessageThreadMembersServiceImpl(MessageThreadMembersMapper repository) {
 		super(repository);
@@ -39,6 +45,13 @@ public class MessageThreadMembersServiceImpl extends AbstractService<MessageThre
 			merge.setId(vo.getId());
 			merge.setLastPosition(eventData.getId());
 			this.merge(merge);
+		}
+	}
+
+	@Override
+	public void batchRead(List<MessageThreadMembersVO> readList) {
+		if(!CollectionUtils.isEmpty(readList)) {
+			repository.batchRead(readList);
 		}
 	}
 }

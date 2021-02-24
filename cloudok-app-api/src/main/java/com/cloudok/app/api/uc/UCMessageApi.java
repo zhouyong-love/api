@@ -93,16 +93,17 @@ public class UCMessageApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/interaction/{type}")
-	@ApiOperation(value = "查发送给我的和回复给我的留言 viewType=1 我收到的 viewType=2 回复我的", notes = "查发送给我的和回复给我的留言")
+	@ApiOperation(value = "查发送给我的和回复给我的留言 viewType=1 我收到的 viewType=2,read=1 表示自动读 回复我的", notes = "查发送给我的和回复给我的留言")
 	@Loggable
 	public Response searchMyInteractionMessageThreads(
 			@PathVariable(name = "type") Integer viewType,
+			@RequestParam(name = "read",required = false) Integer read,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
 		if(viewType != null && viewType != 1 && viewType !=2 ) {
 			viewType = 1;
 		}
-		return Response.buildSuccess(messageThreadService.searchMyInteractionMessageThreads(viewType,pageNo, pageSize));
+		return Response.buildSuccess(messageThreadService.searchMyInteractionMessageThreads(read,viewType,pageNo, pageSize));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
@@ -110,9 +111,10 @@ public class UCMessageApi {
 	@ApiOperation(value = "查询私信列表", notes = "查询私信列表")
 	@Loggable
 	public Response searchChatMessageThreads(
+			@RequestParam(name = "read",required = false) Integer read,
 			@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
-		return Response.buildSuccess(messageThreadService.searchChatMessageThreads(SecurityContextHelper.getCurrentUserId(), pageNo, pageSize));
+		return Response.buildSuccess(messageThreadService.searchChatMessageThreads(SecurityContextHelper.getCurrentUserId(), read, pageNo, pageSize));
 	}
 	
 	@PreAuthorize("isFullyAuthenticated()")
@@ -120,9 +122,10 @@ public class UCMessageApi {
 	@ApiOperation(value = "查询与某一个人的私信--点击头像等进入与某一个人的私信聊天，要先获取与这个人的私信thread与最新的n条信息", notes = "查询与某一个人的私信")
 	@Loggable
 	public Response getMessageThreadByMemberId(
+			@RequestParam(name = "read",required = false) Integer read,
 			@PathVariable(name = "memberId",required = false) Long memberId,
 			@RequestParam(name = "latestMessageCount", defaultValue = "10") Integer latestMessageCount) {
-		return Response.buildSuccess(messageThreadService.getMessageThreadByMemberId(SecurityContextHelper.getCurrentUserId(), memberId, latestMessageCount));
+		return Response.buildSuccess(messageThreadService.getMessageThreadByMemberId(SecurityContextHelper.getCurrentUserId(),read, memberId, latestMessageCount));
 	}
 	
 	@PreAuthorize("isFullyAuthenticated()")

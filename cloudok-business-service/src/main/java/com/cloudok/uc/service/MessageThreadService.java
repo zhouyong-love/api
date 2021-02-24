@@ -14,13 +14,13 @@ public interface MessageThreadService extends IService<MessageThreadVO,MessageTh
 	
 	Page<MessageVO> getMessageByThreadId(Long threadId, Integer pageNo, Integer pageSize);
 	
-	Page<MessageThreadVO> searchChatMessageThreads(Long memberId, Integer pageNo, Integer pageSize);
+	Page<MessageThreadVO> searchChatMessageThreads(Long memberId,Integer read, Integer pageNo, Integer pageSize);
 	
 	Page<MessageThreadVO> searchInteractionMessageThreads(Long memberId, Integer status,Integer pageNo, Integer pageSize);
 
-	Page<MessageThreadVO> searchMyInteractionMessageThreads(Integer viewType, Integer pageNo, Integer pageSize);
+	Page<MessageThreadVO> searchMyInteractionMessageThreads(Integer read,Integer viewType, Integer pageNo, Integer pageSize);
 
-	MessageThreadVO getMessageThreadByMemberId(Long currentUserId, Long memberId, Integer latestMessageCount);
+	MessageThreadVO getMessageThreadByMemberId(Long currentUserId,Integer read, Long memberId, Integer latestMessageCount);
 
 	void readed(Long messageId);
 

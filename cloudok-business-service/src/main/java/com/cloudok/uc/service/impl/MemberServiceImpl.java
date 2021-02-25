@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.cloudok.base.attach.io.AttachRWHandle;
+import com.cloudok.base.attach.vo.AttachVO;
 import com.cloudok.base.message.utils.MessageUtil;
 import com.cloudok.base.message.vo.MessageReceive;
 import com.cloudok.cache.Cache;
@@ -149,6 +151,15 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			List<MemberVO> es = new ArrayList<MemberVO>();
 			if (e != null && e.size() > 0) {
 				e.forEach(item -> es.add(convert2VO(item)));
+				List<AttachVO> list = AttachRWHandle.sign(e.stream().filter(item -> item.getAvatar() != null)
+						.map(item -> item.getAvatar()).distinct().collect(Collectors.toList()));
+				if(!CollectionUtils.isEmpty(list)) {
+					es.forEach(item -> {
+						list.stream().filter(attach -> attach.getId().equals(item.getAvatar())).findAny().ifPresent(attach->{
+							item.setAvatarUrl(attach.getUrl());
+						});
+					});
+				}
 			}
 			return es;
 		}

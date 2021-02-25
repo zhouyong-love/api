@@ -99,6 +99,9 @@ public class LogAspectAdapter implements InitializingBean {
 		List<Object> inputParameterList = new ArrayList<>();
 		boolean isHttpMethod = isHttpMethod(methodSignature.getMethod());
 		Response response = Response.buildSuccess();
+		if(loggable.level().getLevel()>_level) {
+			return;
+		}
 		if (logModule == null) {
 			if (logger.isErrorEnabled()) {
 				logger.error("API '" + joinPoint.getTarget().getClass().getName() + "' 缺少注解 @LogModule 记录失败！！！");

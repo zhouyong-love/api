@@ -48,6 +48,8 @@ public class MemberVO extends VO {
 	
 	private Long avatar;
 	
+	private String avatarUrl;
+	
 	private String description;
 	
 	private UserState state;

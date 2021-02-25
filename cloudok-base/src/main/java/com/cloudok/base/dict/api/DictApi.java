@@ -21,6 +21,7 @@ import com.cloudok.base.dict.vo.DictVO;
 import com.cloudok.core.vo.Response;
 import com.cloudok.log.annotation.LogModule;
 import com.cloudok.log.annotation.Loggable;
+import com.cloudok.log.enums.SysLogLevel;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -57,7 +58,7 @@ public class DictApi {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/{dictCode}/values")
 	@ApiOperation(value = "拉取字典值列表(从缓存)", notes = "拉取字典值列表(从缓存)")
-	@Loggable
+	@Loggable(level=SysLogLevel.CORE)
 	public Response values(@PathVariable("dictCode")String dictCode) {
 		return Response.buildSuccess(dictService.findAllFromCache(dictCode));
 	}

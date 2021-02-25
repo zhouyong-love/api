@@ -159,11 +159,11 @@
 		</if>
 		<if test="filterType ==3">
 			and exists (select 1 from uc_member_tags re , base_tag bt 
-				where bt.id = re.tag_id and bt.category='personality' and  re.member_id = t.id and re.type=2  )
+				where bt.id = re.tag_id and bt.category='personality' and  re.member_id = t.id and re.type=2 and re.deleted=false  )
 		</if>
 		<if test="filterType ==4">
 			and exists (select 1 from uc_member_tags re , base_tag bt 
-				where bt.id = re.tag_id and bt.category='statement' and  re.member_id = t.id and re.type=2  )
+				where bt.id = re.tag_id and bt.category='statement' and  re.member_id = t.id and re.type=2 and re.deleted=false  )
 		</if>
 		order by score desc
 	</select>

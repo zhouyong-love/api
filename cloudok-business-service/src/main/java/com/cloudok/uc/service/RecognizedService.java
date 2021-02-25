@@ -9,6 +9,7 @@ import com.cloudok.uc.vo.RecognizedVO;
 
 public interface RecognizedService extends IService<RecognizedVO,RecognizedPO>{
 
+	@Deprecated
 	int getFriendCount();
 	
 	int getNewApplyCount();

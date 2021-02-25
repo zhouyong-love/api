@@ -796,7 +796,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		List<EducationExperienceVO> edu = educationExperienceService.list(QueryBuilder
 				.create(EducationExperienceMapping.class).and(EducationExperienceMapping.MEMBERID, getCurrentUserId())
 				.end().sort(EducationExperienceMapping.GRADE).desc().enablePaging().pageNo(1).pageSize(1).end());
-		long friendCount = recognizedService.getFriendCount();
+		long friendCount = firendService.count(QueryBuilder.create(FirendMapping.class).and(FirendMapping.SOURCEID, getCurrentUserId()).end());
 		
 		boolean imperfect = true;
 		if(internshipExperienceService

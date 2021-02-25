@@ -29,6 +29,7 @@ import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.vo.Response;
 import com.cloudok.log.annotation.LogModule;
 import com.cloudok.log.annotation.Loggable;
+import com.cloudok.log.enums.LogSwitch;
 import com.cloudok.log.enums.SysLogLevel;
 
 import io.swagger.annotations.Api;
@@ -91,7 +92,7 @@ public class AttachApi {
 
 	@PostMapping(path = "/upload/{business}/{fileType}")
 	@ApiOperation(value = "附件上传", notes = "附件上传")
-	@Loggable
+	@Loggable(input=LogSwitch.OFF)
 	public Response upload(HttpServletRequest request, MultipartFile file, @PathVariable("business") String business,
 			@PathVariable("fileType") String fileType) {
 		AttachVO vo = AttachRWHandle.upload(file, business, fileType, AttachUtil.getParams(request));
@@ -100,7 +101,7 @@ public class AttachApi {
 
 	@PostMapping(path = "/uploadBase64/{business}/{fileType}")
 	@ApiOperation(value = "附件上传", notes = "附件上传")
-	@Loggable
+	@Loggable(input=LogSwitch.OFF)
 	public Response uploadBase64(HttpServletRequest request, @RequestBody Base64FileVO file,
 			@PathVariable("business") String business, @PathVariable("fileType") String fileType) {
 		AttachVO vo = AttachRWHandle.upload(file.getBase64(), business, fileType, file.getFileName(),

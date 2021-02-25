@@ -167,7 +167,53 @@
 		</if>
 		order by score desc
 	</select>
-
-
+	
+	
+	<select id="getMemberCirclesList" parameterType="map" resultType="Long">
+		select u.id from uc_member u where
+		<if test="filterType ==1">
+			EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
+		</if>
+		<if test="filterType ==2">
+			EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
+		</if>
+		<if test="filterType ==3">
+			EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
+		</if>
+		<if test="filterType ==4">
+			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
+		</if>
+		<if test="excludedIdList != null">
+			and u.id not in 
+			<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		and u.deleted=false
+		limit #{offset},#{pageSize}
+	</select>
+	
+	<select id="getMemberCirclesCount" parameterType="map" resultType="Long">
+		select count(u.id) from uc_member u where
+		<if test="filterType ==1">
+			EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
+		</if>
+		<if test="filterType ==2">
+			EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
+		</if>
+		<if test="filterType ==3">
+			EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
+		</if>
+		<if test="filterType ==4">
+			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
+		</if>
+		<if test="excludedIdList != null">
+			and u.id not in 
+			<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		and u.deleted=false
+	</select>
 
 </mapper>

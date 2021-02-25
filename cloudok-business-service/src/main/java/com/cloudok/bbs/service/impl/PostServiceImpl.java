@@ -170,7 +170,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-			page.setData(this.convert2VO(repository.searchByTopic(topicIdList,(pageNo-1)*pageSize,pageNo*pageSize)));
+			page.setData(this.convert2VO(repository.searchByTopic(topicIdList,(pageNo-1)*pageSize,pageSize)));
 		}
 		return page;
 	}
@@ -181,7 +181,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-			page.setData(this.convert2VO(repository.getMyCollectPosts(currentUserId,(pageNo-1)*pageSize,pageNo*pageSize)));
+			page.setData(this.convert2VO(repository.getMyCollectPosts(currentUserId,(pageNo-1)*pageSize,pageSize)));
 		}
 		return page;
 	}

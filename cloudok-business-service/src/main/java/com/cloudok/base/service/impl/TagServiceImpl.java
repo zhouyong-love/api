@@ -1,9 +1,12 @@
 package com.cloudok.base.service.impl;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.cloudok.base.mapper.TagMapper;
 import com.cloudok.base.mapping.TagMapping;
@@ -27,17 +30,26 @@ public class TagServiceImpl extends AbstractService<TagVO, TagPO> implements Tag
 
 	@Override
 	public TagVO createByMember(@Valid TagVO vo) {
-		vo.setParentId(0L);
-		vo.setType(TagType.CUSTOM.getValue());
+		List<TagVO> list = this.list(QueryBuilder.create(TagMapping.class)
+				.and(TagMapping.NAME, vo.getName().trim())
+				.and(TagMapping.CATEGORY, vo.getCategory())
+				.and(TagMapping.TYPE, TagType.CUSTOM.getValue())
+				.end());
+		if (!CollectionUtils.isEmpty(list)) {
+			return list.get(0);
+		}
 		TagVO v = this.get(QueryBuilder.create(TagMapping.class).sort(TagMapping.SN).desc());
 		if(v != null) {
 			vo.setSn(v.getSn()+1);
 		}else {
 			vo.setSn(99999);
 		}
+		vo.setParentId(0L);
+		vo.setType(TagType.CUSTOM.getValue());
 		return this.create(vo);
 	}
 
+	@Deprecated
 	@Override
 	public TagVO updateByMember(@Valid TagVO vo) {
 		TagVO dbTag = this.get(vo.getId());
@@ -50,6 +62,7 @@ public class TagServiceImpl extends AbstractService<TagVO, TagPO> implements Tag
 		return this.update(vo);
 	}
 
+	@Deprecated
 	@Override
 	public int removeByMember(Long id) {
 		TagVO dbTag = this.get(id);

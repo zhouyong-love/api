@@ -1,6 +1,7 @@
 package com.cloudok.uc.vo;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 import com.cloudok.core.vo.VO;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -58,6 +59,8 @@ public class MemberVO extends VO {
 	private Double ri;
 	
 	private Double score;
+	
+	private Timestamp profileUpdateTs;
 	
 	public MemberVO(Long id) {
 		this.setId(id);

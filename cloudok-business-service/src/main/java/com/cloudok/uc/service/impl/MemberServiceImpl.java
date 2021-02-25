@@ -2,6 +2,7 @@ package com.cloudok.uc.service.impl;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -168,6 +169,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		this.repository = repository;
 	}
 
+	@Override
+	public MemberVO create(MemberVO d) {
+		//默认注册时间为更新时间
+		d.setProfileUpdateTs(new Timestamp(System.currentTimeMillis()));
+		return super.create(d);
+	}
 	@Override
 	public TokenVO login(LoginVO vo) {
 		List<MemberVO> memberList = this
@@ -1257,5 +1264,66 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 		
 		return list;
+	}
+	@Override
+	public Page<WholeMemberDTO> getMemberCircles(Integer type, Long businessId, Integer pageNo,
+			Integer pageSize) {
+		if(type == null || businessId == null) {
+			return new Page<>();
+		}
+		if(type == null || businessId == null) {
+			return new Page<>();
+		}
+		Long currentUserId = getCurrentUserId();
+		Long count = this.repository.getMemberCirclesCount(Arrays.asList(currentUserId),type,businessId);
+		Page<WholeMemberDTO> page = new Page<WholeMemberDTO>();
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		page.setTotalCount(count);
+		if (page.getTotalCount() > 0 && (page.getTotalCount() / page.getPageSize() + 1) >= page.getPageNo()) {
+			//查询分页数据
+			List<Long> suggestMemberList = this.repository.getMemberCirclesList(Arrays.asList(currentUserId),type,businessId, (pageNo-1)*pageSize,pageSize);
+			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(suggestMemberList);
+			//恢复排序,最新在最前
+			memberList.sort((b,a)->{
+				if(a.getProfileUpdateTs() == null && b.getProfileUpdateTs() == null) {
+					return 0;
+				}
+				if(a.getProfileUpdateTs() == null ) {
+					return -1;
+				}
+				if(b.getProfileUpdateTs() == null ) {
+					return 1;
+				}
+				return a.getProfileUpdateTs().compareTo(b.getProfileUpdateTs());
+			});
+			
+			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.SOURCEID, currentUserId)
+					.and(RecognizedMapping.TARGETID,QueryOperator.IN, suggestMemberList)
+					.end()
+					.or(RecognizedMapping.TARGETID,currentUserId)
+					.and(RecognizedMapping.SOURCEID,QueryOperator.IN, suggestMemberList)
+					.end());
+			if(!CollectionUtils.isEmpty(recoginzedList)) {
+				memberList.stream().forEach(member -> {
+					recoginzedList.stream().filter(item -> 
+					   item.getSourceId().equals(currentUserId)
+					&& item.getTargetId().equals(member.getId())
+							).findAny().ifPresent(item ->{
+						member.setTo(true);
+					});
+					recoginzedList.stream().filter(item ->
+					item.getTargetId().equals(currentUserId)
+					&& item.getSourceId().equals(member.getId())
+							).findAny().ifPresent(item ->{
+						member.setFrom(true);
+					});
+				});
+			}
+			page.setData(memberList);
+		}
+		
+		return page;
 	}
 }

@@ -1,5 +1,6 @@
 package com.cloudok.uc.service.impl;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -129,6 +130,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 		MemberVO vo = new MemberVO();
 		vo.setId(member.getId());
 		vo.setWi(score);
+		vo.setProfileUpdateTs(new Timestamp(System.currentTimeMillis()));
 		this.memberService.merge(vo);
 	}
 

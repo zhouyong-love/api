@@ -31,5 +31,11 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	 * @return
 	 */
 	List<SuggsetMemberScorePO> suggest(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer filterType,@Param("limit") Integer limit);
+
+	Long getMemberCirclesCount(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer type,@Param("businessId") Long businessId);
+	
+	List<Long> getMemberCirclesList(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer type,@Param("businessId") Long businessId,
+			@Param("offset") Integer offset,
+			@Param("pageSize") Integer pageSize);
 	
 }

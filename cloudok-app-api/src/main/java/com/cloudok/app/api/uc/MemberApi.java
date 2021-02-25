@@ -249,4 +249,19 @@ public class MemberApi {
 			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
 		return Response.buildSuccess(memberService.getSecondDegreeRecognized(memberId,pageNo,pageSize));
 	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/circle")
+	@ApiOperation(value="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签")
+	@Loggable
+	public Response getMemberCircles(
+			@RequestParam(name = "type", required=true) Integer type,
+			@RequestParam(name = "businessId", required=false) Long businessId,
+			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+		return Response.buildSuccess(memberService.getMemberCircles(type,businessId,pageNo,pageSize));
+	}
+	
+	
+	
 }

@@ -117,7 +117,7 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 			page.setPageNo(pageNo);
 			page.setPageSize(pageSize);
 			if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-				page.setData(this.convert2VO(repository.getSecondDegreeRecognized(currentUserId,memberId,(pageNo-1)*pageSize,pageNo*pageSize)));
+				page.setData(this.convert2VO(repository.getSecondDegreeRecognized(currentUserId,memberId,(pageNo-1)*pageSize,pageSize)));
 			}
 			return page;
 	}

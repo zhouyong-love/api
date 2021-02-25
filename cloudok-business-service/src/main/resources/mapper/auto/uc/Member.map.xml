@@ -32,19 +32,23 @@
 		
 		<result property="ti" column="ti"/>
 		
+		<result property="profileUpdateTs" column="profile_update_ts"/>
+		
+		
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.user_name,t.email,t.password,t.nick_name,t.real_name,t.birth_date,t.sex,t.phone,t.avatar,t.description,t.state,t.ti,t.wi,t.remark,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.user_name,t.email,t.password,t.nick_name,t.real_name,t.birth_date,t.sex,t.phone,t.avatar,t.description,t.state,t.ti,t.wi,t.remark,t.profile_update_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.MemberPO">
-		insert into uc_member(user_name,email,password,nick_name,real_name,birth_date,sex,phone,avatar,description,state,ti,wi,remark,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{userName},#{email},#{password},#{nickName},#{realName},#{birthDate},#{sex},#{phone},#{avatar},#{description},#{state},#{ti},#{wi},#{remark},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_member(user_name,email,password,nick_name,real_name,birth_date,sex,phone,avatar,description,state,ti,wi,remark,profile_update_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{userName},#{email},#{password},#{nickName},#{realName},#{birthDate},#{sex},#{phone},#{avatar},#{description},#{state},#{ti},#{wi},#{remark},#{profileUpdateTs},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.MemberPO">
-		update uc_member set user_name=#{userName},email=#{email},password=#{password},wi=#{wi},ti=#{ti},nick_name=#{nickName},state = #{state},remark=#{remark},real_name=#{realName},birth_date=#{birthDate},sex=#{sex},phone=#{phone},avatar=#{avatar},description=#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_member set user_name=#{userName},email=#{email},password=#{password},wi=#{wi},ti=#{ti},nick_name=#{nickName},state = #{state},remark=#{remark},real_name=#{realName},profile_update_ts=#{profileUpdateTs},birth_date=#{birthDate},sex=#{sex},phone=#{phone},avatar=#{avatar},description=#{description},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -80,6 +84,8 @@
 			<if test="avatar != null ">avatar = #{avatar},</if>
 			
 			<if test="description != null ">description = #{description},</if>
+			
+			<if test="profileUpdateTs != null ">profile_update_ts=#{profileUpdateTs},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

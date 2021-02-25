@@ -1,5 +1,7 @@
 package com.cloudok.uc.po;
 
+import java.sql.Timestamp;
+
 import com.cloudok.core.po.PO;
 
 import lombok.Getter;
@@ -48,4 +50,6 @@ public class MemberPO extends PO {
 	private Double wi;
 	
 	private Double ti;
+	
+	private Timestamp profileUpdateTs;
 }

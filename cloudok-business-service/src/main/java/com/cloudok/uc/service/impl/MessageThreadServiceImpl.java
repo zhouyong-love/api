@@ -227,7 +227,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-			List<MessageThreadVO> list = this.getMessageThread(repository.searchChatMessageThreads(memberId,(pageNo-1)*pageSize,pageNo*pageSize),2);
+			List<MessageThreadVO> list = this.getMessageThread(repository.searchChatMessageThreads(memberId,(pageNo-1)*pageSize,pageSize),2);
 			List<UnReadCount> countList = this.repository.getUnReadMessages(memberId,list.stream().map(item -> item.getId()).distinct().collect(Collectors.toList()));
 			if(!CollectionUtils.isEmpty(countList)&&!CollectionUtils.isEmpty(list)) {
 				list.stream().forEach(item ->{
@@ -312,7 +312,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchInteractionMessageThreads(memberId,getCurrentUserId(),status,seeOthers,(pageNo-1)*pageSize,pageNo*pageSize),2);
+			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchInteractionMessageThreads(memberId,getCurrentUserId(),status,seeOthers,(pageNo-1)*pageSize,pageSize),2);
 			this.fillThreadInfo(dataList,0);
 			page.setData(dataList);
 		}
@@ -331,7 +331,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
-			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchMyInteractionMessageThreads(memberId,viewType,(pageNo-1)*pageSize,pageNo*pageSize),2);
+			List<MessageThreadVO> dataList = this.getMessageThread(repository.searchMyInteractionMessageThreads(memberId,viewType,(pageNo-1)*pageSize,pageSize),2);
 			this.fillThreadInfo(dataList,read);
 			page.setData(dataList);
 		}

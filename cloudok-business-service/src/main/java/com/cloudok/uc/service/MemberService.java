@@ -81,4 +81,6 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	Page<WholeMemberDTO>  getSecondDegreeRecognized(Long memberId, Integer pageNo, Integer pageSize);
 
+	Page<WholeMemberDTO> getMemberCircles(Integer type, Long businessId, Integer pageNo, Integer pageSize);
+
 }

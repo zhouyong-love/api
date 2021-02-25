@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudok.core.vo.Response;
 import com.cloudok.log.annotation.LogModule;
 import com.cloudok.log.annotation.Loggable;
+import com.cloudok.log.enums.LogSwitch;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.service.MessageService;
 import com.cloudok.uc.service.MessageThreadService;
@@ -50,7 +51,7 @@ public class UCMessageApi {
 	@PostMapping("/{threadId}/message")
 	@ApiOperation(value = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复, threadId为空时，后端自动生成，to的id必传，anonymous=true表示匿名留言",
 	notes = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复，threadId为空时，后端自动生成，to的id必传，anonymous=true表示匿名留言")
-	@Loggable
+	@Loggable(input=LogSwitch.OFF)
 	public Response sendMessage(@PathVariable("threadId") Long threadId,
 			@RequestBody @Valid MessageVO vo) {
 		vo.setThreadId(threadId);

@@ -48,9 +48,6 @@ public class IoHandle implements AttachIoHandle {
         Date expiration = new Date(new Date().getTime() + TimeUnit.SECONDS.toMillis(ossProperties.getSignTimeout()));
 		GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(ossProperties.getBucket(), attachVO.getAddress());
 		request.setExpiration(expiration);
-		if("image".equals(attachVO.getFileType())) { //图片压缩
-			request.addQueryParameter("x-oss-process", "style/image_compression_jpg_h150");
-		}
 		return ossClient.generatePresignedUrl(request).toString();
     }
 

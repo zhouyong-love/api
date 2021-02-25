@@ -76,6 +76,7 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return r;
 	}
+	@Deprecated
 	@Override
 	public int getFriendCount() {
 		return repository.getFriendCount(getCurrentUserId());

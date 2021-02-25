@@ -9,6 +9,7 @@ import com.cloudok.uc.po.RecognizedPO;
 
 public interface RecognizedMapper extends IMapper<RecognizedPO>{
 
+	@Deprecated
 	int getFriendCount(@Param("userId")Long userId);
 	
 	int getNewApplyCount(@Param("userId")Long userId);

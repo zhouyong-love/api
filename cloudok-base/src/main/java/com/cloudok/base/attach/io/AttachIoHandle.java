@@ -2,6 +2,7 @@ package com.cloudok.base.attach.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import com.cloudok.base.attach.vo.AttachVO;
 
@@ -18,9 +19,10 @@ public interface AttachIoHandle {
 	/**
 	 * 下载签名
 	 * @param attachVO
+	 * @param extend
 	 * @return
 	 */
-	public String sign(AttachVO attachVO);
+	public String sign(AttachVO attachVO,Map<String,String> extend);
 	
 	/**
 	 * 写入存储

@@ -34,12 +34,15 @@ public class AttachRWHandle {
 
 	public static AttachVO sign(Long id) {
 		AttachVO attachVO = SpringApplicationContext.getBean(AttachService.class).get(id);
-		attachVO.setUrl(SpringApplicationContext.getBean(attachVO.getStorageModel()+"IoHandle", AttachIoHandle.class).sign(attachVO));
+		attachVO.setUrl(SpringApplicationContext.getBean(attachVO.getStorageModel()+"IoHandle", AttachIoHandle.class).sign(attachVO,null));
 		return attachVO;
 	}
 	
 	public static AttachVO sign(AttachVO attachVO) {
-		attachVO.setUrl(SpringApplicationContext.getBean(attachVO.getStorageModel()+"IoHandle", AttachIoHandle.class).sign(attachVO));
+		return sign(attachVO, null);
+	}
+	public static AttachVO sign(AttachVO attachVO,Map<String,String> extend) {
+		attachVO.setUrl(SpringApplicationContext.getBean(attachVO.getStorageModel()+"IoHandle", AttachIoHandle.class).sign(attachVO,extend));
 		return attachVO;
 	}
 
@@ -49,12 +52,12 @@ public class AttachRWHandle {
 	 * @param ids
 	 * @return
 	 */
-	public static Map<Long, AttachVO> sign(Long... ids) {
+	public static Map<Long, AttachVO> sign(Map<String,String> extend,Long... ids) {
 		List<AttachVO> list = SpringApplicationContext.getBean(AttachService.class)
 				.list(QueryBuilder.create(AttachMapping.class).and(AttachMapping.ID, QueryOperator.IN, ids).end());
 		Map<Long, AttachVO> map = new HashMap<Long, AttachVO>();
 		for (AttachVO attachVO : list) {
-			map.put(attachVO.getId(), sign(attachVO));
+			map.put(attachVO.getId(), sign(attachVO,extend));
 		}
 		return map;
 	}

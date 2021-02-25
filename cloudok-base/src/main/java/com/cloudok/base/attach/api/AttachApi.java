@@ -77,14 +77,14 @@ public class AttachApi {
 	@GetMapping(path = "/sign/{id}")
 	@ApiOperation(value = "附件下载签名", notes = "附件下载签名")
 	@Loggable
-	public Response sign(@PathVariable("id") Long id) {
-		return Response.buildSuccess(AttachRWHandle.sign(attachService.get(id)));
+	public Response sign(HttpServletRequest request, @PathVariable("id") Long id) {
+		return Response.buildSuccess(AttachRWHandle.sign(attachService.get(id),AttachUtil.getParams(request)));
 	}
 	
 	@PostMapping(path = "/sign")
 	@ApiOperation(value = "附件下载签名", notes = "附件下载签名")
 	@Loggable
-	public Response batchSign(@RequestBody List<Long> ids) {
+	public Response batchSign(HttpServletRequest request, @RequestBody List<Long> ids) {
 		return Response.buildSuccess(AttachRWHandle.sign(ids));
 	}
 

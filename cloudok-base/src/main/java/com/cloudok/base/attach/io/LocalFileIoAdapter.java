@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,7 +124,7 @@ public class LocalFileIoAdapter implements AttachIoHandle {
 
 	
 	@Override
-	public String sign(AttachVO vo) {
+	public String sign(AttachVO vo,Map<String,String> extend) {
 		return new StringBuffer(localAttachPropterties.getAddress()).append("/").append(vo.getId()).append("?sign=").append(JWTUtil.getProvisionalPass(localAttachPropterties.getSignatureExpires())).toString();
 	}
 

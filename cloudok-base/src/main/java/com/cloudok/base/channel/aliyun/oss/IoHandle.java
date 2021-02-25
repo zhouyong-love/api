@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -44,11 +45,14 @@ public class IoHandle implements AttachIoHandle {
 
 
     @Override
-    public String sign(AttachVO attachVO) {
-        Date expiration = new Date(new Date().getTime() + TimeUnit.SECONDS.toMillis(ossProperties.getSignTimeout()));
-		GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(ossProperties.getBucket(), attachVO.getAddress());
-		request.setExpiration(expiration);
-		return ossClient.generatePresignedUrl(request).toString();
+    public String sign(AttachVO attachVO,Map<String,String> extend) {
+    	 Date expiration = new Date(new Date().getTime() + TimeUnit.SECONDS.toMillis(ossProperties.getSignTimeout()));
+ 		GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(ossProperties.getBucket(), attachVO.getAddress());
+ 		request.setExpiration(expiration);
+ 		if(extend!=null && extend.containsKey("x-oss-process")) { //大图走图片压缩,style/image_compression_jpg_h150
+ 			request.addQueryParameter("x-oss-process", extend.get("x-oss-process"));
+ 		} 
+ 		return ossClient.generatePresignedUrl(request).toString();
     }
 
     @Override

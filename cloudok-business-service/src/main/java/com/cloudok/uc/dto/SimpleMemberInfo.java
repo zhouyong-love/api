@@ -17,6 +17,7 @@ public class SimpleMemberInfo {
 	private Long id;
 	private String nickName;
 	private Long avatar;
+	private String avatarUrl;
 	private String sex;
 	private EducationExperienceVO education;
 	

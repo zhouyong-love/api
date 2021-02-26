@@ -795,6 +795,17 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}).collect(Collectors.toList());
 
 		if (!CollectionUtils.isEmpty(memberList)) {
+			
+			List<AttachVO> attachs = AttachRWHandle.sign(memberList.stream().filter(item -> item.getAvatar() != null)
+					.map(item -> item.getAvatar()).distinct().collect(Collectors.toList()));
+			if(!CollectionUtils.isEmpty(attachs)) {
+				memberList.forEach(item -> {
+					attachs.stream().filter(attach -> attach.getId().equals(item.getAvatar())).findAny().ifPresent(attach->{
+						item.setAvatarUrl(attach.getUrl());
+					});
+				});
+			}
+			
 			educationExperienceService
 					.list(QueryBuilder.create(EducationExperienceMapping.class)
 							.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end()
@@ -1259,6 +1270,17 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			return dto;
 		}).collect(Collectors.toList());
 		if (!CollectionUtils.isEmpty(list)) {
+			
+			List<AttachVO> attachs = AttachRWHandle.sign(list.stream().filter(item -> item.getAvatar() != null)
+					.map(item -> item.getAvatar()).distinct().collect(Collectors.toList()));
+			if(!CollectionUtils.isEmpty(attachs)) {
+				list.forEach(item -> {
+					attachs.stream().filter(attach -> attach.getId().equals(item.getAvatar())).findAny().ifPresent(attach->{
+						item.setAvatarUrl(attach.getUrl());
+					});
+				});
+			}
+			
 			educationExperienceService
 					.list(QueryBuilder.create(EducationExperienceMapping.class)
 							.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, list.stream().map(item->item.getId()).collect(Collectors.toList())).end()

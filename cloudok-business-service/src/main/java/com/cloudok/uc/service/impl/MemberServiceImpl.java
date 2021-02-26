@@ -614,7 +614,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		if (!CollectionUtils.isEmpty(memberList)) {
 			educationExperienceService
 					.list(QueryBuilder.create(EducationExperienceMapping.class)
-							.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end())
+							.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end().sort(EducationExperienceMapping.SN).asc())
 					.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
 					.forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {

@@ -66,6 +66,15 @@ public class MemberApi {
 		return Response.buildSuccess(memberService.fillAccountInfo(vo));
 	}
 	
+	@PreAuthorize("isFullyAuthenticated()")
+	@PostMapping("/merge")
+	@ApiOperation(value = "补充账号消息", notes = "补充账号消息")
+	@Loggable
+	public Response merge(@RequestBody @Valid MemberVO vo) {
+		vo.setId(SecurityContextHelper.getCurrentUserId());
+		return Response.buildSuccess(memberService.merge(vo));
+	}
+	
 	@PostMapping("/login")
 	@ApiOperation(value = "user login", notes = "user login")
 	@Loggable

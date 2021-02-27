@@ -103,6 +103,8 @@ com:
           sign-timeout: 1800
           access-key: LTAI4G1Zp6Mx4VwKKviqFPB1
           access-secret: TxV7CNT4VKpPOcIdEh2TzDqKCA8311
+          cdn-domain: cdn.peerer.cn
+          cdn-key: peerer1201
         voice:
           access-key: LTAI4G1Zp6Mx4VwKKviqFPB1
           access-secret: TxV7CNT4VKpPOcIdEh2TzDqKCA8311

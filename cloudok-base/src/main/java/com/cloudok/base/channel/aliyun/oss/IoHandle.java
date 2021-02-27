@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,12 +16,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.CompleteMultipartUploadRequest;
 import com.aliyun.oss.model.CompleteMultipartUploadResult;
-import com.aliyun.oss.model.GeneratePresignedUrlRequest;
 import com.aliyun.oss.model.InitiateMultipartUploadRequest;
 import com.aliyun.oss.model.InitiateMultipartUploadResult;
 import com.aliyun.oss.model.PartETag;
@@ -46,13 +48,23 @@ public class IoHandle implements AttachIoHandle {
 
     @Override
     public String sign(AttachVO attachVO,Map<String,String> extend) {
-    	 Date expiration = new Date(new Date().getTime() + TimeUnit.SECONDS.toMillis(ossProperties.getSignTimeout()));
- 		GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(ossProperties.getBucket(), attachVO.getAddress());
- 		request.setExpiration(expiration);
- 		if(extend!=null && extend.containsKey("x-oss-process")) { //大图走图片压缩,style/image_compression_jpg_h150
- 			request.addQueryParameter("x-oss-process", extend.get("x-oss-process"));
- 		} 
- 		return ossClient.generatePresignedUrl(request).toString();
+//    	 Date expiration = new Date(new Date().getTime() + TimeUnit.SECONDS.toMillis(ossProperties.getSignTimeout()));
+// 		GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(ossProperties.getBucket(), attachVO.getAddress());
+// 		request.setExpiration(expiration);
+// 		if(extend!=null && extend.containsKey("x-oss-process")) { //大图走图片压缩,style/image_compression_jpg_h150
+// 			request.addQueryParameter("x-oss-process", extend.get("x-oss-process"));
+// 		} 
+// 		return ossClient.generatePresignedUrl(request).toString();
+    	
+    	 Instant expiredAt = Instant.now().plusSeconds(ossProperties.getSignTimeout());
+         if (!attachVO.getAddress().startsWith("/")) {
+        	 attachVO.setAddress("/" + attachVO.getAddress());
+         }
+         Long expiredAtTimeStamp = Timestamp.from(expiredAt).getTime() / 1000;
+         String data = String.format("%s-%s-0-0-%s", attachVO.getAddress(), expiredAtTimeStamp, ossProperties.getCdnKey());
+         String md5hash = DigestUtils.md5DigestAsHex(data.getBytes());
+         String url = String.format("https://%s%s?auth_key=%s-0-0-%s", ossProperties.getCdnDomain(), attachVO.getAddress(), expiredAtTimeStamp, md5hash);
+         return url;
     }
 
     @Override

@@ -99,6 +99,8 @@ com:
           sign-timeout: 1800
           access-key:
           access-secret:
+          cdn-domain: cdn.peerer.cn
+          cdn-key: peerer1201
         voice:
           access-key:
           access-secret:

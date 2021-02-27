@@ -17,4 +17,7 @@ public class OSSProperties {
 	
 	private String accessSecret;
 	
+	private String cdnDomain;
+	private String cdnKey;
+	
 }

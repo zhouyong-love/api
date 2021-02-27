@@ -68,7 +68,7 @@ public class UCMessageApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{threadId}")
-	@ApiOperation(value = "根据threadId获取聊天内容", notes = "根据threadId获取聊天内容")
+	@ApiOperation(value = "根据threadId获取聊天内容--仅私信使用", notes = "根据threadId获取聊天内容--仅私信使用")
 	@Loggable
 	public Response getByThreadId(
 			@PathVariable("threadId") Long threadId,
@@ -79,7 +79,7 @@ public class UCMessageApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/interaction")
-	@ApiOperation(value = "查询member的互动消息列表）", notes = "查询member的互动消息列表-memberId就是名片详情页的那个member的id （别人的名片或者自己的名片")
+	@ApiOperation(value = "查询member的留言列表）", notes = "查询member的留言列表-memberId就是名片详情页的那个member的id （别人的名片或者自己的名片")
 	@Loggable
 	public Response searchInteractionMessages(
 			@RequestParam(name = "memberId",required = false) Long memberId,

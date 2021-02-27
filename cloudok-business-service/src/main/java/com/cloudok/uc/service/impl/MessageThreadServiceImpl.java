@@ -220,10 +220,13 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 	@Override
 	public Page<MessageVO> getMessageByThreadId(Long threadId, Integer pageNo, Integer pageSize) {
 		MessageThreadVO thread =  this.getBaseInfo(threadId);
+		if(!UCMessageThreadType.chat.getValue().equals(thread.getType())) {
+			throw new SystemException("您没有权限参与",CoreExceptionMessage.NO_PERMISSION);
+		}
 		//检查是否有权限
 		if(thread.getIsPublic() == false && !thread.getMemberList().stream().map(item -> item.getId())
 				.filter(item -> item.equals(SecurityContextHelper.getCurrentUserId())).findAny().isPresent()) {
-			throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
+			throw new SystemException("您没有权限参与",CoreExceptionMessage.NO_PERMISSION);
 		}
 		//查询消息
 		Page<MessageVO>  page = this.messageService.page(QueryBuilder.create(MessageMapping.class)

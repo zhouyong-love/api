@@ -974,7 +974,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			myRecoginzedList.stream().forEach(item -> {
 				suggestMemberList.stream().filter(a -> a.getId().equals(item.getTargetId()))
 					.findAny().ifPresent(a ->{
-						a.setScore(Math.max(a.getScore()+recognized,0)); //好友压制30分
+						a.setScore(a.getScore()+recognized); //好友压制30分
 					});
 			});
 			List<SuggsetMemberScorePO> targetList = suggestMemberList.stream().sorted((a,b)->b.getScore().compareTo(a.getScore()))

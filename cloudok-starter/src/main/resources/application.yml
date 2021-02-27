@@ -1,6 +1,6 @@
 server: 
   tomcat:
-    basedir: /root/tmp/
+    basedir: /srv/peer/api/
   port: 8081
   servlet:
     context-path: /api

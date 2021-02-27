@@ -531,7 +531,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 			group.setUnReadTotalCount(targetList.stream().mapToInt(item -> item.getUnReadCount()).sum());
 			group.setMemberTotalCount(targetList.size());
 			//返回前n条
-			List<MessageThreadGroupItem> resultList = targetList.stream().limit(6).collect(Collectors.toList());
+			List<MessageThreadGroupItem> resultList = targetList.stream().limit(5).collect(Collectors.toList());
 			//填充头像信息
 			List<Long> memberIdList = resultList.stream().filter(item -> item.getSimpleMemberInfo() != null).map(item -> item.getSimpleMemberInfo().getId()).collect(Collectors.toList());
 			if(!CollectionUtils.isEmpty(memberIdList)) {

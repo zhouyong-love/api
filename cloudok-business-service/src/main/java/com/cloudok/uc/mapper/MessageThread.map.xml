@@ -109,15 +109,16 @@
 		<result property="threadId" column="id"/>
 		<result property="memberId" column="member_id"/>
 		<result property="ownerId" column="owner_id"/>
+		<result property="type" column="type"/>
 	</resultMap>
 	
 	
 	<select id="searchMyInteractionMessageThreadsGroup" parameterType="Long" resultMap="messageThreadGroupPOMap">
 		 SELECT 
-		    t1.id, m.member_id,t1.owner_id
+		    t1.id,t1.type, m.member_id,t1.owner_id
 		FROM
 		    (SELECT 
-		        t.id,t.owner_id
+		        t.id,t.type,t.owner_id
 		    FROM
 		        uc_message_thread t
 		    WHERE
@@ -143,7 +144,7 @@
 		            AND t.deleted = FALSE) t1
 		        INNER JOIN
 		    uc_message m ON t1.id = m.thread_id  AND m.deleted = FALSE
-		GROUP BY t1.id, t1.owner_id , m.member_id
+		GROUP BY t1.id,t1.type, t1.owner_id , m.member_id
 	</select>
 	
 </mapper>

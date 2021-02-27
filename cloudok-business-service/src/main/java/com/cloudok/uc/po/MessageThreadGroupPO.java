@@ -7,4 +7,5 @@ public class MessageThreadGroupPO {
 	private Long threadId;
 	private Long memberId;
 	private Long ownerId;
+	private Integer type;
 }

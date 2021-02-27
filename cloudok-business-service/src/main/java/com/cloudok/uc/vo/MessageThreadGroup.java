@@ -12,4 +12,6 @@ public class MessageThreadGroup {
 	private Integer unReadTotalCount;
 	
 	private List<MessageThreadGroupItem> list;
+	
+	private Integer memberTotalCount;
 }

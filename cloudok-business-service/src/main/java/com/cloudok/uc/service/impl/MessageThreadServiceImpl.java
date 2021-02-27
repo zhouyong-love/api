@@ -487,10 +487,12 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 			targetList.sort((b,a)->{
 				return a.getLastetThreadId().compareTo(b.getLastetThreadId());
 			});
-			group.setList(targetList);
 			//总数
 			group.setTotalCount(targetList.stream().mapToInt(item -> item.getTotalCount()).sum());
 			group.setUnReadTotalCount(targetList.stream().mapToInt(item -> item.getUnReadCount()).sum());
+			group.setMemberTotalCount(targetList.size());
+			//返回前n条
+			group.setList(targetList.stream().limit(6).collect(Collectors.toList()));
 		}
 		return group;
 	}

@@ -52,7 +52,7 @@ spring:
 security: 
   token:
     secret: FxdaQYwfBmJXeIwFxZAdPGono0PW333r
-    expired: 604800
+    expired: 7776000
     signature-secret: mESA6AB1N7iclAOM41EKhxreXXfNWP1X
     signature-expired: 300
 

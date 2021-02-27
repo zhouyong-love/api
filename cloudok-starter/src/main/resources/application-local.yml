@@ -56,7 +56,7 @@ spring:
 security: 
   token: 
     secret: 7olodZvQcq8DHiI165oJEPNs53ZkRPhc
-    expired: 604800
+    expired: 7776000
     signature-secret: lfP2OQ6hlJLhgRPflsLmZv3NZuJJvGLr
     signature-expired: 300
     

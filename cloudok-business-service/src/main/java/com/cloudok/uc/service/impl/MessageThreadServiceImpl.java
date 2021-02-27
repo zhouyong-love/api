@@ -165,6 +165,17 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 	//	type 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复
 	@Override
 	public MessageThreadVO createByMember(@Valid MessageVO vo) {
+		if(vo.getToMemberId() == null) { //回复匿名留言才可能为空
+			if(vo.getThreadId() == null || vo.getThreadId().equals(-1L)) {
+				throw new SystemException("参数错误，匿名留言回复必须传入threadId",CoreExceptionMessage.PARAMETER_ERR);
+			}
+			List<MessageThreadMembersVO> list = this.messageThreadMembersService.list(QueryBuilder.create(MessageThreadMembersMapping.class)
+					.and(MessageThreadMembersMapping.THREADID, vo.getThreadId()).end());
+			//查询toMemberId
+			list.stream().filter(item -> !item.getMemberId().equals(getCurrentUserId())).findAny().ifPresent(item -> {
+				vo.setToMemberId(item.getMemberId());
+			});
+		}
 		if(vo.getToMemberId().equals(getCurrentUserId())) {
 			throw new SystemException("不能给自己发送消息",CoreExceptionMessage.PARAMETER_ERR);
 		}

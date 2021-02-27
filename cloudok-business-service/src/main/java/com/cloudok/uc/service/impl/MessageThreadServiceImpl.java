@@ -478,7 +478,14 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 					//因为是一来一回，所以未读数量= 总消息数量*2-thread数量
 					List<MessageThreadGroupPO>  all = list.stream().filter(t -> joinedThreadIdList.contains(t.getThreadId())).collect(Collectors.toList());
 					item.setUnReadCount(item.getTotalCount()* 2- all.size() );
+					joinedThreadIdList.sort((b,a)->{
+						return a.compareTo(b);
+					});
+					item.setLastetThreadId(joinedThreadIdList.get(0));
 				}
+			});
+			targetList.sort((b,a)->{
+				return a.getLastetThreadId().compareTo(b.getLastetThreadId());
 			});
 			group.setList(targetList);
 			//总数

@@ -13,4 +13,6 @@ public class MessageThreadGroupItem {
 	
 	private Integer totalCount; //所有的总数
 	
+	private Long lastetThreadId; //最后一个发送的threadId
+	
 }

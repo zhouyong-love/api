@@ -49,7 +49,7 @@ public class UCMessageApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping("/{threadId}/message")
-	@ApiOperation(value = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复, threadId为空时，后端自动生成，to的id必传，anonymous=true表示匿名留言",
+	@ApiOperation(value = "发送私信或者留言",
 	notes = "添加消息-type=UCMessageType 1 认可消息 2 私信 3 留言 4 留言公开回复 5 留言私密回复，threadId为空时，后端自动生成，to的id必传，anonymous=true表示匿名留言")
 	@Loggable(input=LogSwitch.OFF)
 	public Response sendMessage(@PathVariable("threadId") Long threadId,
@@ -79,7 +79,7 @@ public class UCMessageApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/interaction")
-	@ApiOperation(value = "查询member的互动消息列表-memberId就是名片详情页的那个member的id （别人的名片或者自己的名片）", notes = "查询member的互动消息列表")
+	@ApiOperation(value = "查询member的互动消息列表）", notes = "查询member的互动消息列表-memberId就是名片详情页的那个member的id （别人的名片或者自己的名片")
 	@Loggable
 	public Response searchInteractionMessages(
 			@RequestParam(name = "memberId",required = false) Long memberId,
@@ -94,7 +94,7 @@ public class UCMessageApi {
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/interaction/{type}")
-	@ApiOperation(value = "查发送给我的和回复给我的留言 viewType=1 我收到的 viewType=2,read=1 表示自动读 回复我的", notes = "查发送给我的和回复给我的留言")
+	@ApiOperation(value = "查发送给我的和回复给我的留言", notes = "查发送给我的和回复给我的留言 viewType=1 我收到的 viewType=2,read=1 表示自动读 回复我的")
 	@Loggable
 	public Response searchMyInteractionMessageThreads(
 			@PathVariable(name = "type") Integer viewType,
@@ -108,6 +108,18 @@ public class UCMessageApi {
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/interaction/{type}/group")
+	@ApiOperation(value = "查发送给我的和回复给我的留言统计", notes = "发送给我的和回复给我的留言 viewType=1 我收到的 viewType=2 回复我的")
+	@Loggable
+	public Response searchMyInteractionMessageThreadsGroup(@PathVariable(name = "type") Integer viewType) {
+		if(viewType != null && viewType != 1 && viewType !=2 ) {
+			viewType = 1;
+		}
+		return Response.buildSuccess(messageThreadService.searchMyInteractionMessageThreadsGroup(viewType));
+	}
+
+	
+	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/chats")
 	@ApiOperation(value = "查询私信列表", notes = "查询私信列表")
 	@Loggable
@@ -120,7 +132,7 @@ public class UCMessageApi {
 	
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/chats/{memberId}")
-	@ApiOperation(value = "查询与某一个人的私信--点击头像等进入与某一个人的私信聊天，要先获取与这个人的私信thread与最新的n条信息", notes = "查询与某一个人的私信")
+	@ApiOperation(value = "查询与某一个人的私信", notes = "查询与某一个人的私信--点击头像等进入与某一个人的私信聊天，要先获取与这个人的私信thread与最新的n条信息")
 	@Loggable
 	public Response getMessageThreadByMemberId(
 			@RequestParam(name = "read",required = false) Integer read,

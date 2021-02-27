@@ -68,6 +68,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 
 	private double calcMemberWIScore(WholeMemberDTO member) {
 		double score = 0;
+		boolean onlyBaseInfo  = true;
 		if(member.getAvatar() != null) {
 			score = score + 10;
 		}
@@ -83,6 +84,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 //		填写了一段研究经历：有研究方向+2分，有项目课题+3分(项目课题可能为空)，有自定义描述 + min(5, 描述字数/3)
 //		填写多段研究经历一样加分，封顶20分；
 		if(!CollectionUtils.isEmpty(member.getResearchList())) {
+			onlyBaseInfo = false;
 			double temScore = 0;
 			for(ResearchExperienceVO vo : member.getResearchList()) {
 				temScore = temScore + (vo.getDomain()==null ? 0 : 2)+ (StringUtils.isEmpty(vo.getDescription()) ? 0 : Math.min(5, vo.getDescription().length()/3));
@@ -93,6 +95,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 //		填多段实习经历一样加分，封顶30分；
 		
 		if(!CollectionUtils.isEmpty(member.getInternshipList())) {
+			onlyBaseInfo = false;
 			double temScore = 0;
 			for(InternshipExperienceVO vo : member.getInternshipList()) {
 				temScore = temScore + (vo.getCompany()==null ? 0 : 3)+ (vo.getJob() ==null ? 0 : 2) + (StringUtils.isEmpty(vo.getDescription()) ? 0 : Math.min(5, vo.getDescription().length()/3));
@@ -103,6 +106,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 //		填写了一段活动经历：有组织或角色+3分，有自定义描述 + min(3, 描述字数/3)；
 //		填多段活动经历一样加分，封顶10分；
 		if(!CollectionUtils.isEmpty(member.getProjectList())) {
+			onlyBaseInfo = false;
 			double temScore = 0;
 			for(ProjectExperienceVO vo : member.getProjectList()) {
 				temScore = temScore + ( !StringUtils.isEmpty(vo.getName()) || !StringUtils.isEmpty(vo.getJob()) ? 3 : 0)
@@ -114,14 +118,19 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 //		选一个标签+2分，有自定义描述 + min(3, 描述字数/3)；
 //		选多个标签一样加分，封顶25分；
 		if(!CollectionUtils.isEmpty(member.getTagsList())) {
+			onlyBaseInfo = false;
 			double temScore = 0;
 			for(MemberTagsVO vo : member.getTagsList()) {
 				temScore = temScore  + 2   + (StringUtils.isEmpty(vo.getDescription()) ? 0 : Math.min(3, vo.getDescription().length()/3));
 			}
 			score = score + Math.min(temScore, 25);
 		}
-		
-		return score > 100 ? 100 : score;
+		score =  score > 100 ? 100 : score;
+		if(onlyBaseInfo ) {
+			return score-300; //空名片，设置为-300分
+		}else {
+			return score;
+		}
 	}
 
 	private void onMemberUpdateEvent(MemberUpdateEvent event) {
@@ -245,7 +254,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 	
 	public void initScores() {
 		int pageNo = 1;
-		QueryBuilder builder = QueryBuilder.create(MemberMapping.class).and(MemberMapping.WI, QueryOperator.LTE,0).end()
+		QueryBuilder builder = QueryBuilder.create(MemberMapping.class).and(MemberMapping.WI,0).end()
 				.sort(MemberMapping.ID).desc().enablePaging().page(pageNo, 100).end();
 		List<MemberVO> list = this.memberService.list(builder);
 		while(!CollectionUtils.isEmpty(list)) {

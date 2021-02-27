@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import com.cloudok.core.service.IService;
 import com.cloudok.core.vo.Page;
 import com.cloudok.uc.po.MessageThreadPO;
+import com.cloudok.uc.vo.MessageThreadGroup;
 import com.cloudok.uc.vo.MessageThreadVO;
 import com.cloudok.uc.vo.MessageVO;
 
@@ -25,5 +26,7 @@ public interface MessageThreadService extends IService<MessageThreadVO,MessageTh
 	void readed(Long messageId);
 
 	Integer getLatestMessageCount(Long currentUserId);
+
+	MessageThreadGroup searchMyInteractionMessageThreadsGroup(Integer viewType);
 
 }

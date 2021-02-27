@@ -211,7 +211,7 @@ public class MemberApi {
 	
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{type}/friend")
-	@ApiOperation(value = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注", notes = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注")
+	@ApiOperation(value = "查询好友列表", notes = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注")
 	@Loggable
 	public Response friend(@PathVariable("type") Integer type,
 			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
@@ -222,7 +222,7 @@ public class MemberApi {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/suggest")
-	@ApiOperation(value="查询关联用户详细信息 threadId--点击上方按钮的时候生成一次，filterType目前支持 0 不过滤 1 专业 2 实习 3 个性 4 状态",notes="查询关联用户详细信息")
+	@ApiOperation(value="推荐member列表",notes="推荐用户列表，threadId--点击上方按钮的时候生成一次，filterType目前支持 0 不过滤 1 专业 2 实习 3 个性 4 状态")
 	@Loggable
 	public Response suggest(
 			@RequestParam(name = "filterType", required=false) Integer filterType,
@@ -252,7 +252,7 @@ public class MemberApi {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/circle")
-	@ApiOperation(value="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签")
+	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签")
 	@Loggable
 	public Response getMemberCircles(
 			@RequestParam(name = "type", required=true) Integer type,

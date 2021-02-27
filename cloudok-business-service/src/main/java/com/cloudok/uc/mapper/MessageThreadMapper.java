@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.cloudok.core.mapper.IMapper;
+import com.cloudok.uc.po.MessageThreadGroupPO;
 import com.cloudok.uc.po.MessageThreadPO;
 import com.cloudok.uc.po.UnReadCount;
 
@@ -35,4 +36,6 @@ public interface MessageThreadMapper extends IMapper<MessageThreadPO>{
 			@Param("seeOthers")Integer seeOthers,@Param("start")int start, @Param("end")int end);
 
 	public Integer getLatestMessageCount(@Param("memberId")Long currentUserId);
+
+	public List<MessageThreadGroupPO> searchMyInteractionMessageThreadsGroup(@Param("memberId")Long memberId, @Param("viewType")Integer viewType);
 }

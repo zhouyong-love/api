@@ -72,12 +72,4 @@ public class WholeMemberDTO extends LinkMemberVO {
 		}
 		return target;
 	}
-
-	public void setEducationList(List<EducationExperienceVO> educationList) {
-		if(!CollectionUtils.isEmpty(educationList)) {
-			this.educationList = educationList.stream().sorted((a,b)->a.getGrade().compareTo(b.getGrade())).collect(Collectors.toList());
-		}
-	}
-	
-
 }

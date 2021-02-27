@@ -144,7 +144,7 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 	@Override
 	public List<EducationExperienceVO> getByMember(Long currentUserId) {
 		return this.list(QueryBuilder.create(EducationExperienceMapping.class)
-				.and(EducationExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).end());
+				.and(EducationExperienceMapping.MEMBERID, SecurityContextHelper.getCurrentUserId()).end().sort(EducationExperienceMapping.SN).asc());
 	}
 
 	@Override

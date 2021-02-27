@@ -358,20 +358,21 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 						return opt.isPresent() ? opt.get() : null;
 						}).distinct().collect(Collectors.toList()));
 					}
-					//匿名聊天不保留memberId
-					if(UCMessageThreadType.anonymousInteraction.getValue().equals(item.getType())
-							&& !CollectionUtils.isEmpty(item.getMemberList())
-							) {
-						//隐藏头像，图片
-						item.getMemberList().stream().forEach(m -> {
-							//干掉留言人的头像，id，昵称
-							if(!m.getId().equals(item.getOwnerId())) {
-								m.setId(null);
-								m.setNickName(null);
-								m.setAvatar(null);
-							}
-						});
-					}
+//					//匿名聊天不保留memberId
+//					if(UCMessageThreadType.anonymousInteraction.getValue().equals(item.getType())
+//							&& !CollectionUtils.isEmpty(item.getMemberList())
+//							) {
+//						//隐藏头像，图片
+//						item.getMemberList().stream().forEach(m -> {
+//							//干掉留言人的头像，id，昵称
+//							if(!m.getId().equals(item.getOwnerId())) {
+////								m.setId(null);
+//								m.setNickName(null);
+//								m.setAvatar(null);
+//								m.setAvatarUrl(null);
+//							}
+//						});
+//					}
 				});
 			}
 		}

@@ -1298,6 +1298,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		
 		return list;
 	}
+	//查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签
 	@Override
 	public Page<WholeMemberDTO> getMemberCircles(Integer type, Long businessId, Integer pageNo,
 			Integer pageSize) {
@@ -1354,6 +1355,56 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					});
 				});
 			}
+			//查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签
+			memberList.stream().forEach(item ->{
+				switch (type) {
+				case 1: //研究领域 
+					item.setInternshipList(null);
+					item.setProjectList(null);
+					item.setTagsList(null);
+					List<ResearchExperienceVO> researchList = item.getResearchList();
+					if(!CollectionUtils.isEmpty(researchList)) {
+						item.setResearchList(researchList.stream()
+								.filter(r -> r.getDomain() != null)
+								.filter(r -> businessId.equals(r.getDomain().getId())).collect(Collectors.toList()));
+					}
+					break;
+				case 2: //行业
+					item.setProjectList(null);
+					item.setResearchList(null);
+					item.setTagsList(null);
+					List<InternshipExperienceVO> internshipList = item.getInternshipList();
+					if(!CollectionUtils.isEmpty(internshipList)) {
+						item.setInternshipList(internshipList.stream()
+								.filter(r -> r.getIndustry() != null)
+								.filter(r -> businessId.toString().equals(r.getIndustry().getCategory())).collect(Collectors.toList()));
+					}
+					break;
+				case 3://社团
+					item.setInternshipList(null);
+					item.setResearchList(null);
+					item.setTagsList(null);
+					List<ProjectExperienceVO> projectList = item.getProjectList();
+					if(!CollectionUtils.isEmpty(projectList)) {
+						item.setProjectList(projectList.stream()
+								.filter(r -> businessId.toString().equals(r.getCategory())).collect(Collectors.toList()));
+					}
+					break;
+				case 4://个性/状态标签
+					item.setInternshipList(null);
+					item.setProjectList(null);
+					item.setResearchList(null);
+					List<MemberTagsVO> tagsList = item.getTagsList();
+					if(!CollectionUtils.isEmpty(tagsList)) {
+						item.setTagsList(tagsList.stream()
+								.filter(r -> r.getTag() != null)
+								.filter(r -> businessId.equals(r.getTag().getId())).collect(Collectors.toList()));
+					}
+					break;
+				default:
+					break;
+				}
+			});
 			page.setData(memberList);
 		}
 		

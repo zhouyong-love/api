@@ -133,6 +133,7 @@
 		                    AND t.type IN (2 , 3)
 		                    AND m.thread_id = t.id
 		                    AND m.deleted = FALSE
+		                    AND tm.member_id = #{memberId}
 		                    <if test="viewType ==1">
 								 and m.type =  3 and m.member_id != #{memberId}
 							</if>

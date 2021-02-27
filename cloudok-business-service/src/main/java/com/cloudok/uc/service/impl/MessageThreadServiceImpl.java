@@ -480,7 +480,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 			//计算不匿名的数据
 			if(!CollectionUtils.isEmpty(publicList)) {
 				//viewType=1  查memberId，viewType=2 查ownerId，剔除掉匿名的
-				List<Long> memberIdList = list.stream().map(item -> viewType ==1 ? item.getMemberId() : item.getOwnerId())
+				List<Long> memberIdList = publicList.stream().map(item -> viewType ==1 ? item.getMemberId() : item.getOwnerId())
 						.filter(item -> !item.equals(getCurrentUserId()))
 						.distinct().collect(Collectors.toList());
 				publicTargetList = memberIdList.stream().map(item -> {
@@ -490,7 +490,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 					a.setSimpleMemberInfo(info);
 					return a;
 				}).collect(Collectors.toList());
-				Map<Long,List<MessageThreadGroupPO>> map = list.stream().collect(Collectors.groupingBy(viewType ==1 ? MessageThreadGroupPO::getMemberId : MessageThreadGroupPO::getOwnerId));
+				Map<Long,List<MessageThreadGroupPO>> map = publicList.stream().collect(Collectors.groupingBy(viewType ==1 ? MessageThreadGroupPO::getMemberId : MessageThreadGroupPO::getOwnerId));
 				publicTargetList.forEach(item ->{//计算总数，未读数
 					List<MessageThreadGroupPO> joinedThreadList = map.get(item.getSimpleMemberInfo().getId()); //参与的threadList
 					if(!CollectionUtils.isEmpty(joinedThreadList)) {
@@ -498,7 +498,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 						//总参与的thread id数量
 						item.setTotalCount(joinedThreadIdList.size());
 						//因为是一来一回，所以未读数量= 总消息数量*2-thread数量
-						List<MessageThreadGroupPO>  all = list.stream().filter(t -> joinedThreadIdList.contains(t.getThreadId())).collect(Collectors.toList());
+						List<MessageThreadGroupPO>  all = publicList.stream().filter(t -> joinedThreadIdList.contains(t.getThreadId())).collect(Collectors.toList());
 						item.setUnReadCount(item.getTotalCount()* 2- all.size() );
 						joinedThreadIdList.sort((b,a)->{
 							return a.compareTo(b);

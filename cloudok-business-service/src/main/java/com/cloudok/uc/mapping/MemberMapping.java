@@ -32,5 +32,7 @@ public class MemberMapping extends Mapping {
 	public static final Mapping WI = new Mapping("wi", "t.wi");
 	
 	public static final Mapping TI = new Mapping("ti", "t.ti");
+	
+	public static final Mapping profileUpdateTs = new Mapping("profileUpdateTs", "t.profile_update_ts");
 
 }

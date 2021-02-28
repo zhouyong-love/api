@@ -190,6 +190,7 @@
 			</foreach>
 		</if>
 		and u.deleted=false
+		order by u.profile_update_ts desc
 		limit #{offset},#{pageSize}
 	</select>
 	

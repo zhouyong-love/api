@@ -4,9 +4,11 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -244,11 +246,12 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		new Thread(()->{
-			try {
-				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
-			} catch (InterruptedException e) {
-			}
+//			try {
+//				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+//			} catch (InterruptedException e) {
+//			}
 			this.initScores();
+			this.initProfileUpdateTS();
 		}) .start();
 	}
 	
@@ -264,6 +267,96 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 			 pageNo = pageNo + 1;
 			 builder = builder.enablePaging().page(pageNo, 100).end();
 			 list = this.memberService.list(builder);
+		}
+	}
+	
+	public void initProfileUpdateTS() {
+		int pageNo = 1;
+		QueryBuilder builder = QueryBuilder.create(MemberMapping.class).and(MemberMapping.profileUpdateTs,QueryOperator.IE,null).end()
+				.sort(MemberMapping.ID).desc();
+		List<MemberVO> list = this.memberService.list(builder);
+		if(!CollectionUtils.isEmpty(list)) {
+			List<WholeMemberDTO> fullMemberList = this.memberService.getWholeMemberInfo(list.stream().map(item -> item.getId()).distinct().collect(Collectors.toList()));
+			if(!CollectionUtils.isEmpty(fullMemberList)) {
+				fullMemberList.stream().forEach(item ->{
+					Timestamp lastTime = null;
+//					if(item.getId().equals(4388329157914787840L)) {
+//						System.out.println("debugg");
+//					}
+//					if(item.getId().equals(new Long(4388329157914787840L))) {
+//						System.out.println("debugg");
+//					}
+					if(!CollectionUtils.isEmpty(item.getEducationList())) {
+						Optional<Timestamp> opt = item.getEducationList().stream().map(r -> r.getUpdateTs()).max((a,b)-> a.compareTo(b));
+						if(opt.isPresent()) {
+							lastTime = opt.get();
+						}
+					}
+					if(!CollectionUtils.isEmpty(item.getTagsList())) {
+						Optional<Timestamp> opt = item.getTagsList().stream().map(r -> r.getUpdateTs()).max((a,b)-> a.compareTo(b));
+						if(opt.isPresent()) {
+							if(lastTime == null) {
+								lastTime =  opt.get();;
+							}else {
+								lastTime = opt.get().compareTo(lastTime) > 0 ? opt.get() : lastTime;
+							}
+							
+						}
+					}
+					if(!CollectionUtils.isEmpty(item.getResearchList())) {
+						Optional<Timestamp> opt = item.getResearchList().stream().map(r -> r.getUpdateTs()).max((a,b)-> a.compareTo(b));
+						if(opt.isPresent()) {
+							if(lastTime == null) {
+								lastTime =  opt.get();;
+							}else {
+								lastTime = opt.get().compareTo(lastTime) > 0 ? opt.get() : lastTime;
+							}
+						}
+					}
+					if(!CollectionUtils.isEmpty(item.getInternshipList())) {
+						Optional<Timestamp> opt = item.getInternshipList().stream().map(r -> r.getUpdateTs()).max((a,b)-> a.compareTo(b));
+						if(opt.isPresent()) {
+							if(lastTime == null) {
+								lastTime =  opt.get();;
+							}else {
+								lastTime = opt.get().compareTo(lastTime) > 0 ? opt.get() : lastTime;
+							}
+						}
+					}
+					if(!CollectionUtils.isEmpty(item.getProjectList())) {
+						Optional<Timestamp> opt = item.getProjectList().stream().map(r -> r.getUpdateTs()).max((a,b)-> a.compareTo(b));
+						if(opt.isPresent()) {
+							if(lastTime == null) {
+								lastTime =  opt.get();;
+							}else {
+								lastTime = opt.get().compareTo(lastTime) > 0 ? opt.get() : lastTime;
+							}
+						}
+					} 
+					if(lastTime == null) {
+						SysLogVO log =	this.sysLogService.get(QueryBuilder.create(SysLogMapping.class)
+								.and(SysLogMapping.USERID, item.getId())
+								.and(SysLogMapping.REQUESTMETHOD,QueryOperator.NEQ,"GET")
+								.end()
+								.sort(SysLogMapping.ID).desc()
+								);
+						if(log != null) {
+							lastTime = log.getCreateTs();
+						}
+					}
+					if(lastTime == null) {
+						lastTime = item.getCreateTs();
+					}
+					
+					if(lastTime != null) {
+						MemberVO m = new MemberVO();
+						m.setId(item.getId());
+						m.setProfileUpdateTs(lastTime);
+						this.memberService.merge(m);
+					}
+				});
+			}
+			 pageNo = pageNo + 1;
 		}
 	}
 

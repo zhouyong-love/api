@@ -14,14 +14,12 @@ import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.core.vo.Page;
 import com.cloudok.security.SecurityContextHelper;
-import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.event.RecognizedCreateEvent;
 import com.cloudok.uc.event.RecognizedDeleteEvent;
 import com.cloudok.uc.mapper.RecognizedMapper;
 import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.po.RecognizedPO;
 import com.cloudok.uc.service.RecognizedService;
-import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.RecognizedVO;
 
 @Service
@@ -44,7 +42,7 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 		d.setRead(false);
 		RecognizedVO v =  super.create(d);
 		SpringApplicationContext.publishEvent(new RecognizedCreateEvent(v));
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+//		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return v;
 	}
 //	@Override
@@ -73,7 +71,7 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 		}
 		int r = super.remove(id);
 		SpringApplicationContext.publishEvent(new RecognizedDeleteEvent(vo));
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+//		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
 		return r;
 	}
 	@Deprecated

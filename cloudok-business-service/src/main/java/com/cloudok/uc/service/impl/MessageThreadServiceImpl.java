@@ -516,7 +516,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 				 map.forEach((key,value)->{
 					 MessageThreadGroupItem item = new MessageThreadGroupItem();
 					 item.setLastetThreadId(key);
-					 item.setTotalCount(value.size());
+					 item.setTotalCount(1); //只会有一条
 					 item.setUnReadCount(2-value.size()); //总共2条
 					 privateTargetList.add(item);
 				 });

@@ -8,6 +8,6 @@ public interface MessageService extends IService<MessageVO,MessagePO>{
 
 	Integer removeByMember(Long id);
 
-
+	void deleteByThreadId(Long threadId);
 
 }

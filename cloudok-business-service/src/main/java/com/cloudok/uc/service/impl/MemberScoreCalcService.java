@@ -246,10 +246,10 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		new Thread(()->{
-//			try {
-//				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
-//			} catch (InterruptedException e) {
-//			}
+			try {
+				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+			} catch (InterruptedException e) {
+			}
 			this.initScores();
 			this.initProfileUpdateTS();
 		}) .start();

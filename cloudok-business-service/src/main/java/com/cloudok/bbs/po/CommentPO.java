@@ -9,19 +9,10 @@ import lombok.Setter;
 @Setter
 public class CommentPO extends PO {
 
-	private static final long serialVersionUID = 420891551391458800L;
+	private static final long serialVersionUID = 740277632950403700L;
 
 	
 	private String content;
-	
-	
-	private Integer thumbsUpCount;
-	
-	
-	private Integer replyCount;
-	
-	
-	private Integer collectCount;
 	
 	
 	private Long postId;

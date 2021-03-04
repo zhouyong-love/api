@@ -1,8 +1,5 @@
 package com.cloudok.app.api.bbs;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +32,21 @@ public class PostApi {
 	@Autowired
 	private PostService postService;
 	
+
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping
+	@ApiOperation(value = "获取动态可用标签", notes = "获取动态可用标签")
+	@Loggable
+	public Response getTopicList() {
+		return Response.buildSuccess(postService.getTopicList());
+	}
+	
 	@PreAuthorize("isFullyAuthenticated()")
 	@PostMapping
 	@ApiOperation(value = "添加动态、帖子等", notes = "添加动态、帖子等")
 	@Loggable
 	public Response create(@RequestBody @Valid PostVO vo) {
-		return Response.buildSuccess(postService.create(vo));
+		return Response.buildSuccess(postService.createByMember(vo));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
@@ -49,7 +55,7 @@ public class PostApi {
 	@Loggable
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid PostVO vo) {
 		vo.setId(id);
-		return Response.buildSuccess(postService.update(vo));
+		return Response.buildSuccess(postService.updateByMember(vo));
 	}
 
 
@@ -89,8 +95,8 @@ public class PostApi {
 	@GetMapping("/{id}")
 	@ApiOperation(value = "查询动态、帖子等", notes = "查询动态、帖子等")
 	@Loggable
-	public Response modify(@PathVariable("id") Long id) {
-		return Response.buildSuccess(postService.get(id));
+	public Response getDetails(@PathVariable("id") Long id) {
+		return Response.buildSuccess(postService.getDetails(id));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
@@ -106,13 +112,22 @@ public class PostApi {
 	@GetMapping("/discover")
 	@ApiOperation(value = "发现", notes = "发现")
 	@Loggable
-	public Response searchByTopic(@RequestParam("topicIdList") String topicIdList,
+	public Response discover(
 			@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
 			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
-		return Response.buildSuccess(postService.searchByTopic(
-				Arrays.asList(topicIdList.split(",")).stream().map(item -> Long.parseLong(item)).collect(Collectors.toList()),
-				pageNo,
-				pageSize));
+		return Response.buildSuccess(postService.discover(pageNo,pageSize));
 	}
  
+
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/")
+	@ApiOperation(value = "动态云圈", notes = "动态云圈")
+	@Loggable
+	public Response getPostsByTopic(
+			@PathVariable("topicId") Long topicId,
+			@PathVariable("topicType") Integer topicType,
+			@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
+			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
+		return Response.buildSuccess(postService.getPostsByTopic(topicId,topicType,pageNo,pageSize));
+	}
 }

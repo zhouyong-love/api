@@ -251,7 +251,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 //			} catch (InterruptedException e) {
 //			}
 			this.initScores();
-			this.initProfileUpdateTS();
+//			this.initProfileUpdateTS();
 		}) .start();
 	}
 	

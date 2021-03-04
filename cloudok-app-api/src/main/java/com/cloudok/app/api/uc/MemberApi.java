@@ -166,10 +166,10 @@ public class MemberApi {
 	
 	
 	@PreAuthorize("isFullyAuthenticated()")
-	@GetMapping("/{memberId}/bbs")
+	@GetMapping("/{memberId}/posts")
 	@ApiOperation(value = "查询某一个人的动态列表", notes = "查询某一个人的动态列表")
 	@Loggable
-	public Response search(@PathVariable("memberId") Long memberId,HttpServletRequest request) {
+	public Response getPostsByMemberId(@PathVariable("memberId") Long memberId,HttpServletRequest request) {
 		QueryBuilder query = QueryBuilder.create(com.cloudok.bbs.mapping.PostMapping.class).with(request);
 		query.and(com.cloudok.bbs.mapping.PostMapping.CREATEBY,  memberId);
 		return Response.buildSuccess(postService.page(query));
@@ -261,7 +261,7 @@ public class MemberApi {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/circle")
-	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签")
+	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性 5状态标签")
 	@Loggable
 	public Response getMemberCircles(
 			@RequestParam(name = "type", required=true) Integer type,

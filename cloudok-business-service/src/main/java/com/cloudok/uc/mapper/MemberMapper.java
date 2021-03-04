@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import com.cloudok.core.mapper.IMapper;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.uc.po.LinkMemberPO;
+import com.cloudok.uc.po.MemberCirclePO;
 import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.po.SuggsetMemberScorePO;
 
@@ -34,7 +35,7 @@ public interface MemberMapper extends IMapper<MemberPO>{
 
 	Long getMemberCirclesCount(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer type,@Param("businessId") Long businessId);
 	
-	List<Long> getMemberCirclesList(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer type,@Param("businessId") Long businessId,
+	List<MemberCirclePO> getMemberCirclesList(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer type,@Param("businessId") Long businessId,
 			@Param("offset") Integer offset,
 			@Param("pageSize") Integer pageSize);
 	

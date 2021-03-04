@@ -1,8 +1,15 @@
 package com.cloudok.bbs.mapper;
 
-import com.cloudok.core.mapper.IMapper;
-import com.cloudok.bbs.po.CommentPO;
+import java.util.List;
 
-public interface CommentMapper extends IMapper<CommentPO>{
+import org.apache.ibatis.annotations.Param;
+
+import com.cloudok.bbs.po.CommentPO;
+import com.cloudok.core.mapper.IMapper;
+
+public interface CommentMapper extends IMapper<CommentPO> {
+
+	List<CommentPO> getMyRecognizedComments(@Param("currentUserId") Long currentUserId,
+			@Param("postIdList") List<Long> postIdList, @Param("maxSize") int maxSize);
 
 }

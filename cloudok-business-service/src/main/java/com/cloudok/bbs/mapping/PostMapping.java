@@ -14,5 +14,10 @@ public class PostMapping extends Mapping {
 	public static final Mapping REPLYCOUNT = new Mapping("replyCount", "t.reply_count");
 
 	public static final Mapping COLLECTCOUNT = new Mapping("collectCount", "t.collect_count");
+	
+	public static final Mapping topicId = new Mapping("topicId", "t.topic_id");
+	
+	public static final Mapping topicType = new Mapping("topicType", "t.topic_type");
+	
 
 }

@@ -50,18 +50,6 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	MemberVO fillAccountInfo(@Valid MemberVO vo);
 	
-	WholeMemberDTO  getWholeMemberInfo(Long memberId);
-	 
-	List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList);
-	
-	List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList);
-	
-	List<WholeMemberDTO> getWholeMemberInfo(List<? extends MemberVO> memberIdList,boolean ignoreRecognized);
-	
-//	Page<WholeMemberDTO> link(QueryBuilder builder);
-//	
-//	WholeMemberDTO link(Long id);
-	
 	SimpleMemberDTO getSimpleMemberInfo();
 	
 	IdenticalCountVO identical(Long id);
@@ -73,14 +61,24 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 		private int tags;
 	}
 
-	MemberVO getMemberDetails(Long memberId);
+	
 
 	Page<WholeMemberDTO> suggest(Integer filterType,String threadId,  Integer pageNo, Integer pageSize);
 
-	Page<WholeMemberDTO> friend(Integer type, Integer pageNo, Integer pageSize);
+	Page<SimpleMemberInfo> friend(Integer type, Integer pageNo, Integer pageSize);
 
-	Page<WholeMemberDTO>  getSecondDegreeRecognized(Long memberId, Integer pageNo, Integer pageSize);
+	Page<SimpleMemberInfo>  getSecondDegreeRecognized(Long memberId, Integer pageNo, Integer pageSize);
 
 	Page<WholeMemberDTO> getMemberCircles(Integer type, Long businessId, Integer pageNo, Integer pageSize);
+	
+	MemberVO getMemberDetails(Long memberId);
+	
+	WholeMemberDTO  getWholeMemberInfo(Long memberId);
+	
+	WholeMemberDTO  getWholeMemberInfo(Long memberId,boolean includeSecurityInfo);
+	 
+	List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList);
+	
+	List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList);
 
 }

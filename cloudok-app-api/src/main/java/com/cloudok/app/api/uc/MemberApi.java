@@ -116,7 +116,7 @@ public class MemberApi {
 	@ApiOperation(value="get current full user info",notes="get current full user info")
 	@Loggable
 	public Response fullUserInfo() {
-		return Response.buildSuccess(memberService.getWholeMemberInfo(SecurityContextHelper.getCurrentUserId()));
+		return Response.buildSuccess(memberService.getWholeMemberInfo(SecurityContextHelper.getCurrentUserId(),true));
 	}
 	
 	@PostMapping("/exists/username")

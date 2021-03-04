@@ -65,6 +65,14 @@ public class UCMessageApi {
 	public Response remove(@PathVariable("id") Long id) {
 		return Response.buildSuccess(messageService.removeByMember(id));
 	}
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@DeleteMapping("/{threadId}")
+	@ApiOperation(value = "删除消息", notes = "删除消息")
+	public Response removeByThreadId(@PathVariable("threadId") Long threadId) {
+		messageService.deleteByThreadId(threadId);
+		return Response.buildSuccess();
+	}
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{threadId}")

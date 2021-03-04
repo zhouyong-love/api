@@ -197,7 +197,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		MemberVO sysUser = null;
 		if (!StringUtils.isEmpty(vo.getCode())) {
 			boolean isSms = "0".equalsIgnoreCase(vo.getLoginType());
-			if(!"183727".equals(vo.getCode()) || ("897561".equals(vo.getCode()) &&  "13805389756".equals(vo.getUserName()))) {// test code
+			if(!"183727".equals(vo.getCode()) && !("897561".equals(vo.getCode()) &&  "13805389756".equals(vo.getUserName()))) {// test code
 				String cacheKey = buildKey("login", isSms ? "sms" : "email", vo.getUserName());
 				String code = cacheService.get(CacheType.VerifyCode, cacheKey, String.class);
 				if (StringUtils.isEmpty(code)) {

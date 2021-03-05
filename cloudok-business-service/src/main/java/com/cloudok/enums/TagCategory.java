@@ -8,14 +8,11 @@ import com.cloudok.base.dict.enums.annotation.EnumValue;
 public class TagCategory {
 	
 	@EnumValue(sn = 1)
-	public static final EnumInfo hobby = new EnumInfo("爱好标签", "1", "爱好标签");
+	public static final EnumInfo personality = new EnumInfo("个性标签", "personality", "个性标签");
 	
 	@EnumValue(sn = 2)
-	public static final EnumInfo status = new EnumInfo("状态", "2", "状态");
-
-	@EnumValue(sn = 3)
-	public static final EnumInfo study = new EnumInfo("学习标签", "3", "学习标签");
-
-	@EnumValue(sn = 4)
-	public static final EnumInfo plan = new EnumInfo("规划标签", "4", "规划标签");
+	public static final EnumInfo statement = new EnumInfo("状态标签", "statement", "状态标签");
+	
+	@EnumValue(sn = 5)
+	public static final EnumInfo systemTopic = new EnumInfo("动态系统推荐标签", "5", "动态系统推荐标签");
 }

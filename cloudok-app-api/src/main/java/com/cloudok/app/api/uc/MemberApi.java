@@ -210,14 +210,14 @@ public class MemberApi {
 		return Response.buildSuccess(memberService.getSimpleMemberInfo());
 	}
 	
-	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/identical/{id}")
-	@ApiOperation(value="获取共同的好友和标签",notes="获取共同的好友和标签")
-	@Loggable
-	public Response identical(@PathVariable("id")Long id) {
-		return Response.buildSuccess(memberService.identical(id));
-	}
-	
+//	@PreAuthorize("isAuthenticated()")
+//	@GetMapping("/identical/{id}")
+//	@ApiOperation(value="获取共同的好友和标签",notes="获取共同的好友和标签")
+//	@Loggable
+//	public Response identical(@PathVariable("id")Long id) {
+//		return Response.buildSuccess(memberService.identical(id));
+//	}
+//	
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{type}/friend")
 	@ApiOperation(value = "查询好友列表", notes = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注")
@@ -229,16 +229,26 @@ public class MemberApi {
 	}
 	
 	
+//	@PreAuthorize("isAuthenticated()")
+//	@GetMapping("/suggest")
+//	@ApiOperation(value="推荐member列表",notes="推荐用户列表，threadId--点击上方按钮的时候生成一次，filterType目前支持 0 不过滤 1 专业 2 实习 3 个性 4 状态")
+//	@Loggable
+//	public Response suggest(
+//			@RequestParam(name = "filterType", required=false) Integer filterType,
+//			@RequestParam(name = "threadId", required=false) String threadId,
+//			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+//			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+//		return Response.buildSuccess(memberService.suggest(filterType,threadId,pageNo,pageSize));
+//	}
+	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/suggest")
-	@ApiOperation(value="推荐member列表",notes="推荐用户列表，threadId--点击上方按钮的时候生成一次，filterType目前支持 0 不过滤 1 专业 2 实习 3 个性 4 状态")
+	@ApiOperation(value="推荐member列表",notes="一天最多刷新5次，默认取当天最后一次推荐的n条，带refresh=true才去刷新下一组，filterType=0,1,2,3 0不过滤 1 按专业 2 按行业 3 按同好")
 	@Loggable
-	public Response suggest(
-			@RequestParam(name = "filterType", required=false) Integer filterType,
-			@RequestParam(name = "threadId", required=false) String threadId,
-			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
-			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
-		return Response.buildSuccess(memberService.suggest(filterType,threadId,pageNo,pageSize));
+	public Response suggestV2(
+			@RequestParam(name = "filterType", required=false,defaultValue="0") Integer filterType,
+			@RequestParam(name = "refresh", required=false,defaultValue="false") Boolean refresh) {
+		return Response.buildSuccess(memberService.suggestV2(filterType,refresh));
 	}
 	
 	@PreAuthorize("isAuthenticated()")

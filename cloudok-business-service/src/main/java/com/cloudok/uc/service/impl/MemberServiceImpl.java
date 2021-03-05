@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,6 @@ import com.cloudok.uc.event.MemberCreateEvent;
 import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.event.ViewMemberDetailEvent;
 import com.cloudok.uc.mapper.MemberMapper;
-import com.cloudok.uc.mapper.MemberTagsMapper;
 import com.cloudok.uc.mapping.EducationExperienceMapping;
 import com.cloudok.uc.mapping.FirendMapping;
 import com.cloudok.uc.mapping.InternshipExperienceMapping;
@@ -68,9 +68,8 @@ import com.cloudok.uc.mapping.MemberTagsMapping;
 import com.cloudok.uc.mapping.ProjectExperienceMapping;
 import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.mapping.ResearchExperienceMapping;
-import com.cloudok.uc.po.LinkMemberPO;
 import com.cloudok.uc.po.MemberPO;
-import com.cloudok.uc.po.MemberTagsPO;
+import com.cloudok.uc.po.MemberSuggestScore;
 import com.cloudok.uc.po.SuggsetMemberScorePO;
 import com.cloudok.uc.service.EducationExperienceService;
 import com.cloudok.uc.service.FirendService;
@@ -94,9 +93,11 @@ import com.cloudok.uc.vo.ProjectExperienceVO;
 import com.cloudok.uc.vo.RecognizedVO;
 import com.cloudok.uc.vo.ResearchExperienceVO;
 import com.cloudok.uc.vo.SingupVO;
+import com.cloudok.uc.vo.SuggestResult;
 import com.cloudok.uc.vo.TokenVO;
 import com.cloudok.uc.vo.UserCheckRequest;
 import com.cloudok.uc.vo.VerifyCodeRequest;
+import com.cloudok.util.DateTimeUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -813,6 +814,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 
 	@Override
 	public List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList) {
+		Long currentId = getCurrentUserId();
 		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
 		List<SimpleMemberInfo> memberList = this.get(memberIdList).stream().map(item -> {
 			SimpleMemberInfo dto = new SimpleMemberInfo();
@@ -820,6 +822,30 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			return dto;
 		}).collect(Collectors.toList());
 		if (!CollectionUtils.isEmpty(memberList)) {
+			//处理关注信息
+			//谁关注了我和我关注了谁
+			List<RecognizedVO> recognizedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.TARGETID, currentId)
+					.and(RecognizedMapping.SOURCEID, QueryOperator.IN,memberIdList)
+					.end()
+					.or(RecognizedMapping.SOURCEID, currentId)
+					.and(RecognizedMapping.TARGETID, QueryOperator.IN,memberIdList)
+					.end()
+					.sort(RecognizedMapping.CREATETIME).desc());
+			
+			memberList.forEach(item -> {
+				item.setFrom(false);
+				item.setTo(false);
+				//他是否关注了我  （这个member是否关注了当前登录用户）
+				recognizedList.stream().filter( a -> a.getSourceId().equals(item.getId()) && a.getTargetId().equals(currentId) ).findAny().ifPresent(a -> {
+					item.setFrom(true);
+				});
+				//我是否关注了他
+				recognizedList.stream().filter( a -> a.getTargetId().equals(item.getId())  && currentId.equals(a.getSourceId()) ).findAny().ifPresent(a -> {
+					item.setTo(true);
+				});
+			});
+			
 			List<AttachVO> attachs = AttachRWHandle.sign(memberList.stream().filter(item -> item.getAvatar() != null)
 					.map(item -> item.getAvatar()).distinct().collect(Collectors.toList()));
 			if(!CollectionUtils.isEmpty(attachs)) {
@@ -831,8 +857,8 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			}
 			educationExperienceService
 					.list(QueryBuilder.create(EducationExperienceMapping.class)
-							.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end()
-							.sort(EducationExperienceMapping.SN).asc())
+					.and(EducationExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end()
+					.sort(EducationExperienceMapping.SN).asc())
 					.stream().collect(Collectors.groupingBy(EducationExperienceVO::getMemberId))
 					.forEach((memberId, valueList) -> {
 						if(!CollectionUtils.isEmpty(valueList)) {
@@ -886,28 +912,28 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	}
 	
 
-	@Autowired
-	private MemberTagsMapper memberTagsMapper;
-	
-	@Override
-	public IdenticalCountVO identical(Long id) {
-		IdenticalCountVO vo=new IdenticalCountVO();
-		List<LinkMemberPO> linkMemberPOs = repository.queryFriends(QueryBuilder.create(MemberMapping.class).addParameter("memberId", id));
-		if(!CollectionUtils.isEmpty(linkMemberPOs)) {
-			List<LinkMemberPO> linkMemberPOs1 = repository.queryFriends(QueryBuilder.create(MemberMapping.class).addParameter("memberId", getCurrentUserId()));
-			if(!CollectionUtils.isEmpty(linkMemberPOs1)) {
-				vo.setFriends((int)linkMemberPOs.stream().filter(item->linkMemberPOs1.stream().filter(item1->item1.getId().equals(item.getId())).findAny().isPresent()).count());
-			}
-		}
-		List<MemberTagsPO> mtags1 = memberTagsMapper.select(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.MEMBERID, id).end());
-		if(!CollectionUtils.isEmpty(mtags1)) {
-			List<MemberTagsPO> mtags2 = memberTagsMapper.select(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.MEMBERID, getCurrentUserId()).end());
-			if(!CollectionUtils.isEmpty(mtags2)) {
-				vo.setTags((int)mtags1.stream().filter(item->mtags1.stream().filter(item1->item1.getTagId().equals(item.getTagId())).findAny().isPresent()).count());
-			}
-		}
-		return vo;
-	}
+//	@Autowired
+//	private MemberTagsMapper memberTagsMapper;
+//	
+//	@Override
+//	public IdenticalCountVO identical(Long id) {
+//		IdenticalCountVO vo=new IdenticalCountVO();
+//		List<LinkMemberPO> linkMemberPOs = repository.queryFriends(QueryBuilder.create(MemberMapping.class).addParameter("memberId", id));
+//		if(!CollectionUtils.isEmpty(linkMemberPOs)) {
+//			List<LinkMemberPO> linkMemberPOs1 = repository.queryFriends(QueryBuilder.create(MemberMapping.class).addParameter("memberId", getCurrentUserId()));
+//			if(!CollectionUtils.isEmpty(linkMemberPOs1)) {
+//				vo.setFriends((int)linkMemberPOs.stream().filter(item->linkMemberPOs1.stream().filter(item1->item1.getId().equals(item.getId())).findAny().isPresent()).count());
+//			}
+//		}
+//		List<MemberTagsPO> mtags1 = memberTagsMapper.select(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.MEMBERID, id).end());
+//		if(!CollectionUtils.isEmpty(mtags1)) {
+//			List<MemberTagsPO> mtags2 = memberTagsMapper.select(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.MEMBERID, getCurrentUserId()).end());
+//			if(!CollectionUtils.isEmpty(mtags2)) {
+//				vo.setTags((int)mtags1.stream().filter(item->mtags1.stream().filter(item1->item1.getTagId().equals(item.getTagId())).findAny().isPresent()).count());
+//			}
+//		}
+//		return vo;
+//	}
 
 	
 	@Override
@@ -932,11 +958,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					member.setFrom(true);
 				});
 			}
+			//数据权限过滤
+			this.filter(Arrays.asList(member));
 		}
 		if(!SecurityContextHelper.getCurrentUserId().equals(memberId)) {
 			SpringApplicationContext.publishEvent(new ViewMemberDetailEvent( Pair.of(currentUserId,memberId)));
 		}
-		//当前不做数据权限过滤，后期会根据人脉网络去处理数据
 		return member;
 	}
 	@Autowired
@@ -1089,21 +1116,6 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		BeanUtils.copyProperties(page, resultPage);
 		if(!CollectionUtils.isEmpty(page.getData())) {
 			List<SimpleMemberInfo> memberList = this.getSimpleMemberInfo(page.getData().stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
-			
-			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
-					.and(RecognizedMapping.TARGETID, currentUserId)
-					.and(RecognizedMapping.SOURCEID, QueryOperator.IN,page.getData().stream().map(item -> item.getTargetId()).collect(Collectors.toList()))
-					.end()
-					.sort(RecognizedMapping.CREATETIME).desc());
-					
-			memberList.forEach(item -> {
-				item.setFrom(false);
-				item.setTo(true);
-				//他是否关注了我  （这个member是否关注了当前登录用户）
-				list.stream().filter( a -> a.getSourceId().equals(item.getId())).findAny().ifPresent(a -> {
-					item.setFrom(true);
-				});
-			});
 			List<SimpleMemberInfo> resultList = page.getData().stream().map( item ->{
 				return memberList.stream().filter(m -> m.getId().equals(item.getTargetId())).findAny().get();
 			}).collect(Collectors.toList());
@@ -1151,21 +1163,6 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		BeanUtils.copyProperties(page, resultPage);
 		if(!CollectionUtils.isEmpty(page.getData())) {
 			List<SimpleMemberInfo> memberList = this.getSimpleMemberInfo(page.getData().stream().map(item -> item.getSourceId()).collect(Collectors.toList()));
-			//查我关注的
-			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
-					.and(RecognizedMapping.SOURCEID, currentUserId)
-					.and(RecognizedMapping.TARGETID, QueryOperator.IN,page.getData().stream().map(item -> item.getSourceId()).collect(Collectors.toList()))
-					.end()
-					.sort(RecognizedMapping.CREATETIME).desc());
-			memberList.forEach(item -> {
-				item.setTo(false);
-				item.setFrom(true);
-				//我是否关注了他
-				list.stream().filter( a -> a.getTargetId().equals(item.getId())).findAny().ifPresent(a -> {
-					item.setTo(true);
-				});
-				
-			});
 			List<SimpleMemberInfo> resultList = page.getData().stream().map( item ->{
 				return memberList.stream().filter(m -> m.getId().equals(item.getSourceId())).findAny().get();
 			}).collect(Collectors.toList());
@@ -1195,21 +1192,6 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		BeanUtils.copyProperties(page, resultPage);
 		if(!CollectionUtils.isEmpty(page.getData())) {
 			List<SimpleMemberInfo> memberList = this.getSimpleMemberInfo(page.getData().stream().map(item -> item.getSourceId()).collect(Collectors.toList()));
-			//查我关注的
-			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
-					.and(RecognizedMapping.SOURCEID, currentUserId)
-					.and(RecognizedMapping.TARGETID, QueryOperator.IN,page.getData().stream().map(item -> item.getSourceId()).collect(Collectors.toList()))
-					.end()
-					.sort(RecognizedMapping.CREATETIME).desc());
-					
-			memberList.forEach(item -> {
-				item.setTo(false);
-				//我是否关注了他
-				list.stream().filter( a -> a.getTargetId().equals(item.getId())).findAny().ifPresent(a -> {
-					item.setTo(true);
-				});
-				item.setFrom(true);
-			});
 			List<SimpleMemberInfo> resultList = page.getData().stream().map( item ->{
 				Optional<SimpleMemberInfo> opt=memberList.stream().filter(m -> m.getId().equals(item.getSourceId())).findAny();
 				return opt.isPresent()?opt.get():null;
@@ -1236,21 +1218,6 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		BeanUtils.copyProperties(page, resultPage);
 		if(!CollectionUtils.isEmpty(page.getData())) {
 			List<SimpleMemberInfo> memberList = this.getSimpleMemberInfo(page.getData().stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
-			//查我关注的
-			List<RecognizedVO> list = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
-					.and(RecognizedMapping.TARGETID, currentUserId)
-					.and(RecognizedMapping.SOURCEID, QueryOperator.IN,page.getData().stream().map(item -> item.getTargetId()).collect(Collectors.toList()))
-					.end()
-					.sort(RecognizedMapping.CREATETIME).desc());
-					
-			memberList.forEach(item -> {
-				item.setFrom(false);
-				item.setTo(true);
-				//他是否关注了我  （这个member是否关注了当前登录用户）
-				list.stream().filter( a -> a.getSourceId().equals(item.getId())).findAny().ifPresent(a -> {
-					item.setFrom(true);
-				});
-			});
 			List<SimpleMemberInfo> resultList = page.getData().stream().map( item ->{
 				return memberList.stream().filter(m -> m.getId().equals(item.getTargetId())).findAny().get();
 			}).collect(Collectors.toList());
@@ -1369,15 +1336,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					.end());
 			if(!CollectionUtils.isEmpty(recoginzedList)) {
 				memberList.stream().forEach(member -> {
-					recoginzedList.stream().filter(item -> 
-					   item.getSourceId().equals(currentUserId)
-					&& item.getTargetId().equals(member.getId())
-							).findAny().ifPresent(item ->{
+					recoginzedList.stream().filter(item -> item.getSourceId().equals(currentUserId)
+					&& item.getTargetId().equals(member.getId())).findAny().ifPresent(item ->{
 						member.setTo(true);
 					});
 					recoginzedList.stream().filter(item ->
-					item.getTargetId().equals(currentUserId)
-					&& item.getSourceId().equals(member.getId())
+					item.getTargetId().equals(currentUserId)&& item.getSourceId().equals(member.getId())
 							).findAny().ifPresent(item ->{
 						member.setFrom(true);
 					});
@@ -1438,8 +1402,118 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		
 		return page;
 	}
+	private static final int SUGGEST_MEMBER_SIZE = 3;
+	private static final int SUGGEST_MEMBER_TIMES_LIMIT = 5;
+	@Override
+	public SuggestResult suggestV2(Integer filterType, Boolean refresh) {
+		Long currentUserId = getCurrentUserId();
+		List<Long> memberIdList = null;
+		String key = currentUserId+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
+		Integer times  = cacheService.get(CacheType.SuggestRefreshTimes,key , Integer.class);
+		if(refresh != null && refresh) {
+			if(times == null) {
+				times = 1;
+				refresh = true; //强制重写为true
+			}else {
+				times = times +1;
+			}
+			if(times>SUGGEST_MEMBER_TIMES_LIMIT) {
+				throw new SystemException("一天最多只能刷新"+SUGGEST_MEMBER_TIMES_LIMIT+"次",CloudOKExceptionMessage.REFRESH_TIMES_LIMIT); 
+			}
+			//缓存一天
+			cacheService.put(CacheType.SuggestRefreshTimes, key, times,1,TimeUnit.DAYS);
+		}
+		//获取今日已经关注的
+		String day = DateTimeUtil.formatyyyyMMdd(new Date());
+		List<RecognizedVO>  recognizedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
+				.and(RecognizedMapping.CREATETIME, QueryOperator.GTE,day+" 00:00:00")
+				.and(RecognizedMapping.CREATETIME, QueryOperator.LTE,day+" 23:59:59")
+				.end()
+		);
+		List<Long> recognizedIdList = recognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
+		List<Long> execuldeIdList = new ArrayList<Long>();
+		List<MemberSuggestScore> suggestList = null;
+		//排除今天已经关注了的
+		if(!CollectionUtils.isEmpty(recognizedIdList)) {
+			execuldeIdList.addAll(recognizedIdList);
+		}
+		//防止意外把自己也给加进去了
+		execuldeIdList.add(currentUserId);
+		if(!refresh) {
+			//取最新推荐的三条
+			suggestList = this.repository.getLastestSuggest(currentUserId,day,SUGGEST_MEMBER_SIZE);
+			if(CollectionUtils.isEmpty(suggestList) ) { //第一次进来
+				return this.suggestV2(filterType, true); //重新调用这个函数，改写refresh
+			}
+		}else{
+			suggestList = this.suggest(currentUserId, execuldeIdList, filterType);
+			//经历二次回退后，还是没有数据，则表示所有数据都已经推荐过了，重置推荐记录
+			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < SUGGEST_MEMBER_SIZE) { 
+				this.repository.resetSuggestStatus(currentUserId);
+			}
+			if(!CollectionUtils.isEmpty(suggestList)) {
+				execuldeIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+			}
+			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < SUGGEST_MEMBER_SIZE) { 
+				//重新推荐,可能还是有问题，再回退
+				List<MemberSuggestScore>  suggestListTwo = this.repository.suggestNew(execuldeIdList,currentUserId,filterType,null,SUGGEST_MEMBER_SIZE-suggestList.size());
+				suggestList.addAll(suggestListTwo);
+			}
+			//极端情况，他一天关注了所有人。。
+			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < SUGGEST_MEMBER_SIZE) { 
+				execuldeIdList.clear();
+				execuldeIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+				execuldeIdList.add(currentUserId);
+				List<MemberSuggestScore>  suggestListThree = this.repository.suggestNew(execuldeIdList,currentUserId,filterType,null,SUGGEST_MEMBER_SIZE-suggestList.size());
+				//这次铁定不会再有问题
+				suggestList.addAll(suggestListThree);
+			}
+		}
+		if(!CollectionUtils.isEmpty(suggestList)) {
+			List<Long> newSuggestIdList = suggestList.stream().filter(item -> item.getSuggestTs() == null).map(item -> item.getTargetId()).collect(Collectors.toList());
+			if(!CollectionUtils.isEmpty(newSuggestIdList)) {
+				this.repository.markAsSuggested(currentUserId, newSuggestIdList);
+			}
+			
+		}
+		memberIdList = suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList());
+		List<Long> resultMemberIdList = memberIdList.stream().filter(item -> !recognizedIdList.contains(item)).collect(Collectors.toList());
+		SuggestResult result = SuggestResult.builder().times(times).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList))
+				.suggestList(this.filter(this.getWholeMemberInfo(resultMemberIdList))).build();		
+		//把分数返回
+		if(CollectionUtils.isEmpty(result.getSuggestList())) {
+			suggestList.stream().forEach(a -> {
+				result.getSuggestList().stream().filter(item -> a.getTargetId().equals(item.getId())).findAny().ifPresent(item -> {
+					item.setScore(a.getScore());
+				});
+			});
+		}
+		return result;
+	}
 	
-	private void filter(List<WholeMemberDTO> list) {
+	private List<MemberSuggestScore> suggest(Long currentUserId,List<Long> execuldeIdList,Integer filterType){
+		//第一次推荐，最严格过滤
+		List<MemberSuggestScore> suggestList = this.repository.suggestNew(execuldeIdList,currentUserId,filterType,null,SUGGEST_MEMBER_SIZE);
+		if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < SUGGEST_MEMBER_SIZE) { //数据不够，开始回退
+			if(filterType != null) {
+				//第一次回退
+				List<MemberSuggestScore> fallbackOne =  this.repository.suggestNew(execuldeIdList,currentUserId,filterType,1,SUGGEST_MEMBER_SIZE-suggestList.size()); //1次回退
+				if(!CollectionUtils.isEmpty(fallbackOne)) {
+					suggestList.addAll(fallbackOne);
+				}
+				//二次回退 不过滤数据了。。。 1,2 可以二次回退
+				if(filterType != 3) {
+					List<MemberSuggestScore> fallbackTwo =  this.repository.suggestNew(execuldeIdList,currentUserId,filterType,2,SUGGEST_MEMBER_SIZE-suggestList.size()); //1次回退
+					if(!CollectionUtils.isEmpty(fallbackTwo)) {
+						suggestList.addAll(fallbackTwo);
+					}
+				}
+			}
+		}
+		return suggestList;
+	}
+	
+	private List<WholeMemberDTO>  filter(List<WholeMemberDTO> list) {
 		if(!CollectionUtils.isEmpty(list)) {
 			list.stream().forEach(item ->{
 				if(!item.isTo()) { //你没有关注他
@@ -1470,15 +1544,16 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 						});
 					}
 					if(!CollectionUtils.isEmpty(item.getTagsList())) {
-						item.getTagsList().stream().filter(temp -> temp.getTag().getCategory().equals(TagCategory.hobby.getValue())).skip(1).forEach(temp -> {
+						item.getTagsList().stream().filter(temp -> temp.getTag().getCategory().equals(TagCategory.personality.getValue())).skip(1).forEach(temp -> {
 							temp.setDescription(null);
 						});
-						item.getTagsList().stream().filter(temp -> temp.getTag().getCategory().equals(TagCategory.status.getValue())).skip(1).forEach(temp -> {
+						item.getTagsList().stream().filter(temp -> temp.getTag().getCategory().equals(TagCategory.statement.getValue())).skip(1).forEach(temp -> {
 							temp.setDescription(null);
 						});
 					} 
 				}
 			});
 		}
+		return list;
 	}
 }

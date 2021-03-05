@@ -16,11 +16,10 @@ import com.cloudok.uc.vo.ForgotVO;
 import com.cloudok.uc.vo.LoginVO;
 import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.SingupVO;
+import com.cloudok.uc.vo.SuggestResult;
 import com.cloudok.uc.vo.TokenVO;
 import com.cloudok.uc.vo.UserCheckRequest;
 import com.cloudok.uc.vo.VerifyCodeRequest;
-
-import lombok.Data;
 
 public interface MemberService extends IService<MemberVO,MemberPO>{
 
@@ -52,14 +51,14 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	
 	SimpleMemberDTO getSimpleMemberInfo();
 	
-	IdenticalCountVO identical(Long id);
-	
-	@Data
-	public class IdenticalCountVO{
-		private int friends;
-		
-		private int tags;
-	}
+//	IdenticalCountVO identical(Long id);
+//	
+//	@Data
+//	public class IdenticalCountVO{
+//		private int friends;
+//		
+//		private int tags;
+//	}
 
 	
 
@@ -82,5 +81,7 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList);
 
 	List<WholeMemberDTO> getWholeMemberInfoByVOList(List<MemberVO> memberList);
+
+	SuggestResult suggestV2(Integer filterType, Boolean refresh);
 
 }

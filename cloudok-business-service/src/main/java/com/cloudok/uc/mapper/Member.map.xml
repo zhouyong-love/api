@@ -92,7 +92,7 @@
 		</where>
 	</select>
  -->
-	<select id="queryFriends"
+	<!-- <select id="queryFriends"
 		parameterType="com.cloudok.core.query.QueryBuilder"
 		resultMap="linkMemberMap">
 		select
@@ -112,7 +112,7 @@
 			<include
 				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
 		</where>
-	</select>
+	</select> -->
 <!-- 
 	<select id="countQueryLinkMember"
 		parameterType="com.cloudok.core.query.QueryBuilder" resultType="long">
@@ -265,7 +265,73 @@
             #{item}
         </foreach>
 	</select> 
+	
+	<update id="resetSuggestStatus" parameterType="Map">
+		update uc_member_suggest set suggest_ts = null where owner_id = #{currentUserId}
+	</update>
 
-
+	<select id="getLastestSuggest" parameterType="Map" resultMap="scoreMap">
+		select * from uc_member_suggest where owner_id = #{currentUserId}
+		and suggest_ts between concat(#{date},' 00:00:00') and concat(#{date},' 23:59:59')
+		 order by suggest_ts desc limit 0, #{size}
+	</select>
+	
+	<select id="suggestNew" parameterType="Map"  resultMap="scoreMap">
+		select * from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null
+		<if test="filterType == 0">
+			order by score desc
+		</if>
+		<if test="filterType == 1">
+			<if test="fallbackType == null">
+				and specialism = 2 order by score desc
+			</if>
+			<if test="fallbackType == 1">
+				and specialism = 1 order by score desc
+			</if>
+			<if test="fallbackType == 2">
+				<if test="excludedIdList != null">
+					and target_id not in 
+					<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</if>
+				 order by score desc
+			</if>
+		</if>
+		<if test="filterType == 2">
+			<if test="fallbackType == null">
+				and industry = 2	 order by score desc
+			</if>
+			<if test="fallbackType == 1">
+				and industry  = 1 order by score
+			</if>
+			<if test="fallbackType == 2">
+				<if test="excludedIdList != null">
+					and target_id not in 
+					<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</if>
+				 order by score
+			</if>
+		</if>
+		<if test="filterType == 3">
+			<if test="fallbackType == null">
+				and tag = 1	 order by score desc
+			</if>
+			<if test="fallbackType == 1 || fallbackType == 2">
+				<if test="excludedIdList != null">
+					and target_id not in 
+					<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</if>
+				 order by score desc
+			</if> 
+		</if>
+		 limit 0, #{size}
+	</select>
+	
+	
 
 </mapper>

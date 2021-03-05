@@ -1481,7 +1481,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		SuggestResult result = SuggestResult.builder().times(times).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList))
 				.suggestList(this.filter(this.getWholeMemberInfo(resultMemberIdList))).build();		
 		//把分数返回
-		if(CollectionUtils.isEmpty(result.getSuggestList())) {
+		if(!CollectionUtils.isEmpty(result.getSuggestList())) {
 			suggestList.stream().forEach(a -> {
 				result.getSuggestList().stream().filter(item -> a.getTargetId().equals(item.getId())).findAny().ifPresent(item -> {
 					item.setScore(a.getScore());

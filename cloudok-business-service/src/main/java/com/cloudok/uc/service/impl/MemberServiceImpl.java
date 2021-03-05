@@ -1429,6 +1429,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.and(RecognizedMapping.CREATETIME, QueryOperator.GTE,day+" 00:00:00")
 				.and(RecognizedMapping.CREATETIME, QueryOperator.LTE,day+" 23:59:59")
 				.end()
+				.sort(RecognizedMapping.CREATETIME).desc()
 		);
 		List<Long> recognizedIdList = recognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
 		List<Long> execuldeIdList = new ArrayList<Long>();
@@ -1487,6 +1488,21 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					item.setScore(a.getScore());
 				});
 			});
+			//修复排序
+			result.getSuggestList().forEach(item -> {
+				if(item.getScore() == null) {
+					item.setScore(-9999.0);
+				}
+			});
+			result.getSuggestList().sort((b,a)-> a.getScore().compareTo(b.getScore()));
+		}
+		//修复排序
+		if(!CollectionUtils.isEmpty(result.getTodayRecognizedList())) {
+			List<WholeMemberDTO> list = recognizedList.stream().map(item -> {
+				Optional<WholeMemberDTO> opt = result.getTodayRecognizedList().stream().filter(a -> a.getId().equals(item.getTargetId())).findAny();
+				return opt.isPresent() ? opt.get() : null;
+			}).filter(item -> item != null).collect(Collectors.toList());
+			result.setTodayRecognizedList(list);
 		}
 		return result;
 	}

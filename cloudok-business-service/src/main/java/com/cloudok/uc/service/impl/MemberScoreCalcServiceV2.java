@@ -1,0 +1,302 @@
+package com.cloudok.uc.service.impl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import com.cloudok.core.event.BusinessEvent;
+import com.cloudok.core.query.QueryBuilder;
+import com.cloudok.primarkey.SnowflakePrimaryKeyGenerator;
+import com.cloudok.uc.dto.WholeMemberDTO;
+import com.cloudok.uc.event.MemberScoreEvent;
+import com.cloudok.uc.event.RecognizedCreateMemberScoreEvent;
+import com.cloudok.uc.event.RecognizedDeletedMemberScoreEvent;
+import com.cloudok.uc.mapper.MemberMapper;
+import com.cloudok.uc.mapping.MemberMapping;
+import com.cloudok.uc.mapping.RecognizedMapping;
+import com.cloudok.uc.po.MemberSuggestScore;
+import com.cloudok.uc.service.MemberService;
+import com.cloudok.uc.service.RecognizedService;
+import com.cloudok.uc.vo.EducationExperienceVO;
+import com.cloudok.uc.vo.InternshipExperienceVO;
+import com.cloudok.uc.vo.MemberTagsVO;
+import com.cloudok.uc.vo.MemberVO;
+import com.cloudok.uc.vo.RecognizedVO;
+import com.cloudok.uc.vo.ResearchExperienceVO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Slf4j
+public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEvent<?>>,InitializingBean {
+
+	private ExecutorService executor = Executors.newFixedThreadPool(10); // 最多同时8个线程并行
+
+	@Autowired
+	private MemberService memberService;
+	
+	@Autowired
+	private MemberMapper repository;
+	
+	@Autowired
+	private RecognizedService recognizedService;
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		new Thread(()->{
+			try {
+				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+			} catch (InterruptedException e) {
+			}
+			 this.calcAll();
+		}) .start();
+	}
+	
+	private void onMemberScoreEvent(MemberScoreEvent cast) {
+		List<WholeMemberDTO> list = getAllMemberList(); //这个可以缓存吧。。。
+		//只要计算被改的人 与 其他人的评分
+		list.stream().filter(item -> item.getId().equals(cast.getEventData().getId())).findAny().ifPresent(item ->{
+			//1 我与所有人的变更
+			this.calcMemberScore(item, list);
+			//2 所有人与我的变更
+			list.stream().filter(other -> !other.getId().equals(cast.getEventData().getId())).forEach(other ->{
+				this.calcMemberScore(other, Arrays.asList(item));
+			});
+		});
+	}
+
+	//认可事件发生变更，只要计算两个人的值就可以
+	private void onRecognizedDeletedMemberScoreEvent(RecognizedDeletedMemberScoreEvent cast) {
+		List<MemberSuggestScore> list = this.repository.getScoreByOwnerId(Arrays.asList(cast.getEventData().getTargetId()));
+		list.stream().filter(item -> item.getTargetId().equals(cast.getEventData().getSourceId())).findAny().ifPresent(item ->{
+			double s = item.getScore() == null ? 0 : item.getScore().doubleValue();
+			item.setScore(s-30);
+			this.repository.updateScore(item);
+		});
+	}
+	//认可事件发生变更，只要计算两个人的值就可以
+	private void onRecognizedCreateMemberScoreEvent(RecognizedCreateMemberScoreEvent cast) {
+		List<MemberSuggestScore> list = this.repository.getScoreByOwnerId(Arrays.asList(cast.getEventData().getTargetId()));
+		list.stream().filter(item -> item.getTargetId().equals(cast.getEventData().getSourceId())).findAny().ifPresent(item ->{
+			double s = item.getScore() == null ? 0 : item.getScore().doubleValue();
+			item.setScore(s+30);
+			this.repository.updateScore(item);
+		});
+		
+	}
+
+	private List<WholeMemberDTO> getAllMemberList(){
+		List<MemberVO> memberList = memberService.list(QueryBuilder.create(MemberMapping.class).sort(MemberMapping.ID).desc());
+		return memberService.getWholeMemberInfoByVOList(memberList);
+	}
+	
+	private Integer getGrade(List<EducationExperienceVO> eduList) {
+		int grade = 2100;
+		for(EducationExperienceVO edu: eduList) {
+			if("1".equals(edu.getDegree())) { //本科
+				return edu.getGrade();
+			}
+			if("2".equals(edu.getDegree())) { //硕士
+				grade = Math.min(grade, edu.getGrade());
+			}
+			if("3".equals(edu.getDegree())) {//博士
+				grade = Math.min(grade, edu.getGrade());
+			}
+		}
+		//最小的那个解4年
+		return grade - 4;
+	}
+	//https://shimo.im/docs/kRYKX9PJJGycPWwT
+	private void calcMemberScore(WholeMemberDTO owner,List<WholeMemberDTO> allList) {
+		List<RecognizedVO> recognizedVOList = recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, owner.getId()).end());
+		List<WholeMemberDTO> otherList = allList.stream().filter(item -> !item.getId().equals(owner.getId())).collect(Collectors.toList());
+		List<MemberSuggestScore> scoreList  = new ArrayList<MemberSuggestScore>();
+		if(!CollectionUtils.isEmpty(otherList)) {
+			otherList.stream().forEach(item ->{
+			MemberSuggestScore score = new MemberSuggestScore(owner.getId(),item.getId(),0.0,0,0,0);
+			scoreList.add(score);
+			List<EducationExperienceVO> eduList = owner.getEducationList();
+			List<EducationExperienceVO> othersEduList = item.getEducationList();
+			if(!CollectionUtils.isEmpty(eduList) && !CollectionUtils.isEmpty(othersEduList) ) {
+//				同校+20
+//				for B的专业
+//				     if(A也有这个专业) 大类相同+10 同细分专业+10
+				eduList.stream().forEach(edu ->{
+					othersEduList.stream().forEach(otherEdu ->{
+						if(edu.getSchool().getId().equals(otherEdu.getSchool().getId())) {
+							score.addScore(20.0);
+						}
+						if(edu.getSpecialism().getId().equals(otherEdu.getSpecialism().getId())) {
+							score.addScore(10.0);  //细分专业+10
+							score.setSpecialism(2);
+						}
+						if(edu.getSpecialism().getCategory().equals(otherEdu.getSpecialism().getCategory())) {
+							score.addScore(10.0);  //大类相同+10
+							if(score.getSpecialism() != 2) {
+								score.setSpecialism(1);
+							}
+						}
+					});
+				});
+//				换算本科入学年级(硕博对应的年级减4)，年级相同+20，年级相隔一年+10，隔两年+0，隔三年-10，相隔大于三年减去20；
+				int diff = Math.abs(getGrade(eduList)-getGrade(othersEduList));
+				switch (diff) {
+					case 0:
+						score.addScore(20.0); 
+						break;
+					case 1:
+						score.addScore(10.0); 
+						break;
+					case 2:
+						score.addScore(0.0); 
+						break;
+					case 3:
+						score.addScore(-10.0); 
+						break;
+					default:
+						score.addScore(-20.0); 
+						break;
+				}
+			}
+			
+//			研究方向
+//			for B的研究方向
+//			     if(A也有这个研究方向) +20
+			List<ResearchExperienceVO> researchList = owner.getResearchList();
+			List<ResearchExperienceVO> othersResearchList = item.getResearchList();
+			if(!CollectionUtils.isEmpty(researchList) && !CollectionUtils.isEmpty(othersResearchList) ) {
+				researchList.stream().forEach(research ->{
+					othersResearchList.stream().forEach(otherResearch ->{
+						if(research.getDomain().getId().equals(otherResearch.getDomain().getId())) {
+							score.addScore(20.0);
+						} 
+					});
+				});
+			}
+			
+//			实习行业
+//			for B的实习行业
+//			     if(A也有这个实习行业) +20
+//			for B的实习公司
+//			     if(A也有这个公司) +20
+			List<InternshipExperienceVO> internshipList = owner.getInternshipList();
+			List<InternshipExperienceVO> othersInternshipList = item.getInternshipList();
+			if(!CollectionUtils.isEmpty(internshipList) && !CollectionUtils.isEmpty(othersInternshipList) ) {
+				internshipList.stream().forEach(internship ->{
+					othersInternshipList.stream().forEach(otherInternship ->{
+						if(internship.getIndustry().getId().equals(otherInternship.getIndustry().getId())) {
+							score.addScore(10.0);
+							if(score.getIndustry() != 2) {
+								score.setIndustry(1);
+							}
+						} 
+						if(internship.getIndustry().getCategory().equals(otherInternship.getIndustry().getCategory())) {
+							score.addScore(10.0);
+							score.setIndustry(2);
+						}
+						if(internship.getCompany().getId().equals(otherInternship.getCompany().getId())) {
+							score.addScore(20.0);
+						} 
+					});
+				});
+			}
+			
+//			个性标签/状态标签
+//			每有一个共同标签+10
+			List<MemberTagsVO> tagList = owner.getTagsList();
+			List<MemberTagsVO> othersTagList = item.getTagsList();
+			if(!CollectionUtils.isEmpty(tagList) && !CollectionUtils.isEmpty(othersTagList) ) {
+				tagList.stream().forEach(tag ->{
+					othersTagList.stream().forEach(otherTag ->{
+						if(tag.getTag().getId().equals(otherTag.getTag().getId())) {
+							score.addScore(10.0);
+							score.setTag(1);
+						} 
+					});
+				});
+			}
+//			再加上B本身的profile分数Wi
+			Double wi = item.getWi();
+			if(wi == null) {
+				wi = 0.0;
+			}else {
+				if(wi<0) {
+					wi = wi + 300; //空名片被打压了300分的，这里加回去
+				}
+			}
+			score.addScore(wi);
+//			若B已经关注A，+30
+			if(!CollectionUtils.isEmpty(recognizedVOList)) {
+				recognizedVOList.stream().filter(r -> r.getSourceId().equals(item.getId())).findAny().ifPresent(r->{
+					score.addScore(30.0);
+				});
+			}
+//			推送机制：
+//			按上述打分形成序列，已经推过的不再推(除非用户已经刷完了 再把之前推过的拉出来)，用户已经关注的都不推；
+			});
+		}
+		if(!CollectionUtils.isEmpty(scoreList)) {
+			List<MemberSuggestScore> dbList = this.repository.getScoreByOwnerId(Arrays.asList(owner.getId()));
+			List<MemberSuggestScore>  updateList = new ArrayList<MemberSuggestScore>();
+			List<MemberSuggestScore> createList = new ArrayList<MemberSuggestScore>();
+			scoreList.stream().forEach(item ->{
+				dbList.stream().filter(db -> db.getTargetId().equals(item.getTargetId()) ).findAny().ifPresent(db->{
+					item.setId(db.getId());
+					updateList.add(item);
+				});
+				if(item.getId() == null) {
+					item.setId(SnowflakePrimaryKeyGenerator.SEQUENCE.next()); //设置主键id
+					createList.add(item);
+				}
+			});
+			if(!CollectionUtils.isEmpty(createList)) {
+				this.repository.createScoreList(createList);
+			}
+			if(!CollectionUtils.isEmpty(updateList)) {
+				updateList.stream().forEach(update -> {
+					this.repository.updateScore(update);
+				});
+			}
+			
+			
+		}
+	}
+	@Scheduled(cron="0 0 2 * * ? ")  //每天凌晨2点计算
+	public void calcAll() {
+		List<WholeMemberDTO> list = getAllMemberList();
+		list.stream().forEach(item ->{
+			this.calcMemberScore(item, list);
+		});
+	}
+
+	@Override
+	public void onApplicationEvent(BusinessEvent<?> arg0) {
+		executor.submit(() -> {
+			Long start = System.currentTimeMillis();
+			if (arg0 instanceof MemberScoreEvent) {
+				this.onMemberScoreEvent(MemberScoreEvent.class.cast(arg0));
+			} 
+			if (arg0 instanceof RecognizedCreateMemberScoreEvent) {
+				this.onRecognizedCreateMemberScoreEvent(RecognizedCreateMemberScoreEvent.class.cast(arg0));
+			} 
+			if (arg0 instanceof RecognizedDeletedMemberScoreEvent) {
+				this.onRecognizedDeletedMemberScoreEvent(RecognizedDeletedMemberScoreEvent.class.cast(arg0));
+			} 
+			log.debug("用户推荐评分处理，耗时={} mils",(System.currentTimeMillis()-start));
+			
+		});
+	}
+
+
+}

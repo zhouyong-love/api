@@ -81,4 +81,6 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	
 	List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList);
 
+	List<WholeMemberDTO> getWholeMemberInfoByVOList(List<MemberVO> memberList);
+
 }

@@ -8,6 +8,7 @@ import com.cloudok.core.mapper.IMapper;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.uc.po.LinkMemberPO;
 import com.cloudok.uc.po.MemberPO;
+import com.cloudok.uc.po.MemberSuggestScore;
 import com.cloudok.uc.po.SuggsetMemberScorePO;
 
 public interface MemberMapper extends IMapper<MemberPO>{
@@ -37,5 +38,14 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	List<Long> getMemberCirclesList(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer type,@Param("businessId") Long businessId,
 			@Param("offset") Integer offset,
 			@Param("pageSize") Integer pageSize);
+	
+	
+	 void markAsSuggested(@Param("ownerId") Long ownerId,@Param("targetIdList") List<Long> targetIdList);
+	 
+	 void createScoreList(@Param("list") List<MemberSuggestScore> list);
+	 
+	 void updateScore(MemberSuggestScore score);
+	 
+	 List<MemberSuggestScore> getScoreByOwnerId(@Param("idList") List<Long> idList);
 	
 }

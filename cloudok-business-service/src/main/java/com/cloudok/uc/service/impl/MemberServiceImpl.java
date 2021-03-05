@@ -43,6 +43,7 @@ import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.core.vo.Page;
+import com.cloudok.enums.TagCategory;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.User;
@@ -602,12 +603,21 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	public List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList) {
 		return getWholeMemberInfo(memberIdList, false);
 	}
-
 	private List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList, boolean includeSecurityInfo) {
 		if(CollectionUtils.isEmpty(memberIdList)) {
 			return Collections.emptyList();
 		}
-		List<WholeMemberDTO> memberList = this.get(memberIdList.stream().distinct().collect(Collectors.toList())).stream().map(item -> {
+		return this.getWholeMemberInfoByVOList(this.get(memberIdList), includeSecurityInfo);
+	}
+	public List<WholeMemberDTO> getWholeMemberInfoByVOList(List<MemberVO> voList) {
+		return this.getWholeMemberInfoByVOList(voList,false);
+	}
+	private List<WholeMemberDTO> getWholeMemberInfoByVOList(List<MemberVO> voList,boolean includeSecurityInfo) {
+		if(CollectionUtils.isEmpty(voList)) {
+			return Collections.emptyList();
+		}
+		List<Long> memberIdList = voList.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
+		List<WholeMemberDTO> memberList = voList.stream().map(item -> {
 			WholeMemberDTO dto = new WholeMemberDTO();
 			BeanUtils.copyProperties(item, dto);
 			if(!includeSecurityInfo) { //去掉敏感信息
@@ -714,6 +724,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 		return memberList;
 	}
+
 
 	@Override
 	public WholeMemberDTO getWholeMemberInfo(Long memberId) {
@@ -1426,5 +1437,48 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 		
 		return page;
+	}
+	
+	private void filter(List<WholeMemberDTO> list) {
+		if(!CollectionUtils.isEmpty(list)) {
+			list.stream().forEach(item ->{
+				if(!item.isTo()) { //你没有关注他
+					if(!CollectionUtils.isEmpty(item.getEducationList())) {
+						item.getEducationList().stream().skip(1).forEach(temp -> {
+							temp.setGrade(null);
+							temp.setDegree(null);
+						});
+					}
+					if(!CollectionUtils.isEmpty(item.getInternshipList())) {
+						item.getInternshipList().stream().skip(1).forEach(temp -> {
+							temp.setJob(null);
+							temp.setDescription(null);
+							temp.setCompany(null);
+						});
+					}
+					if(!CollectionUtils.isEmpty(item.getProjectList())) {
+						item.getProjectList().stream().skip(1).forEach(temp -> {
+							temp.setJob(null);
+							temp.setDescription(null);
+							temp.setName(null);
+						});
+					}
+					if(!CollectionUtils.isEmpty(item.getResearchList())) {
+						item.getResearchList().stream().skip(1).forEach(temp -> {
+							temp.setName(null);
+							temp.setDescription(null);
+						});
+					}
+					if(!CollectionUtils.isEmpty(item.getTagsList())) {
+						item.getTagsList().stream().filter(temp -> temp.getTag().getCategory().equals(TagCategory.hobby.getValue())).skip(1).forEach(temp -> {
+							temp.setDescription(null);
+						});
+						item.getTagsList().stream().filter(temp -> temp.getTag().getCategory().equals(TagCategory.status.getValue())).skip(1).forEach(temp -> {
+							temp.setDescription(null);
+						});
+					} 
+				}
+			});
+		}
 	}
 }

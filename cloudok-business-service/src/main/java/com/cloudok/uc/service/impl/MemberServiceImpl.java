@@ -1311,7 +1311,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 //		
 //		return list;
 //	}
-	//查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签
+	//查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签，filterType=0 查已经关注的人的云圈，filterType=1 查未关注的人的云圈
 	@Override
 	public Page<WholeMemberDTO> getMemberCircles(Integer filterType,Integer type, Long businessId, Integer pageNo,
 			Integer pageSize) {
@@ -1426,6 +1426,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					break;
 				}
 			});
+			if(filterType != null && filterType == 1) {
+				memberList.stream().forEach(item -> { //未关注的 昵称和id设置为null
+					item.setId(null);
+					item.setNickName(null);
+				});
+			}
 			page.setData(memberList);
 		}
 		

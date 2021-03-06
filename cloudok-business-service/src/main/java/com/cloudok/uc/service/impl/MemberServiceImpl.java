@@ -1466,12 +1466,6 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		List<Long> memberIdList = new ArrayList<Long>();
 		//获取今日已经关注的
 		String day = DateTimeUtil.formatyyyyMMdd(new Date());
-		//所有关注过的人
-		List<RecognizedVO>  allRecognizedList  = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
-				.end()
-				.sort(RecognizedMapping.CREATETIME).desc() //新需求： 最新的在最前面
-		);
-		List<Long> recognizedIdList = allRecognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
 		String key = currentUserId+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
 		SuggestedHistory suggestedHistory = this.getSuggestedHistory(key); 
 		List<Long> totalList =  suggestedHistory.getList().stream().map(item -> item.getTargetId()).collect(Collectors.toList());
@@ -1479,15 +1473,13 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		boolean canFetch =  totalList.size() < SUGGEST_MEMBER_COUNT_LIMIT; 
 		if(refresh != null && refresh && canFetch) { //强制刷新且推荐数量小于limit
 			List<Long> execuldeIdList = new ArrayList<Long>();
-			//排除已经关注了的
-			execuldeIdList.addAll(recognizedIdList);
 			//防止意外把自己也给加进去了
 			execuldeIdList.add(currentUserId);
 			//今天已经推荐的 也排除掉
 			execuldeIdList.addAll(totalList);
 			//获取本次要推荐的： 补充3个或者15个剩下的 取最小数量
 			Integer requiredSize = SUGGEST_MEMBER_SIZE ;//新需求，一次取3个 Math.min(SUGGEST_MEMBER_SIZE-remainList.size(), SUGGEST_MEMBER_COUNT_LIMIT-totalList.size());
-			suggestList = this.suggest(false,currentUserId, execuldeIdList, filterType,requiredSize);
+			suggestList = this.suggest(false,false,currentUserId, execuldeIdList, filterType,requiredSize);
 			//经历二次回退后，如果数据还不够，则找已经推荐过，但是没可的
 			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { 
 				//排除新推荐的的
@@ -1495,7 +1487,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					execuldeIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
 				}
 				//找已经推荐但是没可的
-				List<MemberSuggestScore>  suggestListTwo = this.suggest(true,currentUserId, execuldeIdList, filterType,requiredSize-suggestList.size());
+				List<MemberSuggestScore>  suggestListTwo = this.suggest(true,false,currentUserId, execuldeIdList, filterType,requiredSize-suggestList.size());
 				suggestList.addAll(suggestListTwo);
 			}
 			//还是不够，找已经推荐且包括已经可了的
@@ -1510,7 +1502,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				//今天已经推荐的 也排除掉
 				execuldeIdList.addAll(totalList);
 				//找已经推荐且忽略是否已经可了
-				List<MemberSuggestScore>  suggestListTwo = this.suggest(true,currentUserId, execuldeIdList, filterType,requiredSize-suggestList.size());
+				List<MemberSuggestScore>  suggestListTwo = this.suggest(true,true,currentUserId, execuldeIdList, filterType,requiredSize-suggestList.size());
 				suggestList.addAll(suggestListTwo);
 			}
 			//还是没有，去掉今日推荐的，查询没推荐且不带其他条件
@@ -1524,7 +1516,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				}
 				//今天已经推荐的 也排除掉
 				execuldeIdList.addAll(totalList);
-				List<MemberSuggestScore>  suggestListTwo = this.suggest(false,currentUserId, execuldeIdList, 0,requiredSize-suggestList.size());
+				List<MemberSuggestScore>  suggestListTwo = this.suggest(false,true,currentUserId, execuldeIdList, 0,requiredSize-suggestList.size());
 				suggestList.addAll(suggestListTwo);
 			}
 			//还是没有，去掉今日推荐的，查包括已经推荐的
@@ -1538,7 +1530,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				}
 				//今天已经推荐的 也排除掉
 				execuldeIdList.addAll(totalList);
-				List<MemberSuggestScore>  suggestListTwo = this.suggest(true,currentUserId, execuldeIdList, 0,requiredSize-suggestList.size());
+				List<MemberSuggestScore>  suggestListTwo = this.suggest(true,true,currentUserId, execuldeIdList, 0,requiredSize-suggestList.size());
 				suggestList.addAll(suggestListTwo);
 				//这里判断下 是否所有人都推荐过了，如果是则重置推荐状态
 				List<MemberSuggestScore> unSuggestList = this.repository.getUnSuggestList(currentUserId);
@@ -1605,7 +1597,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.end()
 				.sort(RecognizedMapping.CREATETIME).desc() //新需求： 最新的在最前面
 		);
-		
+		List<Long> recognizedIdList = todayRecognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
 		//限制下，防止一个人某一天认可了所有人。。
 		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList.stream().limit(100).collect(Collectors.toList())))
 				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList))).build();		
@@ -1635,16 +1627,16 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		return result;
 	}
 	
-	private List<MemberSuggestScore> suggest(boolean ignoreSuggestStatus,Long currentUserId,List<Long> execuldeIdList,Integer filterType,Integer requiredSize){
+	private List<MemberSuggestScore> suggest(boolean ignoreSuggestStatus,boolean ignoreRecognized,Long currentUserId,List<Long> execuldeIdList,Integer filterType,Integer requiredSize){
 		//第一次推荐，最严格过滤
-		List<MemberSuggestScore> suggestList = this.repository.suggestNew(ignoreSuggestStatus,execuldeIdList,currentUserId,filterType,null,requiredSize);
+		List<MemberSuggestScore> suggestList = this.repository.suggestNew(ignoreSuggestStatus,ignoreRecognized,execuldeIdList,currentUserId,filterType,null,requiredSize);
 		if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { //数据不够，开始回退
 			if(filterType != null && filterType != 3 && filterType != 4) { //回退到大类
 				if(!CollectionUtils.isEmpty(suggestList)) {
 					execuldeIdList.addAll(suggestList.stream().map(item ->item.getTargetId()).collect(Collectors.toList()));
 				}
 				//第一次回退
-				List<MemberSuggestScore> fallbackOne =  this.repository.suggestNew(ignoreSuggestStatus,execuldeIdList,currentUserId,filterType,1,requiredSize-suggestList.size()); //1次回退
+				List<MemberSuggestScore> fallbackOne =  this.repository.suggestNew(ignoreSuggestStatus,ignoreRecognized,execuldeIdList,currentUserId,filterType,1,requiredSize-suggestList.size()); //1次回退
 				if(!CollectionUtils.isEmpty(fallbackOne)) {
 					suggestList.addAll(fallbackOne);
 					execuldeIdList.addAll(fallbackOne.stream().map(item ->item.getTargetId()).collect(Collectors.toList()));

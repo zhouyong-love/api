@@ -33,11 +33,19 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	@Deprecated
 	List<SuggsetMemberScorePO> suggest(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer filterType,@Param("limit") Integer limit);
 
-	Long getMemberCirclesCount(@Param("currentUserId") Long currentUserId,@Param("excludedIdList")List<Long> excludedIdList,
-			@Param("filterType") Integer  filterType,@Param("type") Integer type,@Param("businessId") Long businessId);
+	Long getMemberCirclesCount(
+			@Param("currentUserId") Long currentUserId,
+			@Param("excludedIdList")List<Long> excludedIdList,
+			@Param("filterType") Integer filterType,
+			@Param("type") Integer type,
+			@Param("businessId") Long businessId);
 	
-	List<MemberCirclePO> getMemberCirclesList(@Param("currentUserId") Long currentUserId,
-			@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer filterType,@Param("type") Integer type,@Param("businessId") Long businessId,
+	List<MemberCirclePO> getMemberCirclesList(
+			@Param("currentUserId") Long currentUserId,
+			@Param("excludedIdList")List<Long> excludedIdList,
+			@Param("filterType") Integer filterType,
+			@Param("type") Integer type,
+			@Param("businessId") Long businessId,
 			@Param("offset") Integer offset,
 			@Param("pageSize") Integer pageSize);
 	
@@ -54,6 +62,8 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	 List<MemberSuggestScore> getLastestSuggest(@Param("currentUserId") Long currentUserId,@Param("date")  String date, @Param("size") int size);
 
 	/**
+	 * @param ignoreSuggestStatus 是否忽略已经推荐了的
+	 * @param ignoreRecognized 是否忽略已经认可的
 	 * @param excludedIdList 二次回退的时候，要排除今天已经关注的
 	 * @param currentUserId
 	 * @param filterType  0不过滤 1 按专业 2 按行业 3 按同好
@@ -61,8 +71,14 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	 * @param size
 	 * @return
 	 */
-	List<MemberSuggestScore> suggestNew(@Param("ignoreSuggestStatus")boolean ignoreSuggestStatus,@Param("excludedIdList")List<Long> excludedIdList,
-			@Param("currentUserId") Long currentUserId, @Param("filterType") Integer filterType,@Param("fallbackType") Integer fallbackType, @Param("size") int size);
+	List<MemberSuggestScore> suggestNew(
+			@Param("ignoreSuggestStatus")boolean ignoreSuggestStatus,
+			@Param("ignoreRecognized") boolean ignoreRecognized,
+			@Param("excludedIdList")List<Long> excludedIdList,
+			@Param("currentUserId") Long currentUserId,
+			@Param("filterType") Integer filterType,
+			@Param("fallbackType") Integer fallbackType, 
+			@Param("size") int size);
 
 	void resetSuggestStatus(@Param("currentUserId") Long currentUserId);
 	

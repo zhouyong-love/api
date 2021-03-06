@@ -358,6 +358,9 @@
 		<if test="filterType == 4">
 			and school = 1	
 		</if>
+		<if test="ignoreRecognized == false">
+			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
+		</if>
 		 order by score desc  limit 0, #{size}
 	</select>
 	

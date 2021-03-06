@@ -1535,7 +1535,20 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				if(suggestedHistory.getList().stream().filter(item -> item.getStatus() == 0).count() == 0  && canFetch) {
 					return this.suggestV2(filterType, true); //如果最后三个都用完了，直接强行取后面三个
 				}else {
-					memberIdList.addAll(suggestedHistory.getList().stream().skip(suggestedHistory.getList().size()-3).map(item -> item.getTargetId()).collect(Collectors.toList()));
+					//判断是否这些人也被认可了。。如果被认可了
+					List<Long> lastPeople = suggestedHistory.getList().stream().skip(suggestedHistory.getList().size()-SUGGEST_MEMBER_SIZE).map(item -> item.getTargetId()).collect(Collectors.toList());
+					memberIdList.addAll(lastPeople);
+//					lastPeople = lastPeople.stream().filter(item -> !recognizedIdList.contains(item)).collect(Collectors.toList());
+//					if(!CollectionUtils.isEmpty(lastPeople)) {
+//						memberIdList.addAll(lastPeople);
+//					}else { //最后三个也被认可了，则强制取下一组
+//						suggestedHistory.getList().forEach(item -> {
+//							item.setStatus(1);
+//						});
+//						//缓存也更新掉
+//						cacheService.put(CacheType.SuggestHistory,key , suggestedHistory,1,TimeUnit.DAYS);
+//						return this.suggestV2(filterType, true); //如果最后三个都用完了，直接强行取后面三个
+//					}
 				}
 			}
 		}
@@ -1555,7 +1568,8 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 		//更新缓存,缓存一天
 		cacheService.put(CacheType.SuggestHistory,key , suggestedHistory,1,TimeUnit.DAYS);
-		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList))
+		//限制下，防止一个人某一天认可了所有人。。
+		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList.stream().limit(100).collect(Collectors.toList())))
 				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList))).build();		
 		//把分数返回，并整理排序
 		if(!CollectionUtils.isEmpty(result.getSuggestList())) {

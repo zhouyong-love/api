@@ -1449,15 +1449,14 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	 * @param event
 	 */
 	private void onRecognizedCreateEvent(RecognizedCreateEvent event) {
-//		新需求 不用管这个
-//		String key = event.getEventData().getSourceId()+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
-//		if(cacheService.exist(CacheType.SuggestHistory,key)) { //存在。。。
-//			SuggestedHistory history = this.getSuggestedHistory(key);
-//			history.getList().stream().filter(item -> item.getTargetId().equals(event.getEventData().getTargetId())).findAny().ifPresent(item ->{
-//				item.setStatus(1);
-//				cacheService.put(CacheType.SuggestHistory,key , history,1,TimeUnit.DAYS);
-//			});
-//		}
+		String key = event.getEventData().getSourceId()+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
+		if(cacheService.exist(CacheType.SuggestHistory,key)) { //存在。。。
+			SuggestedHistory history = this.getSuggestedHistory(key);
+			history.getList().stream().filter(item -> item.getTargetId().equals(event.getEventData().getTargetId())).findAny().ifPresent(item ->{
+				item.setStatus(1);
+				cacheService.put(CacheType.SuggestHistory,key , history,1,TimeUnit.DAYS);
+			});
+		}
 	}
 	
 	@Override
@@ -1561,14 +1560,13 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					this.repository.markAsSuggested(currentUserId, newSuggestIdList);
 				}
 			}
-		}else if(refresh == null || !refresh) { //如果非强制刷新或者已经取，则取历史上最新的三个
+		}else if(refresh == null || !refresh) { //如果非强制刷新，则取历史上最后的三个
 			if(CollectionUtils.isEmpty(suggestedHistory.getList())) { //如果不是强制刷新且没有历史数据，则走强制刷新逻辑去
 				return this.suggestV2(filterType, true);
 			}else { //取最后三个
 				if(suggestedHistory.getList().stream().filter(item -> item.getStatus() == 0).count() == 0  && canFetch) {
 					return this.suggestV2(filterType, true); //如果最后三个都用完了，直接强行取后面三个
 				}else {
-					//判断是否这些人也被认可了。。如果被认可了
 					List<Long> lastPeople = suggestedHistory.getList().stream().skip(suggestedHistory.getList().size()-SUGGEST_MEMBER_SIZE).map(item -> item.getTargetId()).collect(Collectors.toList());
 					memberIdList.addAll(lastPeople);
 				}
@@ -1599,7 +1597,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		);
 		List<Long> recognizedIdList = todayRecognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
 		//限制下，防止一个人某一天认可了所有人。。
-		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList.stream().limit(100).collect(Collectors.toList())))
+		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList))
 				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList))).build();		
 		//把分数返回，并整理排序
 		if(!CollectionUtils.isEmpty(result.getSuggestList())) {

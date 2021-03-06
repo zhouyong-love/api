@@ -243,7 +243,7 @@ public class MemberApi {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/suggest")
-	@ApiOperation(value="推荐member列表",notes="新需求导致两个参数没用了。。一天最多刷新5次总共15个，默认取当天最后一次推荐的n条，带refresh=true才去刷新下一组，filterType=0,1,2,3，4 0不过滤 1 按专业 2 按行业 3 按同好 4 校友")
+	@ApiOperation(value="推荐member列表",notes="一天最多刷新5次总共15个，默认取当天最后一次推荐的n条，带refresh=true才去刷新下一组，filterType=0,1,2,3，4 0不过滤 1 按专业 2 按行业 3 按同好 4 校友")
 	@Loggable
 	public Response suggestV2(
 			@RequestParam(name = "filterType", required=false,defaultValue="0") Integer filterType,

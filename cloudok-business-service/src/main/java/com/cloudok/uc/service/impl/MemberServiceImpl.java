@@ -1528,7 +1528,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					this.repository.markAsSuggested(currentUserId, newSuggestIdList);
 				}
 			}
-		}else { //如果非强制刷新，则取历史上最新的三个
+		}else if(refresh == null || !refresh) { //如果非强制刷新或者已经取，则取历史上最新的三个
 			if(CollectionUtils.isEmpty(suggestedHistory.getList())) { //如果不是强制刷新且没有历史数据，则走强制刷新逻辑去
 				return this.suggestV2(filterType, true);
 			}else { //取最后三个

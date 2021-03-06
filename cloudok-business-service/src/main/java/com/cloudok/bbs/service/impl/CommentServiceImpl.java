@@ -1,5 +1,6 @@
 package com.cloudok.bbs.service.impl;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,8 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 	
 	@Override
 	public CommentVO create(CommentVO d) {
+		d.setStatus(0);
+		d.setStatusTs(new Timestamp(System.currentTimeMillis()));
 		CommentVO vo =  super.create(d);
 		SpringApplicationContext.publishEvent(new CommentDeleteEvent(vo));
 		return vo;

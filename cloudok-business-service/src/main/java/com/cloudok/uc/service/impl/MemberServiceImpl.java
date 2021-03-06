@@ -1433,6 +1433,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 		return suggestedHistory;
 	}
+	@Deprecated
 	@Override
 	public Object ignoreSuggestMember(Long memberId) {
 		String key = getCurrentUserId()+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
@@ -1448,14 +1449,15 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	 * @param event
 	 */
 	private void onRecognizedCreateEvent(RecognizedCreateEvent event) {
-		String key = event.getEventData().getSourceId()+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
-		if(cacheService.exist(CacheType.SuggestHistory,key)) { //存在。。。
-			SuggestedHistory history = this.getSuggestedHistory(key);
-			history.getList().stream().filter(item -> item.getTargetId().equals(event.getEventData().getTargetId())).findAny().ifPresent(item ->{
-				item.setStatus(1);
-				cacheService.put(CacheType.SuggestHistory,key , history,1,TimeUnit.DAYS);
-			});
-		}
+//		新需求 不用管这个
+//		String key = event.getEventData().getSourceId()+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
+//		if(cacheService.exist(CacheType.SuggestHistory,key)) { //存在。。。
+//			SuggestedHistory history = this.getSuggestedHistory(key);
+//			history.getList().stream().filter(item -> item.getTargetId().equals(event.getEventData().getTargetId())).findAny().ifPresent(item ->{
+//				item.setStatus(1);
+//				cacheService.put(CacheType.SuggestHistory,key , history,1,TimeUnit.DAYS);
+//			});
+//		}
 	}
 	
 	@Override
@@ -1468,23 +1470,22 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.and(RecognizedMapping.CREATETIME, QueryOperator.GTE,day+" 00:00:00")
 				.and(RecognizedMapping.CREATETIME, QueryOperator.LTE,day+" 23:59:59")
 				.end()
-				.sort(RecognizedMapping.CREATETIME).asc()
+				.sort(RecognizedMapping.CREATETIME).desc() //新需求： 最新的在最前面
 		);
 		List<Long> recognizedIdList = recognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
 		String key = currentUserId+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
 		SuggestedHistory suggestedHistory = this.getSuggestedHistory(key); 
-		List<Long> remainList = suggestedHistory.getList().stream().filter(a -> a.getStatus() == 0).map(item -> item.getTargetId()).collect(Collectors.toList());
 		List<Long> totalList =  suggestedHistory.getList().stream().map(item -> item.getTargetId()).collect(Collectors.toList());
 		List<MemberSuggestScore> suggestList = null;
-		boolean reuiredFetch =  remainList.size() <  SUGGEST_MEMBER_SIZE && totalList.size() < SUGGEST_MEMBER_COUNT_LIMIT;
-		if(reuiredFetch) {
+		boolean canFetch =  totalList.size() < SUGGEST_MEMBER_COUNT_LIMIT; 
+		if(refresh != null && refresh && canFetch) { //强制刷新且推荐数量小于limit
 			List<Long> execuldeIdList = new ArrayList<Long>();
 			//排除今天已经关注了的
 			execuldeIdList.addAll(recognizedIdList);
 			//防止意外把自己也给加进去了
 			execuldeIdList.add(currentUserId);
 			//获取本次要推荐的： 补充3个或者15个剩下的 取最小数量
-			Integer requiredSize = Math.min(SUGGEST_MEMBER_SIZE-remainList.size(), SUGGEST_MEMBER_COUNT_LIMIT-totalList.size());
+			Integer requiredSize = SUGGEST_MEMBER_SIZE ;//新需求，一次取3个 Math.min(SUGGEST_MEMBER_SIZE-remainList.size(), SUGGEST_MEMBER_COUNT_LIMIT-totalList.size());
 			suggestList = this.suggest(currentUserId, execuldeIdList, filterType,requiredSize);
 			//经历二次回退后，还是没有数据，则表示所有数据都已经推荐过了，重置推荐记录
 			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { 
@@ -1494,12 +1495,20 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					this.repository.markAsSuggested(currentUserId, totalList);
 				}
 			}
+			//重新过去推荐过且没可的且今天推荐的
 			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { 
-				//重新推荐,可能还是有问题，再回退
+				//所有关注过的人
+				List<RecognizedVO>  allRecognizedList  = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
+						.end()
+						.sort(RecognizedMapping.CREATETIME).desc() //新需求： 最新的在最前面
+				);
+				//排除掉所有关注过的人
+				execuldeIdList.addAll(allRecognizedList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+				//重新推荐,排除掉所有关注过的人
 				List<MemberSuggestScore>  suggestListTwo = this.repository.suggestNew(execuldeIdList,currentUserId,filterType,null,requiredSize-suggestList.size());
 				suggestList.addAll(suggestListTwo);
 			}
-			//极端情况，他一天关注了所有人。。
+			//极端情况，排除了所有关注的人 还是没找到，则不过滤已经关注的人 继续找
 			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { 
 				//清空所有排除数据
 				execuldeIdList.clear();
@@ -1512,24 +1521,40 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				//这次铁定不会再有问题
 				suggestList.addAll(suggestListThree);
 			}
-			if(!CollectionUtils.isEmpty(suggestList)) {
+			if(!CollectionUtils.isEmpty(suggestList)) { //数据库中把新推荐的改为已经推荐过
 				//不删除上次数据库历史记录
 				List<Long> newSuggestIdList = suggestList.stream().filter(item -> item.getSuggestTs() == null).map(item -> item.getTargetId()).collect(Collectors.toList());
 				if(!CollectionUtils.isEmpty(newSuggestIdList)) {
 					this.repository.markAsSuggested(currentUserId, newSuggestIdList);
 				}
 			}
+		}else { //如果非强制刷新，则取历史上最新的三个
+			if(CollectionUtils.isEmpty(suggestedHistory.getList())) { //如果不是强制刷新且没有历史数据，则走强制刷新逻辑去
+				return this.suggestV2(filterType, true);
+			}else { //取最后三个
+				if(suggestedHistory.getList().stream().filter(item -> item.getStatus() == 0).count() == 0  && canFetch) {
+					return this.suggestV2(filterType, true); //如果最后三个都用完了，直接强行取后面三个
+				}else {
+					memberIdList.addAll(suggestedHistory.getList().stream().skip(suggestedHistory.getList().size()-3).map(item -> item.getTargetId()).collect(Collectors.toList()));
+				}
+			}
+		}
+		if(refresh != null && refresh) { //如果强制刷新，则标记过去推荐的为已经用了
+			suggestedHistory.getList().forEach(item -> {
+				item.setStatus(1);
+			});
 		}
 		//加上缓存的数据
-		memberIdList.addAll(remainList);
+		//memberIdList.addAll(remainList);
 		if(!CollectionUtils.isEmpty(suggestList)) {
 			for(MemberSuggestScore item : suggestList) {
 				memberIdList.add(item.getTargetId());
+				//将新推荐的人加进去，状态为0
 				suggestedHistory.getList().add(SuggestedHistoryItem.builder().status(0).targetId(item.getTargetId()).build());
 			} 
-			//更新缓存,缓存一天
-			cacheService.put(CacheType.SuggestHistory,key , suggestedHistory,1,TimeUnit.DAYS);
 		}
+		//更新缓存,缓存一天
+		cacheService.put(CacheType.SuggestHistory,key , suggestedHistory,1,TimeUnit.DAYS);
 		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList))
 				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList))).build();		
 		//把分数返回，并整理排序
@@ -1574,7 +1599,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				}
 				// 1,2 可以二次回退，二次回退 不过滤数据了。。。
 				if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { //数据不够，二次回退
-					if(filterType != 3) {
+					if(filterType != 3 && filterType != 4) {
 						List<MemberSuggestScore> fallbackTwo =  this.repository.suggestNew(execuldeIdList,currentUserId,filterType,2,requiredSize-suggestList.size()); //2次回退
 						if(!CollectionUtils.isEmpty(fallbackTwo)) {
 							suggestList.addAll(fallbackTwo);

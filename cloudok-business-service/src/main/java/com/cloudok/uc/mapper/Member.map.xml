@@ -272,6 +272,7 @@
 		<result property="industry" column="industry" /> 
 		<result property="tag" column="tag" /> 
 		<result property="specialism" column="specialism" /> 
+		<result property="school" column="school" /> 
 	</resultMap>
 	
 	<update id="markAsSuggested" parameterType="Map">
@@ -284,9 +285,9 @@
 	</update>
 	
 	<insert id="createScoreList" parameterType="List">
-		insert into uc_member_suggest (id,suggest_ts,update_ts,owner_id,target_id,score,industry,tag,specialism) values
+		insert into uc_member_suggest (id,suggest_ts,update_ts,owner_id,target_id,score,industry,tag,specialism,school) values
 		<foreach collection="list"   item="item" separator=",">
-			(#{item.id},null,CURRENT_TIMESTAMP(),#{item.ownerId},#{item.targetId},#{item.score},#{item.industry},#{item.tag},#{item.specialism})
+			(#{item.id},null,CURRENT_TIMESTAMP(),#{item.ownerId},#{item.targetId},#{item.score},#{item.industry},#{item.tag},#{item.specialism},#{item.school})
 		</foreach>
 	
 	</insert>	 
@@ -297,7 +298,8 @@
          	score=#{score},
          	industry=#{industry},
          	tag=#{tag},
-         	specialism=#{specialism}
+         	specialism=#{specialism},
+         	school=#{school}
         where id  = #{id}
 	</update> 
 	
@@ -360,6 +362,20 @@
 		<if test="filterType == 3">
 			<if test="fallbackType == null">
 				and tag = 1	 order by score desc
+			</if>
+			<if test="fallbackType == 1 || fallbackType == 2">
+				<if test="excludedIdList != null">
+					and target_id not in 
+					<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</if>
+				 order by score desc
+			</if> 
+		</if>
+		<if test="filterType == 4">
+			<if test="fallbackType == null">
+				and school = 1	 order by score desc
 			</if>
 			<if test="fallbackType == 1 || fallbackType == 2">
 				<if test="excludedIdList != null">

@@ -16,5 +16,5 @@ public class SuggestedHistoryItem implements Serializable {
 	 * 
 	 */
 	private Long targetId;
-	private Integer status; //0 未处理  1 已可  2 不可
+	private Integer status; //0未看过 1 已经看过
 }

@@ -1433,6 +1433,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 		return suggestedHistory;
 	}
+	@Deprecated
 	@Override
 	public Object ignoreSuggestMember(Long memberId) {
 		String key = getCurrentUserId()+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
@@ -1464,72 +1465,138 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		List<Long> memberIdList = new ArrayList<Long>();
 		//获取今日已经关注的
 		String day = DateTimeUtil.formatyyyyMMdd(new Date());
-		List<RecognizedVO>  recognizedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
-				.and(RecognizedMapping.CREATETIME, QueryOperator.GTE,day+" 00:00:00")
-				.and(RecognizedMapping.CREATETIME, QueryOperator.LTE,day+" 23:59:59")
-				.end()
-				.sort(RecognizedMapping.CREATETIME).asc()
-		);
-		List<Long> recognizedIdList = recognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
 		String key = currentUserId+DateTimeUtil.formatSimpleyyyyMMdd(new Date());
 		SuggestedHistory suggestedHistory = this.getSuggestedHistory(key); 
-		List<Long> remainList = suggestedHistory.getList().stream().filter(a -> a.getStatus() == 0).map(item -> item.getTargetId()).collect(Collectors.toList());
 		List<Long> totalList =  suggestedHistory.getList().stream().map(item -> item.getTargetId()).collect(Collectors.toList());
 		List<MemberSuggestScore> suggestList = null;
-		boolean reuiredFetch =  remainList.size() <  SUGGEST_MEMBER_SIZE && totalList.size() < SUGGEST_MEMBER_COUNT_LIMIT;
-		if(reuiredFetch) {
+		boolean canFetch =  totalList.size() < SUGGEST_MEMBER_COUNT_LIMIT; 
+		if(refresh != null && refresh && canFetch) { //强制刷新且推荐数量小于limit
 			List<Long> execuldeIdList = new ArrayList<Long>();
-			//排除今天已经关注了的
-			execuldeIdList.addAll(recognizedIdList);
 			//防止意外把自己也给加进去了
 			execuldeIdList.add(currentUserId);
+			//今天已经推荐的 也排除掉
+			execuldeIdList.addAll(totalList);
 			//获取本次要推荐的： 补充3个或者15个剩下的 取最小数量
-			Integer requiredSize = Math.min(SUGGEST_MEMBER_SIZE-remainList.size(), SUGGEST_MEMBER_COUNT_LIMIT-totalList.size());
-			suggestList = this.suggest(currentUserId, execuldeIdList, filterType,requiredSize);
-			//经历二次回退后，还是没有数据，则表示所有数据都已经推荐过了，重置推荐记录
+			Integer requiredSize = SUGGEST_MEMBER_SIZE ;//新需求，一次取3个 Math.min(SUGGEST_MEMBER_SIZE-remainList.size(), SUGGEST_MEMBER_COUNT_LIMIT-totalList.size());
+			suggestList = this.suggest(false,false,currentUserId, execuldeIdList, filterType,requiredSize);
+			//经历二次回退后，如果数据还不够，则找已经推荐过，但是没可的
 			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { 
-				this.repository.resetSuggestStatus(currentUserId);
-				//如果重置了，今日已经推荐的还是标识为已经推荐
-				if(!CollectionUtils.isEmpty(totalList)) {
-					this.repository.markAsSuggested(currentUserId, totalList);
+				//排除新推荐的的
+				if(!CollectionUtils.isEmpty(suggestList)) {
+					execuldeIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
 				}
-			}
-			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { 
-				//重新推荐,可能还是有问题，再回退
-				List<MemberSuggestScore>  suggestListTwo = this.repository.suggestNew(execuldeIdList,currentUserId,filterType,null,requiredSize-suggestList.size());
+				//找已经推荐但是没可的
+				List<MemberSuggestScore>  suggestListTwo = this.suggest(true,false,currentUserId, execuldeIdList, filterType,requiredSize-suggestList.size());
 				suggestList.addAll(suggestListTwo);
 			}
-			//极端情况，他一天关注了所有人。。
+			//还是不够，找已经推荐且包括已经可了的
 			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { 
-				//清空所有排除数据
 				execuldeIdList.clear();
+				//防止意外把自己也给加进去了
 				execuldeIdList.add(currentUserId);
-				//新推荐的
-				execuldeIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
-				//排除今日已经推荐的
+				//排除新推荐的的
+				if(!CollectionUtils.isEmpty(suggestList)) {
+					execuldeIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+				}
+				//今天已经推荐的 也排除掉
 				execuldeIdList.addAll(totalList);
-				List<MemberSuggestScore>  suggestListThree = this.repository.suggestNew(execuldeIdList,currentUserId,filterType,null,requiredSize-suggestList.size());
-				//这次铁定不会再有问题
-				suggestList.addAll(suggestListThree);
+				//找已经推荐且忽略是否已经可了
+				List<MemberSuggestScore>  suggestListTwo = this.suggest(true,true,currentUserId, execuldeIdList, filterType,requiredSize-suggestList.size());
+				suggestList.addAll(suggestListTwo);
 			}
-			if(!CollectionUtils.isEmpty(suggestList)) {
+			//还是没有，去掉今日推荐的，查询没推荐且不带其他条件
+			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { 
+				execuldeIdList.clear();
+				//防止意外把自己也给加进去了
+				execuldeIdList.add(currentUserId);
+				//排除新推荐的的
+				if(!CollectionUtils.isEmpty(suggestList)) {
+					execuldeIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+				}
+				//今天已经推荐的 也排除掉
+				execuldeIdList.addAll(totalList);
+				List<MemberSuggestScore>  suggestListTwo = this.suggest(false,true,currentUserId, execuldeIdList, 0,requiredSize-suggestList.size());
+				suggestList.addAll(suggestListTwo);
+			}
+			//还是没有，去掉今日推荐的，查包括已经推荐的
+			if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { 
+				execuldeIdList.clear();
+				//防止意外把自己也给加进去了
+				execuldeIdList.add(currentUserId);
+				//排除新推荐的的
+				if(!CollectionUtils.isEmpty(suggestList)) {
+					execuldeIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+				}
+				//今天已经推荐的 也排除掉
+				execuldeIdList.addAll(totalList);
+				List<MemberSuggestScore>  suggestListTwo = this.suggest(true,true,currentUserId, execuldeIdList, 0,requiredSize-suggestList.size());
+				suggestList.addAll(suggestListTwo);
+				//这里判断下 是否所有人都推荐过了，如果是则重置推荐状态
+				List<MemberSuggestScore> unSuggestList = this.repository.getUnSuggestList(currentUserId);
+				boolean shouldReset = false; //所有人都推荐过了
+				if(CollectionUtils.isEmpty(unSuggestList)) {
+					shouldReset = true;
+				}
+				//检查剩下的 是否有在今日推荐里面的
+				if(!shouldReset) {
+					List<Long> ids = suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList());
+					unSuggestList = unSuggestList.stream().filter(item -> !ids.contains(item.getTargetId()) ).collect(Collectors.toList());
+					if(!CollectionUtils.isEmpty(unSuggestList)) {
+						shouldReset = true;
+					}
+				}
+				//重置整个推荐表
+				if(shouldReset) {
+					this.repository.resetSuggestStatus(currentUserId);
+					if(CollectionUtils.isEmpty(totalList)) {
+						this.repository.markAsSuggested(currentUserId, totalList);
+					}
+				}
+			}
+			if(!CollectionUtils.isEmpty(suggestList)) { //数据库中把新推荐的改为已经推荐过
 				//不删除上次数据库历史记录
 				List<Long> newSuggestIdList = suggestList.stream().filter(item -> item.getSuggestTs() == null).map(item -> item.getTargetId()).collect(Collectors.toList());
 				if(!CollectionUtils.isEmpty(newSuggestIdList)) {
 					this.repository.markAsSuggested(currentUserId, newSuggestIdList);
 				}
 			}
+		}else if(refresh == null || !refresh) { //如果非强制刷新，则取历史上最后的三个
+			if(CollectionUtils.isEmpty(suggestedHistory.getList())) { //如果不是强制刷新且没有历史数据，则走强制刷新逻辑去
+				return this.suggestV2(filterType, true);
+			}else { //取最后三个
+				if(suggestedHistory.getList().stream().filter(item -> item.getStatus() == 0).count() == 0  && canFetch) {
+					return this.suggestV2(filterType, true); //如果最后三个都用完了，直接强行取后面三个
+				}else {
+					List<Long> lastPeople = suggestedHistory.getList().stream().skip(suggestedHistory.getList().size()-SUGGEST_MEMBER_SIZE).map(item -> item.getTargetId()).collect(Collectors.toList());
+					memberIdList.addAll(lastPeople);
+				}
+			}
+		}
+		if(refresh != null && refresh) { //如果强制刷新，则标记过去推荐的为已经用了
+			suggestedHistory.getList().forEach(item -> {
+				item.setStatus(1);
+			});
 		}
 		//加上缓存的数据
-		memberIdList.addAll(remainList);
+		//memberIdList.addAll(remainList);
 		if(!CollectionUtils.isEmpty(suggestList)) {
 			for(MemberSuggestScore item : suggestList) {
 				memberIdList.add(item.getTargetId());
+				//将新推荐的人加进去，状态为0
 				suggestedHistory.getList().add(SuggestedHistoryItem.builder().status(0).targetId(item.getTargetId()).build());
 			} 
-			//更新缓存,缓存一天
-			cacheService.put(CacheType.SuggestHistory,key , suggestedHistory,1,TimeUnit.DAYS);
 		}
+		//更新缓存,缓存一天
+		cacheService.put(CacheType.SuggestHistory,key , suggestedHistory,1,TimeUnit.DAYS);
+		
+		List<RecognizedVO>  todayRecognizedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
+				.and(RecognizedMapping.CREATETIME, QueryOperator.GTE,day+" 00:00:00")
+				.and(RecognizedMapping.CREATETIME, QueryOperator.LTE,day+" 23:59:59")
+				.end()
+				.sort(RecognizedMapping.CREATETIME).desc() //新需求： 最新的在最前面
+		);
+		List<Long> recognizedIdList = todayRecognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
+		//限制下，防止一个人某一天认可了所有人。。
 		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList))
 				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList))).build();		
 		//把分数返回，并整理排序
@@ -1549,7 +1616,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 		//修复排序
 		if(!CollectionUtils.isEmpty(result.getTodayRecognizedList())) {
-			List<WholeMemberDTO> list = recognizedList.stream().map(item -> {
+			List<WholeMemberDTO> list = todayRecognizedList.stream().map(item -> {
 				Optional<WholeMemberDTO> opt = result.getTodayRecognizedList().stream().filter(a -> a.getId().equals(item.getTargetId())).findAny();
 				return opt.isPresent() ? opt.get() : null;
 			}).filter(item -> item != null).collect(Collectors.toList());
@@ -1558,29 +1625,19 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		return result;
 	}
 	
-	private List<MemberSuggestScore> suggest(Long currentUserId,List<Long> execuldeIdList,Integer filterType,Integer requiredSize){
+	private List<MemberSuggestScore> suggest(boolean ignoreSuggestStatus,boolean ignoreRecognized,Long currentUserId,List<Long> execuldeIdList,Integer filterType,Integer requiredSize){
 		//第一次推荐，最严格过滤
-		List<MemberSuggestScore> suggestList = this.repository.suggestNew(execuldeIdList,currentUserId,filterType,null,requiredSize);
+		List<MemberSuggestScore> suggestList = this.repository.suggestNew(ignoreSuggestStatus,ignoreRecognized,execuldeIdList,currentUserId,filterType,null,requiredSize);
 		if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { //数据不够，开始回退
-			if(filterType != null) {
+			if(filterType != null && filterType != 3 && filterType != 4) { //回退到大类
 				if(!CollectionUtils.isEmpty(suggestList)) {
 					execuldeIdList.addAll(suggestList.stream().map(item ->item.getTargetId()).collect(Collectors.toList()));
 				}
 				//第一次回退
-				List<MemberSuggestScore> fallbackOne =  this.repository.suggestNew(execuldeIdList,currentUserId,filterType,1,requiredSize-suggestList.size()); //1次回退
+				List<MemberSuggestScore> fallbackOne =  this.repository.suggestNew(ignoreSuggestStatus,ignoreRecognized,execuldeIdList,currentUserId,filterType,1,requiredSize-suggestList.size()); //1次回退
 				if(!CollectionUtils.isEmpty(fallbackOne)) {
 					suggestList.addAll(fallbackOne);
 					execuldeIdList.addAll(fallbackOne.stream().map(item ->item.getTargetId()).collect(Collectors.toList()));
-				}
-				// 1,2 可以二次回退，二次回退 不过滤数据了。。。
-				if(CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) { //数据不够，二次回退
-					if(filterType != 3) {
-						List<MemberSuggestScore> fallbackTwo =  this.repository.suggestNew(execuldeIdList,currentUserId,filterType,2,requiredSize-suggestList.size()); //2次回退
-						if(!CollectionUtils.isEmpty(fallbackTwo)) {
-							suggestList.addAll(fallbackTwo);
-							execuldeIdList.addAll(fallbackOne.stream().map(item ->item.getTargetId()).collect(Collectors.toList()));
-						}
-					}
 				}
 			}
 		}

@@ -124,7 +124,7 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 		List<MemberSuggestScore> scoreList  = new ArrayList<MemberSuggestScore>();
 		if(!CollectionUtils.isEmpty(otherList)) {
 			otherList.stream().forEach(item ->{
-			MemberSuggestScore score = new MemberSuggestScore(owner.getId(),item.getId(),0.0,0,0,0);
+			MemberSuggestScore score = new MemberSuggestScore(owner.getId(),item.getId(),0.0,0,0,0,0);
 			scoreList.add(score);
 			List<EducationExperienceVO> eduList = owner.getEducationList();
 			List<EducationExperienceVO> othersEduList = item.getEducationList();
@@ -136,6 +136,7 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 					othersEduList.stream().forEach(otherEdu ->{
 						if(edu.getSchool().getId().equals(otherEdu.getSchool().getId())) {
 							score.addScore(20.0);
+							score.setSchool(1);
 						}
 						if(edu.getSpecialism().getId().equals(otherEdu.getSpecialism().getId())) {
 							score.addScore(10.0);  //细分专业+10

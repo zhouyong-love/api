@@ -92,7 +92,7 @@
 		</where>
 	</select>
  -->
-	<select id="queryFriends"
+	<!-- <select id="queryFriends"
 		parameterType="com.cloudok.core.query.QueryBuilder"
 		resultMap="linkMemberMap">
 		select
@@ -112,7 +112,7 @@
 			<include
 				refid="com.cloudok.core.mybatis.BaseMapper.condition" />
 		</where>
-	</select>
+	</select> -->
 <!-- 
 	<select id="countQueryLinkMember"
 		parameterType="com.cloudok.core.query.QueryBuilder" resultType="long">
@@ -168,6 +168,7 @@
 		order by score desc
 	</select>
 	
+	
 	<resultMap  type="com.cloudok.uc.po.MemberCirclePO" id="memberCircleMap">
 		<result property="memberId" column="id"/>
 		<result property="lastUpdateTs" column="last_update_ts"/>
@@ -176,35 +177,35 @@
 	<select id="getMemberCirclesList" parameterType="map" resultMap="memberCircleMap">
 		select t1.id,t1.last_update_ts from (
 			select u.id,
-			<if test="filterType ==1">
+			<if test="type ==1">
 				(select max(temp.update_ts) from uc_research_experience  temp where temp.member_id = u.id and temp.deleted = false and temp.domain_id=#{businessId}) as last_update_ts
 			</if>
-			<if test="filterType ==2">
+			<if test="type ==2">
 				(select max(temp.update_ts) from  uc_internship_experience temp, base_industry bitemp  where temp.industry_id = bitemp.id and  temp.member_id = u.id and temp.deleted = false and bitemp.category=#{businessId} ) as last_update_ts
 			</if>
-			<if test="filterType ==3">
+			<if test="type ==3">
 				(select max(temp.update_ts) from  uc_project_experience  temp where  temp.member_id = u.id   and temp.deleted = false and temp.category=#{businessId}) as last_update_ts
 			</if>
-			<if test="filterType ==4">
+			<if test="type ==4">
 				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}) as last_update_ts
 			</if>
-			<if test="filterType ==5">
+			<if test="type ==5">
 				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}) as last_update_ts
 			</if>
 			 from uc_member u where
-				<if test="filterType ==1">
+				<if test="type ==1">
 					EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
 				</if>
-				<if test="filterType ==2">
+				<if test="type ==2">
 					EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
 				</if>
-				<if test="filterType ==3">
+				<if test="type ==3">
 					EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
 				</if>
-				<if test="filterType ==4">
+				<if test="type ==4">
 					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
 				</if>
-				<if test="filterType ==5">
+				<if test="type ==5">
 					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
 				</if>
 				<if test="excludedIdList != null">
@@ -214,7 +215,12 @@
 					</foreach>
 				</if>
 				and u.deleted=false
-			
+				<if test="filterType == 0">
+					and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.deleted=false)
+				</if>
+				<if test="filterType == 1">
+					and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.deleted=false)
+				</if>
 		) t1
 		order by t1.last_update_ts desc
 		limit #{offset},#{pageSize}
@@ -222,19 +228,19 @@
 	
 	<select id="getMemberCirclesCount" parameterType="map" resultType="Long">
 		select count(u.id) from uc_member u where
-		<if test="filterType ==1">
+		<if test="type ==1">
 			EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
 		</if>
-		<if test="filterType ==2">
+		<if test="type ==2">
 			EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
 		</if>
-		<if test="filterType ==3">
+		<if test="type ==3">
 			EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
 		</if>
-		<if test="filterType ==4">
+		<if test="type ==4">
 			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
 		</if>
-		<if test="filterType ==5">
+		<if test="type ==5">
 			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
 		</if>
 		<if test="excludedIdList != null">
@@ -243,7 +249,131 @@
 				#{item}
 			</foreach>
 		</if>
+		<if test="filterType == 0">
+			and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
+		</if>
+		<if test="filterType == 1">
+			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
+		</if>
 		and u.deleted=false
 	</select>
+
+	
+	
+	
+	
+	<resultMap type="com.cloudok.uc.po.MemberSuggestScore" id="scoreMap">
+		<result property="id" column="id" />
+		<result property="suggestTs" column="suggest_ts" />
+		<result property="updateTs" column="update_ts" />
+		<result property="ownerId" column="owner_id" />
+		<result property="targetId" column="target_id" />
+		<result property="score" column="score" /> 
+		<result property="industry" column="industry" /> 
+		<result property="tag" column="tag" /> 
+		<result property="specialism" column="specialism" /> 
+	</resultMap>
+	
+	<update id="markAsSuggested" parameterType="Map">
+		update uc_member_suggest set suggest_ts = CURRENT_TIMESTAMP() where 
+		owner_id = #{ownerId} and
+		target_id in 
+		<foreach collection="targetIdList" close=")" item="item" open="(" separator=",">
+				#{item}
+		</foreach>
+	</update>
+	
+	<insert id="createScoreList" parameterType="List">
+		insert into uc_member_suggest (id,suggest_ts,update_ts,owner_id,target_id,score,industry,tag,specialism) values
+		<foreach collection="list"   item="item" separator=",">
+			(#{item.id},null,CURRENT_TIMESTAMP(),#{item.ownerId},#{item.targetId},#{item.score},#{item.industry},#{item.tag},#{item.specialism})
+		</foreach>
+	
+	</insert>	 
+	
+	<update id="updateScore"  parameterType="com.cloudok.uc.po.MemberSuggestScore">
+		update uc_member_suggest
+         set 
+         	score=#{score},
+         	industry=#{industry},
+         	tag=#{tag},
+         	specialism=#{specialism}
+        where id  = #{id}
+	</update> 
+	
+	<select id="getScoreByOwnerId" resultMap="scoreMap">
+		select * from uc_member_suggest where owner_id in
+        <foreach collection="idList" index="index" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+	</select> 
+	
+	<update id="resetSuggestStatus" parameterType="Map">
+		update uc_member_suggest set suggest_ts = null where owner_id = #{currentUserId}
+	</update>
+
+	<select id="getLastestSuggest" parameterType="Map" resultMap="scoreMap">
+		select * from uc_member_suggest where owner_id = #{currentUserId}
+		and suggest_ts between concat(#{date},' 00:00:00') and concat(#{date},' 23:59:59')
+		 order by suggest_ts desc limit 0, #{size}
+	</select>
+	
+	<select id="suggestNew" parameterType="Map"  resultMap="scoreMap">
+		select * from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null and score > 0
+		<if test="filterType == 0">
+			order by score desc
+		</if>
+		<if test="filterType == 1">
+			<if test="fallbackType == null">
+				and specialism = 2 order by score desc
+			</if>
+			<if test="fallbackType == 1">
+				and specialism = 1 order by score desc
+			</if>
+			<if test="fallbackType == 2">
+				<if test="excludedIdList != null">
+					and target_id not in 
+					<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</if>
+				 order by score desc
+			</if>
+		</if>
+		<if test="filterType == 2">
+			<if test="fallbackType == null">
+				and industry = 2	 order by score desc
+			</if>
+			<if test="fallbackType == 1">
+				and industry  = 1 order by score
+			</if>
+			<if test="fallbackType == 2">
+				<if test="excludedIdList != null">
+					and target_id not in 
+					<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</if>
+				 order by score
+			</if>
+		</if>
+		<if test="filterType == 3">
+			<if test="fallbackType == null">
+				and tag = 1	 order by score desc
+			</if>
+			<if test="fallbackType == 1 || fallbackType == 2">
+				<if test="excludedIdList != null">
+					and target_id not in 
+					<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</if>
+				 order by score desc
+			</if> 
+		</if>
+		 limit 0, #{size}
+	</select>
+	
+	
 
 </mapper>

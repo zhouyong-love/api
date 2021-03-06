@@ -16,11 +16,10 @@ import com.cloudok.uc.vo.ForgotVO;
 import com.cloudok.uc.vo.LoginVO;
 import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.SingupVO;
+import com.cloudok.uc.vo.SuggestResult;
 import com.cloudok.uc.vo.TokenVO;
 import com.cloudok.uc.vo.UserCheckRequest;
 import com.cloudok.uc.vo.VerifyCodeRequest;
-
-import lombok.Data;
 
 public interface MemberService extends IService<MemberVO,MemberPO>{
 
@@ -50,37 +49,41 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	MemberVO fillAccountInfo(@Valid MemberVO vo);
 	
+	SimpleMemberDTO getSimpleMemberInfo();
+	
+//	IdenticalCountVO identical(Long id);
+//	
+//	@Data
+//	public class IdenticalCountVO{
+//		private int friends;
+//		
+//		private int tags;
+//	}
+
+	
+	@Deprecated
+	Page<WholeMemberDTO> suggest(Integer filterType,String threadId,  Integer pageNo, Integer pageSize);
+
+	Page<SimpleMemberInfo> friend(Integer type, Integer pageNo, Integer pageSize);
+
+	Page<SimpleMemberInfo>  getSecondDegreeRecognized(Long memberId, Integer pageNo, Integer pageSize);
+
+	Page<WholeMemberDTO> getMemberCircles(Integer filterType,Integer type, Long businessId, Integer pageNo, Integer pageSize);
+	
+	MemberVO getMemberDetails(Long memberId);
+	
 	WholeMemberDTO  getWholeMemberInfo(Long memberId);
+	
+	WholeMemberDTO  getWholeMemberInfo(Long memberId,boolean includeSecurityInfo);
 	 
 	List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList);
 	
 	List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList);
-	
-	List<WholeMemberDTO> getWholeMemberInfo(List<? extends MemberVO> memberIdList,boolean ignoreRecognized);
-	
-//	Page<WholeMemberDTO> link(QueryBuilder builder);
-//	
-//	WholeMemberDTO link(Long id);
-	
-	SimpleMemberDTO getSimpleMemberInfo();
-	
-	IdenticalCountVO identical(Long id);
-	
-	@Data
-	public class IdenticalCountVO{
-		private int friends;
-		
-		private int tags;
-	}
 
-	MemberVO getMemberDetails(Long memberId);
+	List<WholeMemberDTO> getWholeMemberInfoByVOList(List<MemberVO> memberList);
 
-	Page<WholeMemberDTO> suggest(Integer filterType,String threadId,  Integer pageNo, Integer pageSize);
+	SuggestResult suggestV2(Integer filterType, Boolean refresh);
 
-	Page<WholeMemberDTO> friend(Integer type, Integer pageNo, Integer pageSize);
-
-	Page<WholeMemberDTO>  getSecondDegreeRecognized(Long memberId, Integer pageNo, Integer pageSize);
-
-	Page<WholeMemberDTO> getMemberCircles(Integer type, Long businessId, Integer pageNo, Integer pageSize);
+	Object ignoreSuggestMember(Long memberId);
 
 }

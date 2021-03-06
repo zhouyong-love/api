@@ -31,9 +31,13 @@ import com.cloudok.log.service.SysLogService;
 import com.cloudok.log.vo.SysLogVO;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.event.MemberCreateEvent;
+import com.cloudok.uc.event.MemberScoreEvent;
 import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.event.MessageSendEvent;
 import com.cloudok.uc.event.RecognizedCreateEvent;
+import com.cloudok.uc.event.RecognizedCreateMemberScoreEvent;
+import com.cloudok.uc.event.RecognizedDeleteEvent;
+import com.cloudok.uc.event.RecognizedDeletedMemberScoreEvent;
 import com.cloudok.uc.event.ViewMemberDetailEvent;
 import com.cloudok.uc.mapping.MemberMapping;
 import com.cloudok.uc.service.MemberService;
@@ -66,6 +70,8 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 		vo.setId(member.getId());
 		vo.setWi(score);
 		this.memberService.merge(vo);
+		//触发评分计算
+		SpringApplicationContext.publishEvent(new MemberScoreEvent(vo));
 	}
 
 	private double calcMemberWIScore(WholeMemberDTO member) {
@@ -143,6 +149,8 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 		vo.setWi(score);
 		vo.setProfileUpdateTs(new Timestamp(System.currentTimeMillis()));
 		this.memberService.merge(vo);
+		//触发评分计算
+		SpringApplicationContext.publishEvent(new MemberScoreEvent(vo));
 	}
 
 	private void onRecognizedCreateEvent(RecognizedCreateEvent event) {
@@ -153,6 +161,20 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 		vo.setId(member.getId());
 		vo.setTi(Math.min(score, 50));
 		this.memberService.merge(vo);
+		//触发评分计算
+		SpringApplicationContext.publishEvent(new RecognizedCreateMemberScoreEvent(event.getEventData()));
+	}
+	
+	private void onRecognizedDeleteEvent(RecognizedDeleteEvent event) {
+		MemberVO member = memberService.get(event.getEventData().getSourceId());
+		double score = member.getTi() == null ? 0 :  member.getTi().doubleValue();
+		score = score - 3;
+		MemberVO vo = new MemberVO();
+		vo.setId(member.getId());
+		vo.setTi(Math.max(Math.min(score, 50), 0));
+		this.memberService.merge(vo);
+		//触发评分计算
+		SpringApplicationContext.publishEvent(new RecognizedDeletedMemberScoreEvent(event.getEventData()));
 	}
 
 	private void onViewMemberDetailEvent(ViewMemberDetailEvent event) {
@@ -367,7 +389,9 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 			if (arg0 instanceof RecognizedCreateEvent) {
 				this.onRecognizedCreateEvent(RecognizedCreateEvent.class.cast(arg0));
 			}
-
+			if (arg0 instanceof RecognizedDeleteEvent) {
+				this.onRecognizedDeleteEvent(RecognizedDeleteEvent.class.cast(arg0));
+			}
 			if (arg0 instanceof MemberUpdateEvent) {
 				this.onMemberUpdateEvent(MemberUpdateEvent.class.cast(arg0));
 			}

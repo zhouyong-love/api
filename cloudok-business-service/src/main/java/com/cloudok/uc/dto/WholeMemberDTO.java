@@ -45,10 +45,10 @@ public class WholeMemberDTO extends LinkMemberVO {
 	private List<ProjectExperienceVO> projectList;
 
 	private List<MemberTagsVO> tagsList;
-
-	private List<Long> recognizedMemberList; // 认可的人脉
-
-	private List<Long> recognizedByList; // 被那些人认可
+//
+//	private List<Long> recognizedMemberList; // 认可的人脉
+//
+//	private List<Long> recognizedByList; // 被那些人认可
 	 
 	public RecognizedMemberDTO toRecognized() {
 		RecognizedMemberDTO target = new RecognizedMemberDTO();
@@ -71,4 +71,6 @@ public class WholeMemberDTO extends LinkMemberVO {
 		}
 		return target;
 	}
+
+	
 }

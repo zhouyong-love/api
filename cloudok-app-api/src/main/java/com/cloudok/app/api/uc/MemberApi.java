@@ -116,7 +116,7 @@ public class MemberApi {
 	@ApiOperation(value="get current full user info",notes="get current full user info")
 	@Loggable
 	public Response fullUserInfo() {
-		return Response.buildSuccess(memberService.getWholeMemberInfo(SecurityContextHelper.getCurrentUserId()));
+		return Response.buildSuccess(memberService.getWholeMemberInfo(SecurityContextHelper.getCurrentUserId(),true));
 	}
 	
 	@PostMapping("/exists/username")
@@ -210,14 +210,14 @@ public class MemberApi {
 		return Response.buildSuccess(memberService.getSimpleMemberInfo());
 	}
 	
-	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/identical/{id}")
-	@ApiOperation(value="获取共同的好友和标签",notes="获取共同的好友和标签")
-	@Loggable
-	public Response identical(@PathVariable("id")Long id) {
-		return Response.buildSuccess(memberService.identical(id));
-	}
-	
+//	@PreAuthorize("isAuthenticated()")
+//	@GetMapping("/identical/{id}")
+//	@ApiOperation(value="获取共同的好友和标签",notes="获取共同的好友和标签")
+//	@Loggable
+//	public Response identical(@PathVariable("id")Long id) {
+//		return Response.buildSuccess(memberService.identical(id));
+//	}
+//	
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/{type}/friend")
 	@ApiOperation(value = "查询好友列表", notes = "查询好友列表 0 互关 1 我关注 2 关注我 3 新关注")
@@ -229,16 +229,34 @@ public class MemberApi {
 	}
 	
 	
+//	@PreAuthorize("isAuthenticated()")
+//	@GetMapping("/suggest")
+//	@ApiOperation(value="推荐member列表",notes="推荐用户列表，threadId--点击上方按钮的时候生成一次，filterType目前支持 0 不过滤 1 专业 2 实习 3 个性 4 状态")
+//	@Loggable
+//	public Response suggest(
+//			@RequestParam(name = "filterType", required=false) Integer filterType,
+//			@RequestParam(name = "threadId", required=false) String threadId,
+//			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+//			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+//		return Response.buildSuccess(memberService.suggest(filterType,threadId,pageNo,pageSize));
+//	}
+	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/suggest")
-	@ApiOperation(value="推荐member列表",notes="推荐用户列表，threadId--点击上方按钮的时候生成一次，filterType目前支持 0 不过滤 1 专业 2 实习 3 个性 4 状态")
+	@ApiOperation(value="推荐member列表",notes="新需求导致两个参数没用了。。一天最多刷新5次总共15个，默认取当天最后一次推荐的n条，带refresh=true才去刷新下一组，filterType=0,1,2,3 0不过滤 1 按专业 2 按行业 3 按同好")
 	@Loggable
-	public Response suggest(
-			@RequestParam(name = "filterType", required=false) Integer filterType,
-			@RequestParam(name = "threadId", required=false) String threadId,
-			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
-			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
-		return Response.buildSuccess(memberService.suggest(filterType,threadId,pageNo,pageSize));
+	public Response suggestV2(
+			@RequestParam(name = "filterType", required=false,defaultValue="0") Integer filterType,
+			@RequestParam(name = "refresh", required=false,defaultValue="false") Boolean refresh) {
+		return Response.buildSuccess(memberService.suggestV2(filterType,refresh));
+	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/suggest/{memberId}/ignore")
+	@ApiOperation(value="不可推荐的某人",notes="不可推荐的某人")
+	@Loggable
+	public Response ignoreSuggestMember(@PathVariable("memberId") Long memberId) {
+		return Response.buildSuccess(memberService.ignoreSuggestMember(memberId));
 	}
 	
 	@PreAuthorize("isAuthenticated()")
@@ -261,14 +279,15 @@ public class MemberApi {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/circle")
-	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性 5状态标签")
+	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签, filterType=0 查已经关注的人的云圈，filterType=1 查未关注的人的云圈，总peers=两个查询的total相加")
 	@Loggable
 	public Response getMemberCircles(
+			@RequestParam(name = "filterType", required=false, defaultValue="0") Integer filterType,
 			@RequestParam(name = "type", required=true) Integer type,
 			@RequestParam(name = "businessId", required=false) Long businessId,
 			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
-		return Response.buildSuccess(memberService.getMemberCircles(type,businessId,pageNo,pageSize));
+		return Response.buildSuccess(memberService.getMemberCircles(filterType,type,businessId,pageNo,pageSize));
 	}
 	
 	

@@ -32,8 +32,8 @@ public class MessageServiceImpl extends AbstractService<MessageVO, MessagePO> im
 		super(repository);
 	}
 
-	@Autowired
-	private MessageMapper repository;
+//	@Autowired
+//	private MessageMapper repository;
 
 	@Autowired
 	private MessageThreadService messageThreadService;

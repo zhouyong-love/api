@@ -29,11 +29,12 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	 * @param limit 最大数量
 	 * @return
 	 */
+	@Deprecated
 	List<SuggsetMemberScorePO> suggest(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer filterType,@Param("limit") Integer limit);
 
-	Long getMemberCirclesCount(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer type,@Param("businessId") Long businessId);
+	Long getMemberCirclesCount(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer  filterType,@Param("type") Integer type,@Param("businessId") Long businessId);
 	
-	List<Long> getMemberCirclesList(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer type,@Param("businessId") Long businessId,
+	List<Long> getMemberCirclesList(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer filterType,@Param("type") Integer type,@Param("businessId") Long businessId,
 			@Param("offset") Integer offset,
 			@Param("pageSize") Integer pageSize);
 	
@@ -46,7 +47,8 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	 
 	 List<MemberSuggestScore> getScoreByOwnerId(@Param("idList") List<Long> idList);
 
-	List<MemberSuggestScore> getLastestSuggest(@Param("currentUserId") Long currentUserId,@Param("date")  String date, @Param("size") int size);
+	 @Deprecated
+	 List<MemberSuggestScore> getLastestSuggest(@Param("currentUserId") Long currentUserId,@Param("date")  String date, @Param("size") int size);
 
 	/**
 	 * @param excludedIdList 二次回退的时候，要排除今天已经关注的

@@ -233,6 +233,8 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 			}else {
 				if(wi<0) {
 					wi = wi + 300; //空名片被打压了300分的，这里加回去
+					//空名片不推荐，所以扣掉10000万分，
+					wi = wi - 100000;
 				}
 			}
 			score.addScore(wi);

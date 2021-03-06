@@ -243,12 +243,20 @@ public class MemberApi {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/suggest")
-	@ApiOperation(value="推荐member列表",notes="一天最多刷新5次，默认取当天最后一次推荐的n条，带refresh=true才去刷新下一组，filterType=0,1,2,3 0不过滤 1 按专业 2 按行业 3 按同好")
+	@ApiOperation(value="推荐member列表",notes="新需求导致两个参数没用了。。一天最多刷新5次总共15个，默认取当天最后一次推荐的n条，带refresh=true才去刷新下一组，filterType=0,1,2,3 0不过滤 1 按专业 2 按行业 3 按同好")
 	@Loggable
 	public Response suggestV2(
 			@RequestParam(name = "filterType", required=false,defaultValue="0") Integer filterType,
 			@RequestParam(name = "refresh", required=false,defaultValue="false") Boolean refresh) {
 		return Response.buildSuccess(memberService.suggestV2(filterType,refresh));
+	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/suggest/{memberId}/ignore")
+	@ApiOperation(value="不可推荐的某人",notes="不可推荐的某人")
+	@Loggable
+	public Response ignoreSuggestMember(@PathVariable("memberId") Long memberId) {
+		return Response.buildSuccess(memberService.ignoreSuggestMember(memberId));
 	}
 	
 	@PreAuthorize("isAuthenticated()")
@@ -271,14 +279,15 @@ public class MemberApi {
 	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/circle")
-	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签")
+	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签, filterType=0 查已经关注的人的云圈，filterType=1 查未关注的人的云圈，总peers=两个查询的total相加")
 	@Loggable
 	public Response getMemberCircles(
+			@RequestParam(name = "filterType", required=false, defaultValue="0") Integer filterType,
 			@RequestParam(name = "type", required=true) Integer type,
 			@RequestParam(name = "businessId", required=false) Long businessId,
 			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
-		return Response.buildSuccess(memberService.getMemberCircles(type,businessId,pageNo,pageSize));
+		return Response.buildSuccess(memberService.getMemberCircles(filterType,type,businessId,pageNo,pageSize));
 	}
 	
 	

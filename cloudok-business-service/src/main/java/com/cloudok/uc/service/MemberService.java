@@ -61,14 +61,14 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 //	}
 
 	
-
+	@Deprecated
 	Page<WholeMemberDTO> suggest(Integer filterType,String threadId,  Integer pageNo, Integer pageSize);
 
 	Page<SimpleMemberInfo> friend(Integer type, Integer pageNo, Integer pageSize);
 
 	Page<SimpleMemberInfo>  getSecondDegreeRecognized(Long memberId, Integer pageNo, Integer pageSize);
 
-	Page<WholeMemberDTO> getMemberCircles(Integer type, Long businessId, Integer pageNo, Integer pageSize);
+	Page<WholeMemberDTO> getMemberCircles(Integer filterType,Integer type, Long businessId, Integer pageNo, Integer pageSize);
 	
 	MemberVO getMemberDetails(Long memberId);
 	
@@ -83,5 +83,7 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	List<WholeMemberDTO> getWholeMemberInfoByVOList(List<MemberVO> memberList);
 
 	SuggestResult suggestV2(Integer filterType, Boolean refresh);
+
+	Object ignoreSuggestMember(Long memberId);
 
 }

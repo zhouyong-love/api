@@ -13,5 +13,5 @@ public class CacheType {
 	
 	public static final CacheNameSpace RI = new CacheNameSpace("uc", "RI");
 	
-	public static final CacheNameSpace SuggestRefreshTimes = new CacheNameSpace("uc", "refreshTimes");
+	public static final CacheNameSpace SuggestHistory = new CacheNameSpace("uc", "SuggestHistory");
 }

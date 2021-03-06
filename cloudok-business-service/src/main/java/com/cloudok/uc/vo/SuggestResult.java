@@ -10,8 +10,8 @@ import lombok.Data;
 @Data
 @Builder
 public class SuggestResult {
-	//已经刷新了几次
-	private Integer times; 
+	//已经推荐了几个
+	private Integer suggested; 
 	//推荐列表
 	private List<WholeMemberDTO> suggestList;
 	//今日关注列表

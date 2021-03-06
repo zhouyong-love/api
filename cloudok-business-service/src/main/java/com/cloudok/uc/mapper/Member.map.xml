@@ -171,16 +171,16 @@
 	
 	<select id="getMemberCirclesList" parameterType="map" resultType="Long">
 		select u.id from uc_member u where
-		<if test="filterType ==1">
+		<if test="type ==1">
 			EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
 		</if>
-		<if test="filterType ==2">
+		<if test="type ==2">
 			EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
 		</if>
-		<if test="filterType ==3">
+		<if test="type ==3">
 			EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
 		</if>
-		<if test="filterType ==4">
+		<if test="type ==4">
 			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
 		</if>
 		<if test="excludedIdList != null">
@@ -196,16 +196,16 @@
 	
 	<select id="getMemberCirclesCount" parameterType="map" resultType="Long">
 		select count(u.id) from uc_member u where
-		<if test="filterType ==1">
+		<if test="type ==1">
 			EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
 		</if>
-		<if test="filterType ==2">
+		<if test="type ==2">
 			EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
 		</if>
-		<if test="filterType ==3">
+		<if test="type ==3">
 			EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
 		</if>
-		<if test="filterType ==4">
+		<if test="type ==4">
 			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
 		</if>
 		<if test="excludedIdList != null">
@@ -277,7 +277,7 @@
 	</select>
 	
 	<select id="suggestNew" parameterType="Map"  resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null
+		select * from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null and score > 0
 		<if test="filterType == 0">
 			order by score desc
 		</if>

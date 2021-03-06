@@ -61,9 +61,11 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	 * @param size
 	 * @return
 	 */
-	List<MemberSuggestScore> suggestNew(@Param("excludedIdList")List<Long> excludedIdList,
+	List<MemberSuggestScore> suggestNew(@Param("ignoreSuggestStatus")boolean ignoreSuggestStatus,@Param("excludedIdList")List<Long> excludedIdList,
 			@Param("currentUserId") Long currentUserId, @Param("filterType") Integer filterType,@Param("fallbackType") Integer fallbackType, @Param("size") int size);
 
 	void resetSuggestStatus(@Param("currentUserId") Long currentUserId);
 	
+	List<MemberSuggestScore> getUnSuggestList(@Param("currentUserId") Long currentUserId);
+ 
 }

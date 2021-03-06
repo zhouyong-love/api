@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.cloudok.core.mapper.IMapper;
+import com.cloudok.uc.po.MemberCirclePO;
 import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.po.MemberSuggestScore;
 import com.cloudok.uc.po.SuggsetMemberScorePO;
@@ -32,9 +33,11 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	@Deprecated
 	List<SuggsetMemberScorePO> suggest(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer filterType,@Param("limit") Integer limit);
 
-	Long getMemberCirclesCount(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer  filterType,@Param("type") Integer type,@Param("businessId") Long businessId);
+	Long getMemberCirclesCount(@Param("currentUserId") Long currentUserId,@Param("excludedIdList")List<Long> excludedIdList,
+			@Param("filterType") Integer  filterType,@Param("type") Integer type,@Param("businessId") Long businessId);
 	
-	List<Long> getMemberCirclesList(@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer filterType,@Param("type") Integer type,@Param("businessId") Long businessId,
+	List<MemberCirclePO> getMemberCirclesList(@Param("currentUserId") Long currentUserId,
+			@Param("excludedIdList")List<Long> excludedIdList,@Param("filterType") Integer filterType,@Param("type") Integer type,@Param("businessId") Long businessId,
 			@Param("offset") Integer offset,
 			@Param("pageSize") Integer pageSize);
 	

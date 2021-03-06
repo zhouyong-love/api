@@ -169,28 +169,60 @@
 	</select>
 	
 	
-	<select id="getMemberCirclesList" parameterType="map" resultType="Long">
-		select u.id from uc_member u where
-		<if test="type ==1">
-			EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
-		</if>
-		<if test="type ==2">
-			EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
-		</if>
-		<if test="type ==3">
-			EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
-		</if>
-		<if test="type ==4">
-			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
-		</if>
-		<if test="excludedIdList != null">
-			and u.id not in 
-			<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
-				#{item}
-			</foreach>
-		</if>
-		and u.deleted=false
-		order by u.profile_update_ts desc
+	<resultMap  type="com.cloudok.uc.po.MemberCirclePO" id="memberCircleMap">
+		<result property="memberId" column="id"/>
+		<result property="lastUpdateTs" column="last_update_ts"/>
+	</resultMap>
+	
+	<select id="getMemberCirclesList" parameterType="map" resultMap="memberCircleMap">
+		select t1.id,t1.last_update_ts from (
+			select u.id,
+			<if test="type ==1">
+				(select max(temp.update_ts) from uc_research_experience  temp where temp.member_id = u.id and temp.deleted = false and temp.domain_id=#{businessId}) as last_update_ts
+			</if>
+			<if test="type ==2">
+				(select max(temp.update_ts) from  uc_internship_experience temp, base_industry bitemp  where temp.industry_id = bitemp.id and  temp.member_id = u.id and temp.deleted = false and bitemp.category=#{businessId} ) as last_update_ts
+			</if>
+			<if test="type ==3">
+				(select max(temp.update_ts) from  uc_project_experience  temp where  temp.member_id = u.id   and temp.deleted = false and temp.category=#{businessId}) as last_update_ts
+			</if>
+			<if test="type ==4">
+				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}) as last_update_ts
+			</if>
+			<if test="type ==5">
+				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}) as last_update_ts
+			</if>
+			 from uc_member u where
+				<if test="type ==1">
+					EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
+				</if>
+				<if test="type ==2">
+					EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
+				</if>
+				<if test="type ==3">
+					EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
+				</if>
+				<if test="type ==4">
+					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
+				</if>
+				<if test="type ==5">
+					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
+				</if>
+				<if test="excludedIdList != null">
+					and u.id not in 
+					<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</if>
+				and u.deleted=false
+				<if test="filterType == 0">
+					and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.deleted=false)
+				</if>
+				<if test="filterType == 1">
+					and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.deleted=false)
+				</if>
+		) t1
+		order by t1.last_update_ts desc
 		limit #{offset},#{pageSize}
 	</select>
 	
@@ -208,14 +240,24 @@
 		<if test="type ==4">
 			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
 		</if>
+		<if test="type ==5">
+			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}) 
+		</if>
 		<if test="excludedIdList != null">
 			and u.id not in 
 			<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
 				#{item}
 			</foreach>
 		</if>
+		<if test="filterType == 0">
+			and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
+		</if>
+		<if test="filterType == 1">
+			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
+		</if>
 		and u.deleted=false
 	</select>
+
 	
 	
 	

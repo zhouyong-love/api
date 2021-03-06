@@ -71,6 +71,7 @@ import com.cloudok.uc.mapping.MemberTagsMapping;
 import com.cloudok.uc.mapping.ProjectExperienceMapping;
 import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.mapping.ResearchExperienceMapping;
+import com.cloudok.uc.po.MemberCirclePO;
 import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.po.MemberSuggestScore;
 import com.cloudok.uc.po.SuggsetMemberScorePO;
@@ -1310,16 +1311,23 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			return new Page<>();
 		}
 		Long currentUserId = getCurrentUserId();
-		Long count = this.repository.getMemberCirclesCount(Arrays.asList(currentUserId),filterType,type,businessId);
+		Long count = this.repository.getMemberCirclesCount(currentUserId,Arrays.asList(currentUserId),filterType,type,businessId);
 		Page<WholeMemberDTO> page = new Page<WholeMemberDTO>();
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		page.setTotalCount(count);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / page.getPageSize() + 1) >= page.getPageNo()) {
 			//查询分页数据
-			List<Long> suggestMemberList = this.repository.getMemberCirclesList(Arrays.asList(currentUserId),filterType,type,businessId, (pageNo-1)*pageSize,pageSize);
-			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(suggestMemberList);
+			List<MemberCirclePO> suggestMemberList = this.repository.getMemberCirclesList(currentUserId,Arrays.asList(currentUserId),filterType,type,businessId, (pageNo-1)*pageSize,pageSize);
+			List<Long> suggestMemberIdList  = suggestMemberList.stream().map(item ->item.getMemberId()).collect(Collectors.toList());
+			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(suggestMemberIdList);
 			//恢复排序,最新在最前
+			memberList.stream().forEach(item -> {
+				item.setProfileUpdateTs(null);
+				suggestMemberList.stream().filter(a -> a.getMemberId().equals(item.getId())).findAny().ifPresent(a ->{
+					item.setProfileUpdateTs(a.getLastUpdateTs());
+				});
+			});
 			memberList.sort((b,a)->{
 				if(a.getProfileUpdateTs() == null && b.getProfileUpdateTs() == null) {
 					return 0;
@@ -1335,19 +1343,22 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			
 			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
 					.and(RecognizedMapping.SOURCEID, currentUserId)
-					.and(RecognizedMapping.TARGETID,QueryOperator.IN, suggestMemberList)
+					.and(RecognizedMapping.TARGETID,QueryOperator.IN, suggestMemberIdList)
 					.end()
 					.or(RecognizedMapping.TARGETID,currentUserId)
-					.and(RecognizedMapping.SOURCEID,QueryOperator.IN, suggestMemberList)
+					.and(RecognizedMapping.SOURCEID,QueryOperator.IN, suggestMemberIdList)
 					.end());
 			if(!CollectionUtils.isEmpty(recoginzedList)) {
 				memberList.stream().forEach(member -> {
-					recoginzedList.stream().filter(item -> item.getSourceId().equals(currentUserId)
-					&& item.getTargetId().equals(member.getId())).findAny().ifPresent(item ->{
+					recoginzedList.stream().filter(item -> 
+					   item.getSourceId().equals(currentUserId)
+					&& item.getTargetId().equals(member.getId())
+							).findAny().ifPresent(item ->{
 						member.setTo(true);
 					});
 					recoginzedList.stream().filter(item ->
-					item.getTargetId().equals(currentUserId)&& item.getSourceId().equals(member.getId())
+					item.getTargetId().equals(currentUserId)
+					&& item.getSourceId().equals(member.getId())
 							).findAny().ifPresent(item ->{
 						member.setFrom(true);
 					});
@@ -1388,7 +1399,8 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 								.filter(r -> businessId.toString().equals(r.getCategory())).collect(Collectors.toList()));
 					}
 					break;
-				case 4://个性/状态标签
+				case 4://个性标签
+				case 5://状态标签
 					item.setInternshipList(null);
 					item.setProjectList(null);
 					item.setResearchList(null);

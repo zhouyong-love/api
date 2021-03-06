@@ -729,7 +729,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 //			}
 
 		}
-		return memberList;
+		return voList.stream().map(item -> {
+			Optional<WholeMemberDTO> opt = memberList.stream().filter( m -> m.getId().equals(item.getId())).findAny();
+			return opt.isPresent() ? opt.get() : null;
+		}).filter(item -> item != null).collect(Collectors.toList());
 	}
 
 
@@ -875,7 +878,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 						});
 					});
 		}
-		return memberList;
+		//保持排序不变
+		return memberIdList.stream().map(item -> {
+			Optional<SimpleMemberInfo> opt = memberList.stream().filter( m -> m.getId().equals(item)).findAny();
+			return opt.isPresent() ? opt.get() : null;
+		}).filter(item -> item != null).collect(Collectors.toList());
 	}
 
 	@Override
@@ -910,7 +917,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				.toCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).end()) )
 				.newFrom(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).and(RecognizedMapping.READ, false).end()))
 				.build();
-		
+		List<RecognizedVO>  list = recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId())
+				.and(RecognizedMapping.READ, false).end().sort(RecognizedMapping.CREATETIME).desc().enablePaging().page(1, 3).end());
+		if(!CollectionUtils.isEmpty(list)) {
+			dto.setNewFromList(this.getSimpleMemberInfo(list.stream().map(item -> item.getSourceId()).collect(Collectors.toList())));
+		}
 		if(dto.getMember() != null) {
 			dto.getMember().setPassword(null); //密码还是不返回了
 		}

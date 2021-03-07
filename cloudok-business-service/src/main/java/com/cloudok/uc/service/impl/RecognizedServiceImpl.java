@@ -44,7 +44,7 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 			throw new SystemException(CloudOKExceptionMessage.INCOMPLETE_USER_INFORMATION);
 		}
 		if(count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, SecurityContextHelper.getCurrentUserId()).and(RecognizedMapping.TARGETID, d.getTargetId()).end())>0) {
-			throw new SystemException("请勿重复认可");
+			throw new SystemException("请勿重复可");
 		}
 		d.setSourceId(SecurityContextHelper.getCurrentUserId());
 		d.setRead(false);
@@ -75,7 +75,7 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 			}
 		}
 		if(count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, vo.getSourceId()).and(RecognizedMapping.SOURCEID, vo.getTargetId()).end())>0) {
-			throw new SystemException("已双向认可，不能取消认可");
+			throw new SystemException("已互可，不能取消");
 		}
 		int r = super.remove(id);
 		SpringApplicationContext.publishEvent(new RecognizedDeleteEvent(vo));

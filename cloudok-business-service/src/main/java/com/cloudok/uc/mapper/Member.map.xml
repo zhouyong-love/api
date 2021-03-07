@@ -325,7 +325,7 @@
 	</select>
 	
 	<select id="suggestNew" parameterType="Map"  resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId} 
+		select * from uc_member_suggest u where owner_id = #{currentUserId} 
 		<if test="ignoreSuggestStatus == false">
 			and suggest_ts is null 
 		</if>
@@ -359,7 +359,7 @@
 			and school = 1	
 		</if>
 		<if test="ignoreRecognized == false">
-			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.target_id = u.id and ttt.deleted=false)
+			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.target_id = u.target_id and ttt.deleted=false)
 		</if>
 		 order by score desc  limit 0, #{size}
 	</select>

@@ -1339,18 +1339,18 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					item.setProfileUpdateTs(a.getLastUpdateTs());
 				});
 			});
-			memberList.sort((b,a)->{
-				if(a.getProfileUpdateTs() == null && b.getProfileUpdateTs() == null) {
-					return 0;
-				}
-				if(a.getProfileUpdateTs() == null ) {
-					return -1;
-				}
-				if(b.getProfileUpdateTs() == null ) {
-					return 1;
-				}
-				return a.getProfileUpdateTs().compareTo(b.getProfileUpdateTs());
-			});
+//			memberList.sort((b,a)->{
+//				if(a.getProfileUpdateTs() == null && b.getProfileUpdateTs() == null) {
+//					return 0;
+//				}
+//				if(a.getProfileUpdateTs() == null ) {
+//					return -1;
+//				}
+//				if(b.getProfileUpdateTs() == null ) {
+//					return 1;
+//				}
+//				return a.getProfileUpdateTs().compareTo(b.getProfileUpdateTs());
+//			});
 			
 			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
 					.and(RecognizedMapping.SOURCEID, currentUserId)

@@ -51,6 +51,8 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	
 	SimpleMemberDTO getSimpleMemberInfo();
 	
+	boolean checkMemberNotEmpty(Long memberId);
+	
 //	IdenticalCountVO identical(Long id);
 //	
 //	@Data

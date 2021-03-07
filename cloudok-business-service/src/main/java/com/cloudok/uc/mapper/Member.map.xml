@@ -311,7 +311,7 @@
 	</select> 
 	
 	<select id="getUnSuggestList" resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null  limit 0,100
+		select * from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is and score>-100 null  limit 0,100
 	</select> 
 	
 	<update id="resetSuggestStatus" parameterType="Map">
@@ -325,7 +325,7 @@
 	</select>
 	
 	<select id="suggestNew" parameterType="Map"  resultMap="scoreMap">
-		select * from uc_member_suggest u where owner_id = #{currentUserId} 
+		select * from uc_member_suggest u where owner_id = #{currentUserId}  and score>-100
 		<if test="ignoreSuggestStatus == false">
 			and suggest_ts is null 
 		</if>
@@ -364,7 +364,7 @@
 	</select>
 	
 	<select id="getUnSuggestCount" parameterType="Map" resultType="Long">
-		select count(1) from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null 
+		select count(1) from uc_member_suggest where owner_id = #{currentUserId}  and score>-100 and suggest_ts is null 
 	</select>
 
 </mapper>

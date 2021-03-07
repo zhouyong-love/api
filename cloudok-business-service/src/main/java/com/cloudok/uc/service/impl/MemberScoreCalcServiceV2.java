@@ -17,7 +17,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.query.QueryBuilder;
-import com.cloudok.core.query.QueryOperator;
 import com.cloudok.primarkey.SnowflakePrimaryKeyGenerator;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.event.MemberScoreEvent;
@@ -99,7 +98,7 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 
 	private List<WholeMemberDTO> getAllMemberList(){
 		//空名片过滤掉
-		List<MemberVO> memberList = memberService.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.WI,QueryOperator.GTE, 0).end().sort(MemberMapping.ID).desc());
+		List<MemberVO> memberList = memberService.list(QueryBuilder.create(MemberMapping.class).sort(MemberMapping.ID).desc());
 		return memberService.getWholeMemberInfoByVOList(memberList);
 	}
 	
@@ -229,17 +228,11 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 					});
 				});
 			}
-////			再加上B本身的profile分数Wi wi 不要了
-//			Double wi = item.getWi();
-//			if(wi == null) {
-//				wi = 0.0;
-//			}else {
-//				if(wi<0) {
-//					wi = wi + 300; //空名片被打压了300分的，这里加回去
-//					//空名片不推荐，所以扣掉10000万分，
-//					wi = wi - 100000;
-//				}
-//			}
+////			再加上B本身的profile分数Wi wi压制一万分，等于不推荐
+			Double wi = item.getWi();
+			if(wi == null || wi <= 0) {
+				score.addScore(wi-10000);
+			}
 //			score.addScore(wi);
 //			若B已经关注A，+30
 			if(!CollectionUtils.isEmpty(recognizedVOList)) {

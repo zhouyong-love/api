@@ -1360,7 +1360,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		List<Long> recognizedIdList = todayRecognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
 		// 限制下，防止一个人某一天认可了所有人。。
 		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList))
-				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList))).build();
+				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList)))
+				.failedTimes(suggestedHistory.getFailedTimes())
+				.times(suggestedHistory.getTimes())
+				.successTimes(suggestedHistory.getSuccessTimes())
+				.build();
 		// 把分数返回，并整理排序
 		if (!CollectionUtils.isEmpty(result.getSuggestList())) {
 			if (!CollectionUtils.isEmpty(suggestList)) {

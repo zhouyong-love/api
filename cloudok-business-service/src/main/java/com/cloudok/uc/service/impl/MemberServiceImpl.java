@@ -1332,26 +1332,6 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			List<MemberCirclePO> suggestMemberList = this.repository.getMemberCirclesList(currentUserId,Arrays.asList(currentUserId),filterType,type,businessId, (pageNo-1)*pageSize,pageSize);
 			List<Long> suggestMemberIdList  = suggestMemberList.stream().map(item ->item.getMemberId()).collect(Collectors.toList());
 			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(suggestMemberIdList);
-			//恢复排序,最新在最前
-			memberList.stream().forEach(item -> {
-				item.setProfileUpdateTs(null);
-				suggestMemberList.stream().filter(a -> a.getMemberId().equals(item.getId())).findAny().ifPresent(a ->{
-					item.setProfileUpdateTs(a.getLastUpdateTs());
-				});
-			});
-//			memberList.sort((b,a)->{
-//				if(a.getProfileUpdateTs() == null && b.getProfileUpdateTs() == null) {
-//					return 0;
-//				}
-//				if(a.getProfileUpdateTs() == null ) {
-//					return -1;
-//				}
-//				if(b.getProfileUpdateTs() == null ) {
-//					return 1;
-//				}
-//				return a.getProfileUpdateTs().compareTo(b.getProfileUpdateTs());
-//			});
-			
 			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
 					.and(RecognizedMapping.SOURCEID, currentUserId)
 					.and(RecognizedMapping.TARGETID,QueryOperator.IN, suggestMemberIdList)

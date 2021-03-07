@@ -311,7 +311,7 @@
 	</select> 
 	
 	<select id="getUnSuggestList" resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null  and score > 0 limit 0,100
+		select * from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null  limit 0,100
 	</select> 
 	
 	<update id="resetSuggestStatus" parameterType="Map">
@@ -329,7 +329,6 @@
 		<if test="ignoreSuggestStatus == false">
 			and suggest_ts is null 
 		</if>
-		and score > 0
 		<if test="excludedIdList != null">
 			and target_id not in 
 			<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
@@ -365,7 +364,7 @@
 	</select>
 	
 	<select id="getUnSuggestCount" parameterType="Map" resultType="Long">
-		select count(1) from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null  and score > 0
+		select count(1) from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is null 
 	</select>
 
 </mapper>

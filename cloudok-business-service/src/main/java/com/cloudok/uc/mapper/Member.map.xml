@@ -216,10 +216,10 @@
 				</if>
 				and u.deleted=false
 				<if test="filterType == 0">
-					and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.deleted=false)
-				</if>
+					and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and u.id = ttt.target_id and ttt.deleted = false)
+				</if> 
 				<if test="filterType == 1">
-					and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.deleted=false)
+					and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and u.id = ttt.target_id  and ttt.deleted = false)
 				</if>
 		) t1
 		order by t1.last_update_ts desc
@@ -250,10 +250,10 @@
 			</foreach>
 		</if>
 		<if test="filterType == 0">
-			and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
-		</if>
+			and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and u.id = ttt.target_id and ttt.deleted = false)
+		</if> 
 		<if test="filterType == 1">
-			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
+			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and u.id = ttt.target_id  and ttt.deleted = false)
 		</if>
 		and u.deleted=false
 	</select>
@@ -359,7 +359,7 @@
 			and school = 1	
 		</if>
 		<if test="ignoreRecognized == false">
-			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
+			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.target_id = u.id and ttt.deleted=false)
 		</if>
 		 order by score desc  limit 0, #{size}
 	</select>

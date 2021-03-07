@@ -1639,7 +1639,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			}).filter(item -> item != null).collect(Collectors.toList());
 			result.setTodayRecognizedList(list);
 		}
-		if(CollectionUtils.isEmpty(result.getSuggestList())) {
+		if(!CollectionUtils.isEmpty(result.getSuggestList())) {
 			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
 					.and(RecognizedMapping.SOURCEID, currentUserId)
 					.and(RecognizedMapping.TARGETID,QueryOperator.IN, result.getSuggestList().stream().map(item -> item.getId()).collect(Collectors.toList()))

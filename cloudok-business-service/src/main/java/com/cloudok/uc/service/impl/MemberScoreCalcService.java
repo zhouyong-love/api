@@ -411,7 +411,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 			if (arg0 instanceof UserActionEvent) {
 				this.onUserActionEvent(UserActionEvent.class.cast(arg0));
 			}
-			log.debug("用户评分处理，耗时={} mils",(System.currentTimeMillis()-start));
+			log.debug("用户评分处理,事件为:{}，耗时={} mils",arg0.getClass().getSimpleName(),(System.currentTimeMillis()-start));
 			
 		});
 	}

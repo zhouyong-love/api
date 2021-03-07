@@ -280,6 +280,10 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 		List<WholeMemberDTO> list = getAllMemberList();
 		list.stream().forEach(item ->{
 			this.calcMemberScore(item, list);
+			Long count = this.repository.getUnSuggestCount(item.getId());
+			if(count == null || count <  3) { 
+				this.repository.resetSuggestStatus(item.getId());
+			}
 		});
 	}
 
@@ -287,16 +291,23 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 	public void onApplicationEvent(BusinessEvent<?> arg0) {
 		executor.submit(() -> {
 			Long start = System.currentTimeMillis();
-			if (arg0 instanceof MemberScoreEvent) {
-				this.onMemberScoreEvent(MemberScoreEvent.class.cast(arg0));
-			} 
-			if (arg0 instanceof RecognizedCreateMemberScoreEvent) {
-				this.onRecognizedCreateMemberScoreEvent(RecognizedCreateMemberScoreEvent.class.cast(arg0));
-			} 
-			if (arg0 instanceof RecognizedDeletedMemberScoreEvent) {
-				this.onRecognizedDeletedMemberScoreEvent(RecognizedDeletedMemberScoreEvent.class.cast(arg0));
-			} 
-			log.debug("用户推荐评分处理，耗时={} mils",(System.currentTimeMillis()-start));
+			if(
+					arg0 instanceof MemberScoreEvent
+					|| arg0 instanceof RecognizedCreateMemberScoreEvent
+					|| arg0 instanceof RecognizedCreateMemberScoreEvent
+					) {
+				if (arg0 instanceof MemberScoreEvent) {
+					this.onMemberScoreEvent(MemberScoreEvent.class.cast(arg0));
+				} 
+				if (arg0 instanceof RecognizedCreateMemberScoreEvent) {
+					this.onRecognizedCreateMemberScoreEvent(RecognizedCreateMemberScoreEvent.class.cast(arg0));
+				} 
+				if (arg0 instanceof RecognizedDeletedMemberScoreEvent) {
+					this.onRecognizedDeletedMemberScoreEvent(RecognizedDeletedMemberScoreEvent.class.cast(arg0));
+				} 
+				log.debug("用户推荐评分处理，事件为={}，耗时={} mils",arg0.getClass().getSimpleName(),(System.currentTimeMillis()-start));
+			}
+			
 			
 		});
 	}

@@ -1321,44 +1321,38 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				memberIdList.addAll(suggestedHistory.getLatestList().stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
 			}
 		}
-		if (refresh != null && refresh) { // 如果强制刷新，则标记过去推荐的为已经用了
+		//确实刷新了数据
+		if(refresh != null && refresh && canFetch) {
 			suggestedHistory.getList().forEach(item -> {
 				item.setStatus(1);
 			});
-		}
-		// 加上缓存的数据
-		// memberIdList.addAll(remainList);
-		if (!CollectionUtils.isEmpty(suggestList)) {
-			memberIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
-			List<SuggestedHistoryItem>  newScoreList =  suggestList.stream().map(item ->  new SuggestedHistoryItem(item.getTargetId(),0)).collect(Collectors.toList());
-			suggestedHistory.setLatestList(newScoreList);
-			// 将新推荐的人加进去，状态为0
-			suggestedHistory.getList().addAll(newScoreList);
-		}else {
-			if(refresh != null && refresh ) {
-				suggestedHistory.setLatestList(null);
-			}
-			
-		}
-		//确实刷新了数据
-		if(refresh != null && refresh && canFetch) {
 			suggestedHistory.setTimes(suggestedHistory.getTimes()+1); //加了一次,
 			if(CollectionUtils.isEmpty(suggestList ) || suggestList.size()<SUGGEST_MEMBER_SIZE) {
 				suggestedHistory.setFailedTimes(suggestedHistory.getFailedTimes()+1);
 			}else {
 				suggestedHistory.setSuccessTimes(suggestedHistory.getSuccessTimes()+1);
 			}
+			if (!CollectionUtils.isEmpty(suggestList)) {
+				//有新推荐的，则保存到缓存中
+				memberIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+				List<SuggestedHistoryItem>  newScoreList =  suggestList.stream().map(item ->  new SuggestedHistoryItem(item.getTargetId(),0)).collect(Collectors.toList());
+				suggestedHistory.setLatestList(newScoreList);
+				suggestedHistory.getList().addAll(newScoreList);
+			}
 		}
 		// 更新缓存,缓存一天
 		cacheService.put(CacheType.SuggestHistory, key, suggestedHistory, 1, TimeUnit.DAYS);
-
+		// 限制下，防止一个人某一天认可了所有人。。
 		List<RecognizedVO> todayRecognizedList = this.recognizedService.list(
-				QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId).and(RecognizedMapping.CREATETIME, QueryOperator.GTE, day + " 00:00:00")
-						.and(RecognizedMapping.CREATETIME, QueryOperator.LTE, day + " 23:59:59").end().sort(RecognizedMapping.CREATETIME).desc() // 新需求：
-																																					// 最新的在最前面
+				QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
+				.and(RecognizedMapping.CREATETIME, QueryOperator.GTE, day + " 00:00:00")
+				.and(RecognizedMapping.CREATETIME, QueryOperator.LTE, day + " 23:59:59").end()
+				.sort(RecognizedMapping.CREATETIME).desc() // 新需求最新的在最前面
+				.enablePaging().page(1, 100).end() //限制最多返回100个人
+																																					
 		);
 		List<Long> recognizedIdList = todayRecognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
-		// 限制下，防止一个人某一天认可了所有人。。
+		//组装返回结果
 		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList))
 				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList)))
 				.failedTimes(suggestedHistory.getFailedTimes())
@@ -1374,20 +1368,8 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					});
 				});
 			}
-			List<WholeMemberDTO> list = memberIdList.stream().map(item -> {
-				Optional<WholeMemberDTO> opt = result.getSuggestList().stream().filter(a -> a.getId().equals(item)).findAny();
-				return opt.isPresent() ? opt.get() : null;
-			}).filter(item -> item != null).collect(Collectors.toList());
-			result.setSuggestList(list);
 		}
-		// 修复排序
-		if (!CollectionUtils.isEmpty(result.getTodayRecognizedList())) {
-			List<WholeMemberDTO> list = todayRecognizedList.stream().map(item -> {
-				Optional<WholeMemberDTO> opt = result.getTodayRecognizedList().stream().filter(a -> a.getId().equals(item.getTargetId())).findAny();
-				return opt.isPresent() ? opt.get() : null;
-			}).filter(item -> item != null).collect(Collectors.toList());
-			result.setTodayRecognizedList(list);
-		}
+		//处理认可状态
 		if (!CollectionUtils.isEmpty(result.getSuggestList())) {
 			List<RecognizedVO> recoginzedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
 					.and(RecognizedMapping.TARGETID, QueryOperator.IN, result.getSuggestList().stream().map(item -> item.getId()).collect(Collectors.toList())).end()
@@ -1404,6 +1386,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				});
 			}
 		}
+		//处理认可状态
 		if(!CollectionUtils.isEmpty(result.getTodayRecognizedList())) {
 			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
 					.and(RecognizedMapping.SOURCEID, currentUserId)

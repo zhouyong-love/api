@@ -86,4 +86,6 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	Object ignoreSuggestMember(Long memberId);
 
+	Page<SimpleMemberInfo>  searchMembers(String keywords, Integer pageNo, Integer pageSize);
+
 }

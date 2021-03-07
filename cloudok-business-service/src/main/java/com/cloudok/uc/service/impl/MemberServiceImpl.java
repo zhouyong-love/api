@@ -202,10 +202,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				String cacheKey = buildKey("login", isSms ? "sms" : "email", vo.getUserName());
 				String code = cacheService.get(CacheType.VerifyCode, cacheKey, String.class);
 				if (StringUtils.isEmpty(code)) {
-					throw new SystemException("verify code is wrong", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+					throw new SystemException("验证码错误", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
 				}
 				if (!code.equals(vo.getCode())) {
-					throw new SystemException("verify code is wrong", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+					throw new SystemException("验证码错误", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
 				}
 			}
 			// 如果通过验证码登录，且用户不存在时直接创建用户
@@ -299,22 +299,22 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		String cacheKey = buildKey("forgot", isSms ? "sms" : "email", isSms ? vo.getPhone() : vo.getEmail());
 		String code = cacheService.get(CacheType.VerifyCode, cacheKey, String.class);
 		if (StringUtils.isEmpty(code)) {
-			throw new SystemException("verify code is wrong", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+			throw new SystemException("验证码错误", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
 		}
 		if (!code.equals(vo.getCode())) {
-			throw new SystemException("verify code is wrong", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+			throw new SystemException("验证码错误", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
 		}
 
 		List<MemberVO> userList = null;
 		if ("1".equalsIgnoreCase(vo.getForgotType())) {
 			userList = this.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.EMAIL, vo.getEmail()).end());
 			if (CollectionUtils.isEmpty(userList)) {
-				throw new SystemException("email not fonud", CoreExceptionMessage.NOTFOUND_ERR);
+				throw new SystemException("邮箱没注册", CoreExceptionMessage.NOTFOUND_ERR);
 			}
 		} else if ("0".equalsIgnoreCase(vo.getForgotType())) {
 			userList = this.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.PHONE, vo.getPhone()).end());
 			if (CollectionUtils.isEmpty(userList)) {
-				throw new SystemException("phone not found", CoreExceptionMessage.NOTFOUND_ERR);
+				throw new SystemException("手机号没注册", CoreExceptionMessage.NOTFOUND_ERR);
 			}
 		}
 		MemberVO user = userList.get(0);
@@ -365,10 +365,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		String cacheKey = buildKey("register", isSms ? "sms" : "email", isSms ? vo.getPhone() : vo.getEmail());
 		String code = cacheService.get(CacheType.VerifyCode, cacheKey, String.class);
 		if (StringUtils.isEmpty(code)) {
-			throw new SystemException("verify code is wrong", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+			throw new SystemException("验证码错误", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
 		}
 		if (!code.equals(vo.getCode())) {
-			throw new SystemException("verify code is wrong", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
+			throw new SystemException("验证码错误", CloudOKExceptionMessage.VERIFY_CODE_WRONG);
 		}
 
 		MemberVO member = new MemberVO();
@@ -395,7 +395,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			throw new SystemException(CloudOKExceptionMessage.USERNAME_ALREADY_EXISTS);
 		}
 		member.setId(SecurityContextHelper.getCurrentUserId());
-		member.setNickName(vo.getNickName());
+		if(!StringUtils.isEmpty(vo.getNickName())) {
+			member.setNickName(vo.getNickName().trim());
+		}else { //暂时不管其他
+			member.setNickName(vo.getNickName());
+		}
 		member.setAvatar(vo.getAvatar());
 		member.setUserName(vo.getUserName());
 		member.setRemark(vo.getRemark());
@@ -697,12 +701,21 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	public Boolean checkPhone(UserCheckRequest request) {
 		return !CollectionUtils.isEmpty(this.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.PHONE, request.getPhone()).end()));
 	}
-
 	@Override
 	public List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList) {
-		Long currentId = getCurrentUserId();
+		if(CollectionUtils.isEmpty(memberIdList)) {
+			return Collections.emptyList();
+		}
 		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
-		List<SimpleMemberInfo> memberList = this.get(memberIdList).stream().map(item -> {
+		return this.getSimpleMemberInfoByVOList(this.get(memberIdList));
+	}
+	private List<SimpleMemberInfo> getSimpleMemberInfoByVOList(List<MemberVO> voList) {
+		if(CollectionUtils.isEmpty(voList)) {
+			return Collections.emptyList();
+		}
+		Long currentId = getCurrentUserId();
+		List<Long> memberIdList = voList.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
+		List<SimpleMemberInfo> memberList = voList.stream().map(item -> {
 			SimpleMemberInfo dto = new SimpleMemberInfo();
 			BeanUtils.copyProperties(item, dto);
 			return dto;
@@ -1340,6 +1353,10 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				suggestedHistory.getList().addAll(newScoreList);
 			}
 		}
+		if(!canFetch) {
+			suggestedHistory.setSuccessTimes(SUGGEST_MEMBER_TIME_LIMIT+1);
+			suggestedHistory.setLatestList(new ArrayList<SuggestedHistoryItem>());
+		}
 		// 更新缓存,缓存一天
 		cacheService.put(CacheType.SuggestHistory, key, suggestedHistory, 1, TimeUnit.DAYS);
 		// 限制下，防止一个人某一天认可了所有人。。
@@ -1483,6 +1500,26 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		return list;
 	}
 
+	@Override
+	public Page<SimpleMemberInfo> searchMembers(String keywords, Integer pageNo, Integer pageSize) {
+		if(StringUtils.isEmpty(keywords) || StringUtils.isEmpty(keywords.trim())) {
+			throw new SystemException(CloudOKExceptionMessage.SEARCH_KEYWORDS_IS_NULL); 
+		}
+		if(keywords.trim().length()>100) {//不支持这么长的昵称 直接给他默认返回
+			return new Page<SimpleMemberInfo>();
+		}
+		Page<MemberVO> page  = this.page(QueryBuilder.create(MemberMapping.class)
+				.and(MemberMapping.NICKNAME, QueryOperator.LIKE,keywords.trim()).end()
+				.sort(MemberMapping.WI).desc()
+				.enablePaging().page(pageNo, pageSize).end()
+				);
+		Page<SimpleMemberInfo>  result = new Page<SimpleMemberInfo>();
+		BeanUtils.copyProperties(page, result);
+		if(!CollectionUtils.isEmpty(page.getData())) {
+			result.setData(this.getSimpleMemberInfoByVOList(page.getData()));
+		}
+		return result;
+	}
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> event) {
 		if (event instanceof RecognizedCreateEvent) {

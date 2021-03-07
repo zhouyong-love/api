@@ -291,6 +291,18 @@ public class MemberApi {
 		return Response.buildSuccess(memberService.getMemberCircles(filterType,type,businessId,pageNo,pageSize));
 	}
 	
+
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/search")
+	@ApiOperation(value="根据昵称查询member",notes="根据昵称查询member")
+	@Loggable
+	public Response searchMembers(
+			@RequestParam(name = "keywords", required=true) String keywords,
+			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+		return Response.buildSuccess(memberService.searchMembers(keywords,pageNo,pageSize));
+	}
+	
 	
 	
 }

@@ -1371,7 +1371,31 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				});
 			}
 		}
-
+		if(!CollectionUtils.isEmpty(result.getTodayRecognizedList())) {
+			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
+					.and(RecognizedMapping.SOURCEID, currentUserId)
+					.and(RecognizedMapping.TARGETID,QueryOperator.IN, result.getSuggestList().stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.end()
+					.or(RecognizedMapping.TARGETID,currentUserId)
+					.and(RecognizedMapping.SOURCEID,QueryOperator.IN, result.getSuggestList().stream().map(item -> item.getId()).collect(Collectors.toList()))
+					.end());
+			if(!CollectionUtils.isEmpty(recoginzedList)) {
+				result.getTodayRecognizedList().stream().forEach(member -> {
+					recoginzedList.stream().filter(item -> 
+					   item.getSourceId().equals(currentUserId)
+					&& item.getTargetId().equals(member.getId())
+							).findAny().ifPresent(item ->{
+						member.setTo(true);
+					});
+					recoginzedList.stream().filter(item ->
+					item.getTargetId().equals(currentUserId)
+					&& item.getSourceId().equals(member.getId())
+							).findAny().ifPresent(item ->{
+						member.setFrom(true);
+					});
+				});
+			}
+		}
 		return result;
 	}
 

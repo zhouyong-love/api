@@ -594,7 +594,15 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 
 	@Override
 	public List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList) {
-		return getWholeMemberInfo(memberIdList, false);
+		if(CollectionUtils.isEmpty(memberIdList)) {
+			return Collections.emptyList();
+		}
+		List<WholeMemberDTO> list = getWholeMemberInfo(memberIdList, false);
+		////保持排序不变
+		return memberIdList.stream().distinct().map(item -> {
+			Optional<WholeMemberDTO> opt  = list.stream().filter(m -> m.getId().equals(item)).findAny();
+			return opt.isPresent() ? opt.get() : null;
+		}).filter(item -> item != null).collect(Collectors.toList());
 	}
 
 	private List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList, boolean includeSecurityInfo) {
@@ -707,7 +715,12 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			return Collections.emptyList();
 		}
 		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
-		return this.getSimpleMemberInfoByVOList(this.get(memberIdList));
+		List<SimpleMemberInfo> list = this.getSimpleMemberInfoByVOList(this.get(memberIdList));
+		//保持排序不变
+		return memberIdList.stream().distinct().map(item -> {
+			Optional<SimpleMemberInfo> opt  = list.stream().filter(m -> m.getId().equals(item)).findAny();
+			return opt.isPresent() ? opt.get() : null;
+		}).filter(item -> item != null).collect(Collectors.toList());
 	}
 	private List<SimpleMemberInfo> getSimpleMemberInfoByVOList(List<MemberVO> voList) {
 		if(CollectionUtils.isEmpty(voList)) {
@@ -1516,7 +1529,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		Page<SimpleMemberInfo>  result = new Page<SimpleMemberInfo>();
 		BeanUtils.copyProperties(page, result);
 		if(!CollectionUtils.isEmpty(page.getData())) {
-			result.setData(this.getSimpleMemberInfoByVOList(page.getData()));
+			result.setData(this.getSimpleMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList())));
 		}
 		return result;
 	}

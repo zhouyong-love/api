@@ -19,6 +19,8 @@ public class SuggestedHistory implements Serializable {
 	private Integer failedTimes;
 	// 已经推荐的数据
 	private List<SuggestedHistoryItem> list;
+	// 上次推荐的数据
+	private List<SuggestedHistoryItem> latestList;
 	
 	public SuggestedHistory() {
 		

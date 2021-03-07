@@ -1199,6 +1199,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		List<Long> totalList = suggestedHistory.getList().stream().map(item -> item.getTargetId()).collect(Collectors.toList());
 		List<MemberSuggestScore> suggestList = null;
 		boolean canFetch = suggestedHistory.getSuccessTimes() < SUGGEST_MEMBER_TIME_LIMIT;
+		if (suggestedHistory.getTimes() == null || suggestedHistory.getTimes() == 0) { //第一次,强制刷新
+			refresh = true;
+		}
 		if (refresh != null && refresh && canFetch) { // 强制刷新且推荐数量小于limit
 			List<Long> execuldeIdList = new ArrayList<Long>();
 			// 防止意外把自己也给加进去了
@@ -1313,17 +1316,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					this.repository.markAsSuggested(currentUserId, newSuggestIdList);
 				}
 			}
-		} else if (refresh == null || !refresh) { // 如果非强制刷新，则取历史上最后的三个
-			if (CollectionUtils.isEmpty(suggestedHistory.getList())) { // 如果不是强制刷新且没有历史数据，则走强制刷新逻辑去
-				return this.suggestV2(filterType, true);
-			} else { // 取最后三个
-				if (suggestedHistory.getList().stream().filter(item -> item.getStatus() == 0).count() == 0 && canFetch) {
-					return this.suggestV2(filterType, true); // 如果最后三个都用完了，直接强行取后面三个
-				} else {
-					List<Long> lastPeople = suggestedHistory.getList().stream().skip(suggestedHistory.getList().size() - SUGGEST_MEMBER_SIZE).map(item -> item.getTargetId())
-							.collect(Collectors.toList());
-					memberIdList.addAll(lastPeople);
-				}
+		} else if (refresh == null || !refresh) { // 如果非强制刷新，取最后一次的结果
+			if(!CollectionUtils.isEmpty(suggestedHistory.getLatestList())) {
+				memberIdList.addAll(suggestedHistory.getLatestList().stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
 			}
 		}
 		if (refresh != null && refresh) { // 如果强制刷新，则标记过去推荐的为已经用了
@@ -1334,11 +1329,16 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		// 加上缓存的数据
 		// memberIdList.addAll(remainList);
 		if (!CollectionUtils.isEmpty(suggestList)) {
-			for (MemberSuggestScore item : suggestList) {
-				memberIdList.add(item.getTargetId());
-				// 将新推荐的人加进去，状态为0
-				suggestedHistory.getList().add(SuggestedHistoryItem.builder().status(0).targetId(item.getTargetId()).build());
+			memberIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+			List<SuggestedHistoryItem>  newScoreList =  suggestList.stream().map(item ->  new SuggestedHistoryItem(item.getTargetId(),0)).collect(Collectors.toList());
+			suggestedHistory.setLatestList(newScoreList);
+			// 将新推荐的人加进去，状态为0
+			suggestedHistory.getList().addAll(newScoreList);
+		}else {
+			if(refresh != null && refresh ) {
+				suggestedHistory.setLatestList(null);
 			}
+			
 		}
 		//确实刷新了数据
 		if(refresh != null && refresh && canFetch) {

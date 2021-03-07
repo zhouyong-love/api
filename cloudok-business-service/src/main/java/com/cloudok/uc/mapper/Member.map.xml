@@ -308,10 +308,11 @@
         <foreach collection="idList" index="index" item="item" separator="," open="(" close=")">
             #{item}
         </foreach>
+         and score>-100 
 	</select> 
 	
 	<select id="getUnSuggestList" resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId} and suggest_ts is and score>-100 null  limit 0,100
+		select * from uc_member_suggest where owner_id = #{currentUserId}  and score>-100  and suggest_ts isnull  limit 0,100
 	</select> 
 	
 	<update id="resetSuggestStatus" parameterType="Map">
@@ -319,7 +320,7 @@
 	</update>
 
 	<select id="getLastestSuggest" parameterType="Map" resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId}
+		select * from uc_member_suggest where owner_id = #{currentUserId}  
 		and suggest_ts between concat(#{date},' 00:00:00') and concat(#{date},' 23:59:59')
 		 order by suggest_ts desc limit 0, #{size}
 	</select>

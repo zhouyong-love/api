@@ -13,12 +13,14 @@ import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.core.vo.Page;
+import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.event.RecognizedCreateEvent;
 import com.cloudok.uc.event.RecognizedDeleteEvent;
 import com.cloudok.uc.mapper.RecognizedMapper;
 import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.po.RecognizedPO;
+import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.service.RecognizedService;
 import com.cloudok.uc.vo.RecognizedVO;
 
@@ -28,6 +30,9 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	private RecognizedMapper repository;
 	
 	@Autowired
+	private MemberService memberService;
+	
+	@Autowired
 	public RecognizedServiceImpl(RecognizedMapper repository) {
 		super(repository);
 		this.repository=repository;
@@ -35,6 +40,9 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	
 	@Override
 	public RecognizedVO  create(RecognizedVO d) {
+		if(!memberService.checkMemberNotEmpty(d.getSourceId())) {
+			throw new SystemException(CloudOKExceptionMessage.INCOMPLETE_USER_INFORMATION);
+		}
 		if(count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, SecurityContextHelper.getCurrentUserId()).and(RecognizedMapping.TARGETID, d.getTargetId()).end())>0) {
 			throw new SystemException("请勿重复可");
 		}

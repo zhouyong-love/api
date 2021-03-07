@@ -44,7 +44,11 @@ public class GlobalExceptionConfigur implements WebMvcConfigurer {
 				} else if (arg3 instanceof SystemException) {
 					SystemException e=(SystemException) arg3;
 					_response = Response.buildFail(e);
-					arg1.setStatus(500);
+					if(e.getExceptionMessage()!=null&&e.getExceptionMessage().getResponseCode()>0) {
+						arg1.setStatus(e.getExceptionMessage().getResponseCode());
+					}else {
+						arg1.setStatus(500);
+					}
 				} else if(arg3 instanceof AccessDeniedException){
 					if(SecurityContextHelper.isLogin()) {
 						_response = Response.buildFail(SecurityExceptionMessage.PERMISSION_DENIED);

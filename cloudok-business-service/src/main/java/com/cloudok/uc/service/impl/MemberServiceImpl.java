@@ -1527,4 +1527,20 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 	}
 
+	@Override
+	public boolean checkMemberNotEmpty(Long memberId) {
+		boolean imperfect = true;
+		if (internshipExperienceService.count(QueryBuilder.create(InternshipExperienceMapping.class).and(InternshipExperienceMapping.MEMBERID, getCurrentUserId()).end()) == 0) {
+			if (memberTagsService.count(QueryBuilder.create(MemberTagsMapping.class).and(InternshipExperienceMapping.MEMBERID, getCurrentUserId()).end()) == 0) {
+				if (projectExperienceService.count(QueryBuilder.create(ProjectExperienceMapping.class).and(InternshipExperienceMapping.MEMBERID, getCurrentUserId()).end()) == 0) {
+					if (researchExperienceService
+							.count(QueryBuilder.create(ResearchExperienceMapping.class).and(InternshipExperienceMapping.MEMBERID, getCurrentUserId()).end()) == 0) {
+						imperfect = false;
+					}
+				}
+			}
+		}
+		return imperfect;
+	}
+
 }

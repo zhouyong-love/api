@@ -231,8 +231,9 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 ////			再加上B本身的profile分数Wi wi压制一万分，等于不推荐
 			Double wi = item.getWi();
 			if(wi == null || wi <= 0) {
-				score.addScore(wi-10000);
+				score.addScore(-10000.0);
 			}
+			
 //			score.addScore(wi);
 //			若B已经关注A，+30
 			if(!CollectionUtils.isEmpty(recognizedVOList)) {

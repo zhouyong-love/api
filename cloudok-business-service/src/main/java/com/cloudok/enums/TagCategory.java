@@ -14,5 +14,5 @@ public class TagCategory {
 	public static final EnumInfo statement = new EnumInfo("状态标签", "statement", "状态标签");
 	
 	@EnumValue(sn = 5)
-	public static final EnumInfo systemTopic = new EnumInfo("动态系统推荐标签", "5", "动态系统推荐标签");
+	public static final EnumInfo systemTopic = new EnumInfo("动态系统推荐标签", "topic", "动态系统推荐标签");
 }

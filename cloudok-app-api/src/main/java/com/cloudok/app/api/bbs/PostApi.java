@@ -34,7 +34,7 @@ public class PostApi {
 	
 
 	@PreAuthorize("isFullyAuthenticated()")
-	@GetMapping
+	@GetMapping("/tags")
 	@ApiOperation(value = "获取动态可用标签", notes = "获取动态可用标签")
 	@Loggable
 	public Response getTopicList() {
@@ -120,7 +120,7 @@ public class PostApi {
  
 
 	@PreAuthorize("isFullyAuthenticated()")
-	@GetMapping("/")
+	@GetMapping("/circle")
 	@ApiOperation(value = "动态云圈", notes = "动态云圈")
 	@Loggable
 	public Response getPostsByTopic(

@@ -1,6 +1,7 @@
 package com.cloudok.uc.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.cloudok.uc.vo.EducationExperienceVO;
 import com.cloudok.uc.vo.MemberVO;
@@ -31,4 +32,6 @@ public class SimpleMemberDTO implements Serializable{
 	private long newFrom;
 	
 	private boolean imperfect;
+	
+	private List<SimpleMemberInfo> newFromList;
 }

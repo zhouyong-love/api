@@ -97,6 +97,7 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 	}
 
 	private List<WholeMemberDTO> getAllMemberList(){
+		//空名片过滤掉
 		List<MemberVO> memberList = memberService.list(QueryBuilder.create(MemberMapping.class).sort(MemberMapping.ID).desc());
 		return memberService.getWholeMemberInfoByVOList(memberList);
 	}
@@ -227,18 +228,13 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 					});
 				});
 			}
-//			再加上B本身的profile分数Wi
+////			再加上B本身的profile分数Wi wi压制一万分，等于不推荐
 			Double wi = item.getWi();
-			if(wi == null) {
-				wi = 0.0;
-			}else {
-				if(wi<0) {
-					wi = wi + 300; //空名片被打压了300分的，这里加回去
-					//空名片不推荐，所以扣掉10000万分，
-					wi = wi - 100000;
-				}
+			if(wi == null || wi <= 0) {
+				score.addScore(-10000.0);
 			}
-			score.addScore(wi);
+			
+//			score.addScore(wi);
 //			若B已经关注A，+30
 			if(!CollectionUtils.isEmpty(recognizedVOList)) {
 				recognizedVOList.stream().filter(r -> r.getSourceId().equals(item.getId())).findAny().ifPresent(r->{
@@ -280,6 +276,10 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 		List<WholeMemberDTO> list = getAllMemberList();
 		list.stream().forEach(item ->{
 			this.calcMemberScore(item, list);
+			Long count = this.repository.getUnSuggestCount(item.getId());
+			if(count == null || count <  3) { 
+				this.repository.resetSuggestStatus(item.getId());
+			}
 		});
 	}
 
@@ -287,16 +287,23 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 	public void onApplicationEvent(BusinessEvent<?> arg0) {
 		executor.submit(() -> {
 			Long start = System.currentTimeMillis();
-			if (arg0 instanceof MemberScoreEvent) {
-				this.onMemberScoreEvent(MemberScoreEvent.class.cast(arg0));
-			} 
-			if (arg0 instanceof RecognizedCreateMemberScoreEvent) {
-				this.onRecognizedCreateMemberScoreEvent(RecognizedCreateMemberScoreEvent.class.cast(arg0));
-			} 
-			if (arg0 instanceof RecognizedDeletedMemberScoreEvent) {
-				this.onRecognizedDeletedMemberScoreEvent(RecognizedDeletedMemberScoreEvent.class.cast(arg0));
-			} 
-			log.debug("用户推荐评分处理，耗时={} mils",(System.currentTimeMillis()-start));
+			if(
+					arg0 instanceof MemberScoreEvent
+					|| arg0 instanceof RecognizedCreateMemberScoreEvent
+					|| arg0 instanceof RecognizedCreateMemberScoreEvent
+					) {
+				if (arg0 instanceof MemberScoreEvent) {
+					this.onMemberScoreEvent(MemberScoreEvent.class.cast(arg0));
+				} 
+				if (arg0 instanceof RecognizedCreateMemberScoreEvent) {
+					this.onRecognizedCreateMemberScoreEvent(RecognizedCreateMemberScoreEvent.class.cast(arg0));
+				} 
+				if (arg0 instanceof RecognizedDeletedMemberScoreEvent) {
+					this.onRecognizedDeletedMemberScoreEvent(RecognizedDeletedMemberScoreEvent.class.cast(arg0));
+				} 
+				log.debug("用户推荐评分处理，事件为={}，耗时={} mils",arg0.getClass().getSimpleName(),(System.currentTimeMillis()-start));
+			}
+			
 			
 		});
 	}

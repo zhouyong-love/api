@@ -8,6 +8,10 @@ public class CloudOKExceptionMessage extends ExceptionMessage{
 	public CloudOKExceptionMessage(String code, String message) {
 		super(code, message);
 	}
+	
+	public CloudOKExceptionMessage(int responseCode,String code, String message) {
+		super(responseCode, code, message);
+	}
 
 	private static final long serialVersionUID = 8239091920220949891L;
 	
@@ -41,7 +45,11 @@ public class CloudOKExceptionMessage extends ExceptionMessage{
 	
 	public static final CloudOKExceptionMessage REFRESH_TIMES_LIMIT =new CloudOKExceptionMessage("BUS.REFRESH_TIMES_LIMIT", "一天最多只能刷新5次");
 	
+	public static final CloudOKExceptionMessage SEARCH_KEYWORDS_IS_NULL =new CloudOKExceptionMessage("BUS.SEARCH_KEYWORDS_IS_NULL", "请输入搜索关键词");
 
+	public static final CloudOKExceptionMessage INCOMPLETE_USER_INFORMATION =new CloudOKExceptionMessage(200,"BUS.INCOMPLETE_USER_INFORMATION", "用户信息不完整");
+
+	
 	public static CoreExceptionMessage build(String code, String message) {
 		return new CoreExceptionMessage(code,message);
 	}

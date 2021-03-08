@@ -51,6 +51,8 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	
 	SimpleMemberDTO getSimpleMemberInfo();
 	
+	boolean checkMemberNotEmpty(Long memberId);
+	
 //	IdenticalCountVO identical(Long id);
 //	
 //	@Data
@@ -85,5 +87,7 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 	SuggestResult suggestV2(Integer filterType, Boolean refresh);
 
 	Object ignoreSuggestMember(Long memberId);
+
+	Page<SimpleMemberInfo>  searchMembers(String keywords, Integer pageNo, Integer pageSize);
 
 }

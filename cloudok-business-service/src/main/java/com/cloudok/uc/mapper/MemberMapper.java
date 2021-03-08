@@ -83,5 +83,9 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	void resetSuggestStatus(@Param("currentUserId") Long currentUserId);
 	
 	List<MemberSuggestScore> getUnSuggestList(@Param("currentUserId") Long currentUserId);
+	
+	Long getUnSuggestCount(@Param("currentUserId") Long currentUserId);
+	
+	
  
 }

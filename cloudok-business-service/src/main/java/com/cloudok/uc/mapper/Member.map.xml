@@ -216,10 +216,10 @@
 				</if>
 				and u.deleted=false
 				<if test="filterType == 0">
-					and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.deleted=false)
-				</if>
+					and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and u.id = ttt.target_id and ttt.deleted = false)
+				</if> 
 				<if test="filterType == 1">
-					and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.deleted=false)
+					and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and u.id = ttt.target_id  and ttt.deleted = false)
 				</if>
 		) t1
 		order by t1.last_update_ts desc
@@ -250,10 +250,10 @@
 			</foreach>
 		</if>
 		<if test="filterType == 0">
-			and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
-		</if>
+			and exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and u.id = ttt.target_id and ttt.deleted = false)
+		</if> 
 		<if test="filterType == 1">
-			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
+			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and u.id = ttt.target_id  and ttt.deleted = false)
 		</if>
 		and u.deleted=false
 	</select>
@@ -308,10 +308,11 @@
         <foreach collection="idList" index="index" item="item" separator="," open="(" close=")">
             #{item}
         </foreach>
+         and score>-100 
 	</select> 
 	
 	<select id="getUnSuggestList" resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId} and and score > 0 limit 0,100
+		select * from uc_member_suggest where owner_id = #{currentUserId}  and score>-100  and suggest_ts is null  limit 0,100
 	</select> 
 	
 	<update id="resetSuggestStatus" parameterType="Map">
@@ -319,17 +320,16 @@
 	</update>
 
 	<select id="getLastestSuggest" parameterType="Map" resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId}
+		select * from uc_member_suggest where owner_id = #{currentUserId}  
 		and suggest_ts between concat(#{date},' 00:00:00') and concat(#{date},' 23:59:59')
 		 order by suggest_ts desc limit 0, #{size}
 	</select>
 	
 	<select id="suggestNew" parameterType="Map"  resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId} 
+		select * from uc_member_suggest u where owner_id = #{currentUserId}  and score>-100
 		<if test="ignoreSuggestStatus == false">
 			and suggest_ts is null 
 		</if>
-		and score > 0
 		<if test="excludedIdList != null">
 			and target_id not in 
 			<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
@@ -359,11 +359,13 @@
 			and school = 1	
 		</if>
 		<if test="ignoreRecognized == false">
-			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId})
+			and not exists (select 1 from uc_recognized ttt where ttt.source_id = #{currentUserId} and ttt.target_id = u.target_id and ttt.deleted=false)
 		</if>
 		 order by score desc  limit 0, #{size}
 	</select>
 	
-	
+	<select id="getUnSuggestCount" parameterType="Map" resultType="Long">
+		select count(1) from uc_member_suggest where owner_id = #{currentUserId}  and score>-100 and suggest_ts is null 
+	</select>
 
 </mapper>

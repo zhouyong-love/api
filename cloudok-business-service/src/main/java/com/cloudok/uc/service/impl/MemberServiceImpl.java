@@ -1366,7 +1366,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				suggestedHistory.getList().addAll(newScoreList);
 			}
 		}
-		if(!canFetch) {
+		if(!canFetch && refresh!=null && refresh) {
 			suggestedHistory.setSuccessTimes(SUGGEST_MEMBER_TIME_LIMIT+1);
 			suggestedHistory.setLatestList(new ArrayList<SuggestedHistoryItem>());
 		}

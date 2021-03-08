@@ -366,6 +366,15 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 					}
 					// 匿名聊天不保留memberId
 					if (UCMessageThreadType.anonymousInteraction.getValue().equals(item.getType()) && !CollectionUtils.isEmpty(item.getMemberList())) {
+						if(!CollectionUtils.isEmpty(item.getLatestMessageList())) {
+							item.getLatestMessageList().stream().filter(m ->UCMessageType.interaction.getValue().equals(m.getType()) ).findAny().ifPresent(m ->{
+								m.setCreateBy(null);
+								m.setUpdateBy(null);
+								m.setMemberId(null);
+							});
+						}
+						item.setCreateBy(null);
+						item.setUpdateBy(null);
 						List<SimpleMemberInfo> mlist = new ArrayList<SimpleMemberInfo>();
 						// 隐藏头像，图片
 						item.getMemberList().stream().forEach(m -> {
@@ -378,7 +387,6 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 									edu.setCreateBy(null);
 									edu.setUpdateBy(null);
 									s.setEducation(edu);
-
 								}
 								mlist.add(s);
 							} else {

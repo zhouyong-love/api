@@ -312,7 +312,7 @@
 	</select> 
 	
 	<select id="getUnSuggestList" resultMap="scoreMap">
-		select * from uc_member_suggest where owner_id = #{currentUserId}  and score>-100  and suggest_ts isnull  limit 0,100
+		select * from uc_member_suggest where owner_id = #{currentUserId}  and score>-100  and suggest_ts is null  limit 0,100
 	</select> 
 	
 	<update id="resetSuggestStatus" parameterType="Map">

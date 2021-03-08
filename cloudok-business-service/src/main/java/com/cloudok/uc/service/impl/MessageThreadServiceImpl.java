@@ -198,7 +198,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 			thread = this.getBaseInfo(vo.getThreadId());
 		}
 		// 检查是否有权限
-		if (!thread.getMemberList().stream().map(item -> item.getId()).filter(item -> item.equals(SecurityContextHelper.getCurrentUserId())).findAny().isPresent()) {
+		if (!thread.getMemberList().stream().filter(item -> item.getId() != null).map(item -> item.getId()).filter(item -> item.equals(SecurityContextHelper.getCurrentUserId())).findAny().isPresent()) {
 			throw new SystemException("您没有权限参与", CoreExceptionMessage.NO_PERMISSION);
 		}
 

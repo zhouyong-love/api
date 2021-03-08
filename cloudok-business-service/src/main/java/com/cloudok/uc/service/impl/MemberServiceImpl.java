@@ -665,7 +665,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 					});
 
 			memberTagsService
-					.list(QueryBuilder.create(EducationExperienceMapping.class)
+					.list(QueryBuilder.create(MemberTagsMapping.class)
 							.and(MemberTagsMapping.MEMBERID, QueryOperator.IN, memberIdList).end())
 					.stream().collect(Collectors.groupingBy(MemberTagsVO::getMemberId))
 					.forEach((memberId, valueList) -> {

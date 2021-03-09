@@ -395,9 +395,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			throw new SystemException(CloudOKExceptionMessage.USERNAME_ALREADY_EXISTS);
 		}
 		member.setId(SecurityContextHelper.getCurrentUserId());
-		if(!StringUtils.isEmpty(vo.getNickName())) {
+		if (!StringUtils.isEmpty(vo.getNickName())) {
 			member.setNickName(vo.getNickName().trim());
-		}else { //暂时不管其他
+		} else { // 暂时不管其他
 			member.setNickName(vo.getNickName());
 		}
 		member.setAvatar(vo.getAvatar());
@@ -594,13 +594,13 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 
 	@Override
 	public List<WholeMemberDTO> getWholeMemberInfo(List<Long> memberIdList) {
-		if(CollectionUtils.isEmpty(memberIdList)) {
+		if (CollectionUtils.isEmpty(memberIdList)) {
 			return Collections.emptyList();
 		}
 		List<WholeMemberDTO> list = getWholeMemberInfo(memberIdList, false);
-		////保持排序不变
+		//// 保持排序不变
 		return memberIdList.stream().distinct().map(item -> {
-			Optional<WholeMemberDTO> opt  = list.stream().filter(m -> m.getId().equals(item)).findAny();
+			Optional<WholeMemberDTO> opt = list.stream().filter(m -> m.getId().equals(item)).findAny();
 			return opt.isPresent() ? opt.get() : null;
 		}).filter(item -> item != null).collect(Collectors.toList());
 	}
@@ -709,21 +709,23 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	public Boolean checkPhone(UserCheckRequest request) {
 		return !CollectionUtils.isEmpty(this.list(QueryBuilder.create(MemberMapping.class).and(MemberMapping.PHONE, request.getPhone()).end()));
 	}
+
 	@Override
 	public List<SimpleMemberInfo> getSimpleMemberInfo(List<Long> memberIdList) {
-		if(CollectionUtils.isEmpty(memberIdList)) {
+		if (CollectionUtils.isEmpty(memberIdList)) {
 			return Collections.emptyList();
 		}
 		memberIdList = memberIdList.stream().distinct().collect(Collectors.toList());
 		List<SimpleMemberInfo> list = this.getSimpleMemberInfoByVOList(this.get(memberIdList));
-		//保持排序不变
+		// 保持排序不变
 		return memberIdList.stream().distinct().map(item -> {
-			Optional<SimpleMemberInfo> opt  = list.stream().filter(m -> m.getId().equals(item)).findAny();
+			Optional<SimpleMemberInfo> opt = list.stream().filter(m -> m.getId().equals(item)).findAny();
 			return opt.isPresent() ? opt.get() : null;
 		}).filter(item -> item != null).collect(Collectors.toList());
 	}
+
 	private List<SimpleMemberInfo> getSimpleMemberInfoByVOList(List<MemberVO> voList) {
-		if(CollectionUtils.isEmpty(voList)) {
+		if (CollectionUtils.isEmpty(voList)) {
 			return Collections.emptyList();
 		}
 		Long currentId = getCurrentUserId();
@@ -1175,13 +1177,13 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		return page;
 	}
 
-	private static final int SUGGEST_MEMBER_SIZE = 3; //每次n个
-	private static final int SUGGEST_MEMBER_TIME_LIMIT = 5; //总共推荐5次
+	private static final int SUGGEST_MEMBER_SIZE = 3; // 每次n个
+	private static final int SUGGEST_MEMBER_TIME_LIMIT = 5; // 总共推荐5次
 
 	private SuggestedHistory getSuggestedHistory(String key) {
 		SuggestedHistory suggestedHistory = cacheService.get(CacheType.SuggestHistory, key, SuggestedHistory.class);
 		if (suggestedHistory == null) {
-			suggestedHistory = new SuggestedHistory(0,0,0,new ArrayList<SuggestedHistoryItem>());
+			suggestedHistory = new SuggestedHistory(0, 0, 0, new ArrayList<SuggestedHistoryItem>());
 		}
 		return suggestedHistory;
 	}
@@ -1225,7 +1227,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		List<Long> totalList = suggestedHistory.getList().stream().map(item -> item.getTargetId()).collect(Collectors.toList());
 		List<MemberSuggestScore> suggestList = null;
 		boolean canFetch = suggestedHistory.getSuccessTimes() < SUGGEST_MEMBER_TIME_LIMIT;
-		if (suggestedHistory.getTimes() == null || suggestedHistory.getTimes() == 0) { //第一次,强制刷新
+		if (suggestedHistory.getTimes() == null || suggestedHistory.getTimes() == 0) { // 第一次,强制刷新
 			refresh = true;
 		}
 		if (refresh != null && refresh && canFetch) { // 强制刷新且推荐数量小于limit
@@ -1238,7 +1240,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			Integer requiredSize = SUGGEST_MEMBER_SIZE;// 新需求，一次取3个 Math.min(SUGGEST_MEMBER_SIZE-remainList.size(),
 														// SUGGEST_MEMBER_COUNT_LIMIT-totalList.size());
 			suggestList = this.suggest(false, false, currentUserId, execuldeIdList, filterType, requiredSize);
-			// 1. 查询已推荐但是没可的 
+			// 1. 查询已推荐但是没可的
 			// 经历二次回退后，如果数据还不够，则找已经推荐过，但是没可的
 			if (CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) {
 				// 排除新推荐的的
@@ -1265,7 +1267,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				List<MemberSuggestScore> suggestListTwo = this.suggest(false, true, currentUserId, execuldeIdList, filterType, requiredSize - suggestList.size());
 				suggestList.addAll(suggestListTwo);
 			}
-			//3. 查询已经推荐且包含可了的
+			// 3. 查询已经推荐且包含可了的
 			// 还是没有，去掉今日推荐的，查询没推荐且不带其他条件
 			if (CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) {
 				execuldeIdList.clear();
@@ -1280,8 +1282,8 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				List<MemberSuggestScore> suggestListTwo = this.suggest(true, true, currentUserId, execuldeIdList, filterType, requiredSize - suggestList.size());
 				suggestList.addAll(suggestListTwo);
 			}
-			//如果还没有数据，判断是否需要重置推荐
-			if ((filterType==null || filterType==0 ) && (CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize)) {
+			// 如果还没有数据，判断是否需要重置推荐
+			if ((filterType == null || filterType == 0) && (CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize)) {
 				boolean shouldReset = false; // 所有人都推荐过了
 				List<MemberSuggestScore> unSuggestList = this.repository.getUnSuggestList(currentUserId);
 				// 检查剩下的 是否有在今日推荐里面的
@@ -1301,40 +1303,46 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				}
 			}
 			// 还是没有，去掉今日推荐的，查包括已经推荐的
-//			if (CollectionUtils.isEmpty(suggestList) || suggestList.size() < requiredSize) {
-//				execuldeIdList.clear();
-//				// 防止意外把自己也给加进去了
-//				execuldeIdList.add(currentUserId);
-//				// 排除新推荐的的
-//				if (!CollectionUtils.isEmpty(suggestList)) {
-//					execuldeIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
-//				}
-//				// 今天已经推荐的 也排除掉
-//				execuldeIdList.addAll(totalList);
-//				List<MemberSuggestScore> suggestListTwo = this.suggest(true, true, currentUserId, execuldeIdList, 0, requiredSize - suggestList.size());
-//				suggestList.addAll(suggestListTwo);
-//				// 这里判断下 是否所有人都推荐过了，如果是则重置推荐状态
-//				List<MemberSuggestScore> unSuggestList = this.repository.getUnSuggestList(currentUserId);
-//				boolean shouldReset = false; // 所有人都推荐过了
-//				if (CollectionUtils.isEmpty(unSuggestList)) {
-//					shouldReset = true;
-//				}
-//				// 检查剩下的 是否有在今日推荐里面的
-//				if (!shouldReset) {
-//					List<Long> ids = suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList());
-//					unSuggestList = unSuggestList.stream().filter(item -> !ids.contains(item.getTargetId())).collect(Collectors.toList());
-//					if (!CollectionUtils.isEmpty(unSuggestList)) {
-//						shouldReset = true;
-//					}
-//				}
-//				// 重置整个推荐表
-//				if (shouldReset) {
-//					this.repository.resetSuggestStatus(currentUserId);
-//					if (CollectionUtils.isEmpty(totalList)) {
-//						this.repository.markAsSuggested(currentUserId, totalList);
-//					}
-//				}
-//			}
+			// if (CollectionUtils.isEmpty(suggestList) || suggestList.size() <
+			// requiredSize) {
+			// execuldeIdList.clear();
+			// // 防止意外把自己也给加进去了
+			// execuldeIdList.add(currentUserId);
+			// // 排除新推荐的的
+			// if (!CollectionUtils.isEmpty(suggestList)) {
+			// execuldeIdList.addAll(suggestList.stream().map(item ->
+			// item.getTargetId()).collect(Collectors.toList()));
+			// }
+			// // 今天已经推荐的 也排除掉
+			// execuldeIdList.addAll(totalList);
+			// List<MemberSuggestScore> suggestListTwo = this.suggest(true, true,
+			// currentUserId, execuldeIdList, 0, requiredSize - suggestList.size());
+			// suggestList.addAll(suggestListTwo);
+			// // 这里判断下 是否所有人都推荐过了，如果是则重置推荐状态
+			// List<MemberSuggestScore> unSuggestList =
+			// this.repository.getUnSuggestList(currentUserId);
+			// boolean shouldReset = false; // 所有人都推荐过了
+			// if (CollectionUtils.isEmpty(unSuggestList)) {
+			// shouldReset = true;
+			// }
+			// // 检查剩下的 是否有在今日推荐里面的
+			// if (!shouldReset) {
+			// List<Long> ids = suggestList.stream().map(item ->
+			// item.getTargetId()).collect(Collectors.toList());
+			// unSuggestList = unSuggestList.stream().filter(item ->
+			// !ids.contains(item.getTargetId())).collect(Collectors.toList());
+			// if (!CollectionUtils.isEmpty(unSuggestList)) {
+			// shouldReset = true;
+			// }
+			// }
+			// // 重置整个推荐表
+			// if (shouldReset) {
+			// this.repository.resetSuggestStatus(currentUserId);
+			// if (CollectionUtils.isEmpty(totalList)) {
+			// this.repository.markAsSuggested(currentUserId, totalList);
+			// }
+			// }
+			// }
 			if (!CollectionUtils.isEmpty(suggestList)) { // 数据库中把新推荐的改为已经推荐过
 				// 不删除上次数据库历史记录
 				List<Long> newSuggestIdList = suggestList.stream().filter(item -> item.getSuggestTs() == null).map(item -> item.getTargetId()).collect(Collectors.toList());
@@ -1343,52 +1351,47 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				}
 			}
 		} else if (refresh == null || !refresh) { // 如果非强制刷新，取最后一次的结果
-			if(!CollectionUtils.isEmpty(suggestedHistory.getLatestList())) {
+			if (!CollectionUtils.isEmpty(suggestedHistory.getLatestList())) {
 				memberIdList.addAll(suggestedHistory.getLatestList().stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
 			}
 		}
-		//确实刷新了数据
-		if(refresh != null && refresh && canFetch) {
+		// 确实刷新了数据
+		if (refresh != null && refresh && canFetch) {
 			suggestedHistory.getList().forEach(item -> {
 				item.setStatus(1);
 			});
-			suggestedHistory.setTimes(suggestedHistory.getTimes()+1); //加了一次,
-			if(CollectionUtils.isEmpty(suggestList ) || suggestList.size()<SUGGEST_MEMBER_SIZE) {
-				suggestedHistory.setFailedTimes(suggestedHistory.getFailedTimes()+1);
-			}else {
-				suggestedHistory.setSuccessTimes(suggestedHistory.getSuccessTimes()+1);
+			suggestedHistory.setTimes(suggestedHistory.getTimes() + 1); // 加了一次,
+			if (CollectionUtils.isEmpty(suggestList) || suggestList.size() < SUGGEST_MEMBER_SIZE) {
+				suggestedHistory.setFailedTimes(suggestedHistory.getFailedTimes() + 1);
+			} else {
+				suggestedHistory.setSuccessTimes(suggestedHistory.getSuccessTimes() + 1);
 			}
 			if (!CollectionUtils.isEmpty(suggestList)) {
-				//有新推荐的，则保存到缓存中
+				// 有新推荐的，则保存到缓存中
 				memberIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
-				List<SuggestedHistoryItem>  newScoreList =  suggestList.stream().map(item ->  new SuggestedHistoryItem(item.getTargetId(),0)).collect(Collectors.toList());
+				List<SuggestedHistoryItem> newScoreList = suggestList.stream().map(item -> new SuggestedHistoryItem(item.getTargetId(), 0)).collect(Collectors.toList());
 				suggestedHistory.setLatestList(newScoreList);
 				suggestedHistory.getList().addAll(newScoreList);
 			}
 		}
-		if(!canFetch && refresh!=null && refresh) {
-			suggestedHistory.setSuccessTimes(SUGGEST_MEMBER_TIME_LIMIT+1);
+		if (!canFetch && refresh != null && refresh) {
+			suggestedHistory.setSuccessTimes(SUGGEST_MEMBER_TIME_LIMIT + 1);
 			suggestedHistory.setLatestList(new ArrayList<SuggestedHistoryItem>());
 		}
 		// 更新缓存,缓存一天
 		cacheService.put(CacheType.SuggestHistory, key, suggestedHistory, 1, TimeUnit.DAYS);
 		// 限制下，防止一个人某一天认可了所有人。。
 		List<RecognizedVO> todayRecognizedList = this.recognizedService.list(
-				QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
-				.and(RecognizedMapping.CREATETIME, QueryOperator.GTE, day + " 00:00:00")
-				.and(RecognizedMapping.CREATETIME, QueryOperator.LTE, day + " 23:59:59").end()
-				.sort(RecognizedMapping.CREATETIME).desc() // 新需求最新的在最前面
-				.enablePaging().page(1, 100).end() //限制最多返回100个人
-																																					
+				QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId).and(RecognizedMapping.CREATETIME, QueryOperator.GTE, day + " 00:00:00")
+						.and(RecognizedMapping.CREATETIME, QueryOperator.LTE, day + " 23:59:59").end().sort(RecognizedMapping.CREATETIME).desc() // 新需求最新的在最前面
+						.enablePaging().page(1, 100).end() // 限制最多返回100个人
+
 		);
 		List<Long> recognizedIdList = todayRecognizedList.stream().map(item -> item.getTargetId()).distinct().collect(Collectors.toList());
-		//组装返回结果
+		// 组装返回结果
 		SuggestResult result = SuggestResult.builder().suggested(suggestedHistory.getList().size()).todayRecognizedList(this.getWholeMemberInfo(recognizedIdList))
-				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList)))
-				.failedTimes(suggestedHistory.getFailedTimes())
-				.times(suggestedHistory.getTimes())
-				.successTimes(suggestedHistory.getSuccessTimes())
-				.build();
+				.suggestList(this.filter(this.getWholeMemberInfo(memberIdList))).failedTimes(suggestedHistory.getFailedTimes()).times(suggestedHistory.getTimes())
+				.successTimes(suggestedHistory.getSuccessTimes()).build();
 		// 把分数返回，并整理排序
 		if (!CollectionUtils.isEmpty(result.getSuggestList())) {
 			if (!CollectionUtils.isEmpty(suggestList)) {
@@ -1399,7 +1402,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				});
 			}
 		}
-		//处理认可状态
+		// 处理认可状态
 		if (!CollectionUtils.isEmpty(result.getSuggestList())) {
 			List<RecognizedVO> recoginzedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
 					.and(RecognizedMapping.TARGETID, QueryOperator.IN, result.getSuggestList().stream().map(item -> item.getId()).collect(Collectors.toList())).end()
@@ -1416,31 +1419,26 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 				});
 			}
 		}
-		//处理认可状态
-		if(!CollectionUtils.isEmpty(result.getTodayRecognizedList())) {
-			List<RecognizedVO> recoginzedList =  this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class)
-					.and(RecognizedMapping.SOURCEID, currentUserId)
-					.and(RecognizedMapping.TARGETID,QueryOperator.IN, result.getTodayRecognizedList().stream().map(item -> item.getId()).collect(Collectors.toList()))
-					.end()
-					.or(RecognizedMapping.TARGETID,currentUserId)
-					.and(RecognizedMapping.SOURCEID,QueryOperator.IN, result.getTodayRecognizedList().stream().map(item -> item.getId()).collect(Collectors.toList()))
-					.end());
-			if(!CollectionUtils.isEmpty(recoginzedList)) {
+		// 处理认可状态
+		if (!CollectionUtils.isEmpty(result.getTodayRecognizedList())) {
+			List<RecognizedVO> recoginzedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
+					.and(RecognizedMapping.TARGETID, QueryOperator.IN, result.getTodayRecognizedList().stream().map(item -> item.getId()).collect(Collectors.toList())).end()
+					.or(RecognizedMapping.TARGETID, currentUserId)
+					.and(RecognizedMapping.SOURCEID, QueryOperator.IN, result.getTodayRecognizedList().stream().map(item -> item.getId()).collect(Collectors.toList())).end());
+			if (!CollectionUtils.isEmpty(recoginzedList)) {
 				result.getTodayRecognizedList().stream().forEach(member -> {
-					recoginzedList.stream().filter(item -> 
-					   item.getSourceId().equals(currentUserId)
-					&& item.getTargetId().equals(member.getId())
-							).findAny().ifPresent(item ->{
+					recoginzedList.stream().filter(item -> item.getSourceId().equals(currentUserId) && item.getTargetId().equals(member.getId())).findAny().ifPresent(item -> {
 						member.setTo(true);
 					});
-					recoginzedList.stream().filter(item ->
-					item.getTargetId().equals(currentUserId)
-					&& item.getSourceId().equals(member.getId())
-							).findAny().ifPresent(item ->{
+					recoginzedList.stream().filter(item -> item.getTargetId().equals(currentUserId) && item.getSourceId().equals(member.getId())).findAny().ifPresent(item -> {
 						member.setFrom(true);
 					});
 				});
 			}
+		}
+		//今日推荐列表
+		if (!CollectionUtils.isEmpty(suggestedHistory.getList())) {
+			result.setTodaySuggestList(this.getSimpleMemberInfo(suggestedHistory.getList().stream().map(item -> item.getTargetId()).collect(Collectors.toList())));
 		}
 		return result;
 	}
@@ -1515,24 +1513,22 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 
 	@Override
 	public Page<SimpleMemberInfo> searchMembers(String keywords, Integer pageNo, Integer pageSize) {
-		if(StringUtils.isEmpty(keywords) || StringUtils.isEmpty(keywords.trim())) {
-			throw new SystemException(CloudOKExceptionMessage.SEARCH_KEYWORDS_IS_NULL); 
+		if (StringUtils.isEmpty(keywords) || StringUtils.isEmpty(keywords.trim())) {
+			throw new SystemException(CloudOKExceptionMessage.SEARCH_KEYWORDS_IS_NULL);
 		}
-		if(keywords.trim().length()>100) {//不支持这么长的昵称 直接给他默认返回
+		if (keywords.trim().length() > 100) {// 不支持这么长的昵称 直接给他默认返回
 			return new Page<SimpleMemberInfo>();
 		}
-		Page<MemberVO> page  = this.page(QueryBuilder.create(MemberMapping.class)
-				.and(MemberMapping.NICKNAME, QueryOperator.LIKE,keywords.trim()).end()
-				.sort(MemberMapping.WI).desc()
-				.enablePaging().page(pageNo, pageSize).end()
-				);
-		Page<SimpleMemberInfo>  result = new Page<SimpleMemberInfo>();
+		Page<MemberVO> page = this.page(QueryBuilder.create(MemberMapping.class).and(MemberMapping.NICKNAME, QueryOperator.LIKE, keywords.trim()).end().sort(MemberMapping.WI)
+				.desc().enablePaging().page(pageNo, pageSize).end());
+		Page<SimpleMemberInfo> result = new Page<SimpleMemberInfo>();
 		BeanUtils.copyProperties(page, result);
-		if(!CollectionUtils.isEmpty(page.getData())) {
+		if (!CollectionUtils.isEmpty(page.getData())) {
 			result.setData(this.getSimpleMemberInfo(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList())));
 		}
 		return result;
 	}
+
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> event) {
 		if (event instanceof RecognizedCreateEvent) {

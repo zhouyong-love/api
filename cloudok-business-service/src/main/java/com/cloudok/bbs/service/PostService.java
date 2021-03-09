@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.cloudok.bbs.po.PostPO;
+import com.cloudok.bbs.vo.BBSNotificationVO;
 import com.cloudok.bbs.vo.PostVO;
 import com.cloudok.bbs.vo.TopicGroupVO;
 import com.cloudok.bbs.vo.TopticPostResult;
@@ -34,5 +35,7 @@ public interface PostService extends IService<PostVO,PostPO>{
 	TopticPostResult getPostsByTopic(Long topicId, Integer topicType, Integer pageNo, Integer pageSize);
 
 	PostVO getDetails(Long id);
+
+	Page<BBSNotificationVO> getNotification(Integer autoRead, Integer pageNo, Integer pageSize);
 
 }

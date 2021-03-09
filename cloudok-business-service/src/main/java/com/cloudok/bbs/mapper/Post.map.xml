@@ -7,7 +7,7 @@
 		<include refid="columns"></include>
 		from bbs_post t inner join bbs_collect pt on t.id = pt.business_id and
 		pt.deleted=false and t.deleted=false and pt.create_by = #{memberId}
-		limit #{start},#{end}
+		limit #{offset},#{pageSize}
 
 	</select>
 
@@ -38,4 +38,40 @@
 	<update id="updateCommentCount" parameterType="Map">
 		update bbs_post set comment_count = (select count(1) from bbs_comment where post_id= #{postId} and deleted=false) where id = #{postId}
 	</update>
+	
+	<resultMap  type="com.cloudok.bbs.po.BBSNotificationPO" id="suggsetMemberScoreMap">
+		<result property="id" column="id"/>
+		<result property="createTs" column="id"/>
+		<result property="type" column="type"/>
+		<result property="postId" column="post_id"/>
+		<result property="comment" column="comment_content"/>
+		<result property="content" column="content"/>
+		<result property="attachIds" column="attach_ids"/>
+		<result property="memberId" column="member_id"/>
+	</resultMap>
+
+	<select id="getNotificationList" parameterType="Map" resultMap="postMap">
+		select * from (
+			select c.id,c.create_ts,'1' as type,c.post_id,c.content as comment_content,p.attach_ids,p.content,c.create_by as member_id from bbs_comment c 
+			inner join bbs_post p on c.post_id = p.id and p.deleted =false and c.deleted = false and p.create_by=#{currentUserId} and c.status !=  1
+		union
+			select c.id,c.create_ts,'2' as type,c.business_id,'' as comment_content,p.attach_ids,p.content,c.create_by as member_id from bbs_thumbs_up c
+	 		inner join bbs_post p on c.business_id = p.id and p.deleted =false and c.deleted = false and p.create_by=#{currentUserId} and c.status !=  1
+ 		) t order by t.id desc
+		limit #{offset},#{pageSize}
+
+	</select>
+
+	<select id="getNotificationCount" parameterType="Map"
+		resultType="long">
+		 select count(1) from (
+		 	select c.id from bbs_comment c inner join bbs_post p on c.post_id = p.id and p.deleted =false and c.deleted = false and p.create_by=#{currentUserId}
+				and c.status != 1 
+				union
+				select c.id from bbs_thumbs_up c inner join bbs_post p on c.business_id = p.id and p.deleted =false and c.deleted = false and p.create_by=#{currentUserId}
+				and c.status != 1 
+		 ) t 
+		 
+	</select>
+	
 </mapper>

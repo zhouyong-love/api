@@ -105,5 +105,13 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 	public List<CommentVO> getMyRecognizedComments(Long currentUserId, List<Long> postIdList, int maxSize) {
 		return this.convert2VO(this.repository.getMyRecognizedComments(currentUserId,postIdList,maxSize));
 	}
+	@Override
+	public void markAsRead(List<Long> commentIdList) {
+		if(CollectionUtils.isEmpty(commentIdList)) {
+			return;
+		}
+		repository.markAsRead(commentIdList);
+		
+	}
 
 }

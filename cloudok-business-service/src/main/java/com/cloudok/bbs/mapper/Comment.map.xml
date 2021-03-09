@@ -20,4 +20,11 @@
 			ORDER BY t.create_ts DESC
 			limit 0, #{maxSize}
 	</select>
+	
+	<update id="idList" parameterType="Map">
+		update bbs_comment set status =1 , status_ts = current_timestamp() where id in 
+		<foreach collection="idList" separator="," open="(" close=")" item="item">
+    		#{item}
+    	</foreach>
+	</update>
 </mapper>

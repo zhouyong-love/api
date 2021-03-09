@@ -12,5 +12,7 @@ public interface CommentService extends IService<CommentVO,CommentPO>{
 	Page<CommentVO> getCommentList(Long postId,Integer pageNo, Integer pageSize);
 
 	List<CommentVO> getMyRecognizedComments(Long currentUserId, List<Long> postIdList, int maxSize);
+
+	void markAsRead(List<Long> commentIdList);
 	
 }

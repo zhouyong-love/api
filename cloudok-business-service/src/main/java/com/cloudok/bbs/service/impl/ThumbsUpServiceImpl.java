@@ -1,9 +1,11 @@
 package com.cloudok.bbs.service.impl;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.cloudok.bbs.mapper.ThumbsUpMapper;
 import com.cloudok.bbs.po.ThumbsUpPO;
@@ -15,6 +17,8 @@ import com.cloudok.core.service.AbstractService;
 public class ThumbsUpServiceImpl extends AbstractService<ThumbsUpVO, ThumbsUpPO> implements ThumbsUpService{
 
 	@Autowired
+	private ThumbsUpMapper repository;
+	@Autowired
 	public ThumbsUpServiceImpl(ThumbsUpMapper repository) {
 		super(repository);
 	}
@@ -23,5 +27,13 @@ public class ThumbsUpServiceImpl extends AbstractService<ThumbsUpVO, ThumbsUpPO>
 		d.setStatus(0);
 		d.setStatusTs(new Timestamp(System.currentTimeMillis()));
 		return super.create(d);
+	}
+	@Override
+	public void markAsRead(List<Long> thumupIdList) {
+		if(CollectionUtils.isEmpty(thumupIdList)) {
+			return;
+		}
+		repository.markAsRead(thumupIdList);
+		
 	}
 }

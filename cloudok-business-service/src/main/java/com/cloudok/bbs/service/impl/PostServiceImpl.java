@@ -35,11 +35,13 @@ import com.cloudok.bbs.mapper.PostMapper;
 import com.cloudok.bbs.mapping.CommentMapping;
 import com.cloudok.bbs.mapping.PostMapping;
 import com.cloudok.bbs.mapping.ThumbsUpMapping;
+import com.cloudok.bbs.po.BBSNotificationPO;
 import com.cloudok.bbs.po.PostPO;
 import com.cloudok.bbs.service.CollectService;
 import com.cloudok.bbs.service.CommentService;
 import com.cloudok.bbs.service.PostService;
 import com.cloudok.bbs.service.ThumbsUpService;
+import com.cloudok.bbs.vo.BBSNotificationVO;
 import com.cloudok.bbs.vo.CollectVO;
 import com.cloudok.bbs.vo.CommentVO;
 import com.cloudok.bbs.vo.PostVO;
@@ -623,6 +625,56 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 	}
 	private void onCommentCreateEvent(CommentCreateEvent event) {
 		this.repository.updateCommentCount(event.getEventData().getPostId());
+	}
+
+	@Override
+	public Page<BBSNotificationVO> getNotification(Integer autoRead, Integer pageNo, Integer pageSize) {
+		Page<BBSNotificationVO> page=new Page<>();
+		page.setTotalCount(repository.getNotificationCount(getCurrentUserId()));
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize+ 1) >=  pageNo) {
+			List<BBSNotificationPO> list = repository.getNotificationList(getCurrentUserId(), Math.max(pageNo-1, 0)*pageSize,pageSize);
+			List<BBSNotificationVO> voList = list.stream().map(item -> {
+				BBSNotificationVO vo = new BBSNotificationVO();
+				BeanUtils.copyProperties(item,vo);
+				if (!StringUtils.isEmpty(item.getAttachIds())) {
+					List<Long> attachList = Arrays.asList(item.getAttachIds().split(",")).stream().distinct()
+							.filter(a -> !StringUtils.isEmpty(a)).map(a -> Long.parseLong(a) ).collect(Collectors.toList());
+					if(!CollectionUtils.isEmpty(attachList)) {
+						 vo.setPhoto(new AttachVO(attachList.get(0))); //取第一个图
+					}
+				}
+				vo.setMemberInfo(new SimpleMemberInfo(item.getMemberId()));
+				return vo;
+			}).collect(Collectors.toList());
+			//填充memberInfo 和 图片数据
+			List<Long> memberIdList = voList.stream().filter(item -> item.getMemberInfo() != null).map(item -> item.getMemberInfo().getId()).distinct().collect(Collectors.toList());
+			List<Long> attachIdList = voList.stream().filter(item -> item.getPhoto() != null).map(item -> item.getPhoto().getId()).distinct().collect(Collectors.toList());
+			List<AttachVO> attachList = AttachRWHandle.sign(attachIdList);
+			List<SimpleMemberInfo> memberList = this.memberService.getSimpleMemberInfo(memberIdList);
+			 voList.stream().forEach(item ->{
+				 if(item.getMemberInfo() != null) {
+					 memberList.stream().filter(m -> m.getId().equals(item.getMemberInfo().getId())).findAny().ifPresent(m ->{
+						 item.setMemberInfo(m);
+					 });
+				 }
+				 if(item.getPhoto() != null) {
+					 attachList.stream().filter(m -> m.getId().equals(item.getPhoto().getId())).findAny().ifPresent(m ->{
+						 item.setPhoto(m);
+					 });
+				 }
+			 });
+			if(autoRead != null && autoRead == 1) {
+				 List<Long> commentIdList = list.stream().filter(item -> item.getType() == 1).map(item -> item.getId()).collect(Collectors.toList());
+				 List<Long> thumupIdList = list.stream().filter(item -> item.getType() == 2).map(item -> item.getId()).collect(Collectors.toList());
+				 this.commentService.markAsRead(commentIdList);
+				 this.thumbsUpService.markAsRead(thumupIdList);
+			}
+			
+			page.setData(voList);
+		}
+		return page;
 	}
 
 }

@@ -34,6 +34,18 @@ public class PostApi {
 	
 
 	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/notification")
+	@ApiOperation(value = "动态的点赞和评论消息", notes = "动态的点赞和评论消息: read表示自定已读")
+	@Loggable
+	public Response getNotification(	
+			@RequestParam(name = "autoRead",defaultValue="0") Integer autoRead,
+			@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
+			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
+		return Response.buildSuccess(postService.getNotification(autoRead,pageNo,pageSize));
+	}
+	
+
+	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/tags")
 	@ApiOperation(value = "获取动态可用标签", notes = "获取动态可用标签")
 	@Loggable

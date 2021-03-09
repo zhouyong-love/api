@@ -19,6 +19,9 @@ import com.cloudok.base.attach.io.AttachRWHandle;
 import com.cloudok.base.attach.vo.AttachVO;
 import com.cloudok.base.dict.service.DictService;
 import com.cloudok.base.dict.vo.DictDataVO;
+import com.cloudok.base.mapping.TagMapping;
+import com.cloudok.base.service.TagService;
+import com.cloudok.base.vo.TagVO;
 import com.cloudok.bbs.event.CollectCreateEvent;
 import com.cloudok.bbs.event.CollectDeleteEvent;
 import com.cloudok.bbs.event.CommentCreateEvent;
@@ -471,6 +474,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 //		return topicList;
 //	}
 
+	@Autowired
+	private TagService tagService;
+	
 	@Override
 	public List<TopicGroupVO> getTopicList() {
 		List<TopicGroupVO> list = new ArrayList<TopicGroupVO>();
@@ -483,7 +489,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			List<TopicVO> schoolTopicList = new ArrayList<TopicVO>();
 			List<TopicVO> specialismTopicList = new ArrayList<TopicVO>();
 			member.getEducationList().forEach(item ->{
-				TopicVO school = new TopicVO(item.getSchool().getId(),BBSTopicType.school,item.getSchool().getName(),item.getSchool().getSn());
+				TopicVO school = new TopicVO(item.getSchool().getId(),BBSTopicType.school,item.getSchool().getAbbreviation(),item.getSchool().getSn());
 				schoolTopicList.add(school);
 				TopicVO specialism = new TopicVO(item.getSpecialism().getId(),BBSTopicType.specialism,item.getSpecialism().getName(),item.getSpecialism().getSn());
 				specialismTopicList.add(specialism);
@@ -556,7 +562,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			}
 		}
 		//状态标签
-		if(!CollectionUtils.isEmpty(member.getProjectList())) {
+		if(!CollectionUtils.isEmpty(member.getTagsList())) {
 			TopicGroupVO group = new TopicGroupVO(BBSTopicType.statementTag);
 			List<TopicVO> topicList = new ArrayList<TopicVO>();
 			member.getTagsList().stream().filter(item -> item.getTag().getCategory().equals(TagCategory.statement.getValue())).forEach(item ->{
@@ -569,14 +575,18 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				list.add(group);
 			}
 		}
+		
+		List<TagVO> systemTags = tagService.list(QueryBuilder.create(TagMapping.class).and(TagMapping.CATEGORY, TagCategory.systemTopic.getValue()).end().enablePaging().page(1, 10).end().sort(TagMapping.SN).asc());
 		//系统推荐
-		if(!CollectionUtils.isEmpty(member.getProjectList())) {
+		if(!CollectionUtils.isEmpty(systemTags)) {
 			TopicGroupVO group = new TopicGroupVO(BBSTopicType.system);
 			List<TopicVO> topicList = new ArrayList<TopicVO>();
-			member.getTagsList().stream().filter(item -> item.getTag().getCategory().equals(TagCategory.systemTopic.getValue())).forEach(item ->{
-				TopicVO topic = new TopicVO(item.getTag().getId(),BBSTopicType.system,item.getTag().getName(),item.getTag().getIcon(),item.getTag().getSn());
+			
+			systemTags.stream().filter(item -> item.getCategory().equals(TagCategory.systemTopic.getValue())).forEach(item ->{
+				TopicVO topic = new TopicVO(item.getId(),BBSTopicType.system,item.getName(),item.getIcon(),item.getSn());
 				topicList.add(topic);
 			});
+			
 			if(!CollectionUtils.isEmpty(topicList)) {
 				topicList.sort((a,b)->a.getSn().compareTo(b.getSn()));
 				group.setTopicList(topicList);

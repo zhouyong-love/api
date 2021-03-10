@@ -18,8 +18,10 @@ import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.event.RecognizedCreateEvent;
 import com.cloudok.uc.event.RecognizedDeleteEvent;
 import com.cloudok.uc.mapper.RecognizedMapper;
+import com.cloudok.uc.mapping.FirendMapping;
 import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.po.RecognizedPO;
+import com.cloudok.uc.service.FirendService;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.service.RecognizedService;
 import com.cloudok.uc.vo.RecognizedVO;
@@ -33,9 +35,23 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	private MemberService memberService;
 	
 	@Autowired
+	private RecognizedService recognizedService;
+	
+	@Autowired
+	private FirendService firendService;
+	
+	@Autowired
 	public RecognizedServiceImpl(RecognizedMapper repository) {
 		super(repository);
 		this.repository=repository;
+	}
+	
+	@Override
+	public RecognizedTotalDTO recognized(RecognizedVO vo) {
+		this.create(vo);
+		return RecognizedTotalDTO.builder().friendCount(firendService.count(QueryBuilder.create(FirendMapping.class).and(FirendMapping.SOURCEID, getCurrentUserId()).end()))
+				.fromCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).end()))
+				.toCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).end())).build();
 	}
 	
 	@Override
@@ -106,13 +122,16 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	}
 
 	@Override
-	public void unRecognized(Long memberId) {
+	public RecognizedTotalDTO unRecognized(Long memberId) {
 		List<RecognizedVO> vos = super.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).and(RecognizedMapping.TARGETID, memberId).end());
 		if(!CollectionUtils.isEmpty(vos)) {
 			vos.forEach(vo->{
 				remove(vo.getId());
 			});
 		}
+		return RecognizedTotalDTO.builder().friendCount(firendService.count(QueryBuilder.create(FirendMapping.class).and(FirendMapping.SOURCEID, getCurrentUserId()).end()))
+				.fromCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).end()))
+				.toCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, getCurrentUserId()).end())).build();
 	}
 
 	@Override
@@ -127,5 +146,4 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 			}
 			return page;
 	}
-
 }

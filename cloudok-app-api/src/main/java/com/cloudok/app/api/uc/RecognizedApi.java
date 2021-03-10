@@ -41,7 +41,7 @@ public class RecognizedApi {
 	@ApiOperation(value = "添加认可某人", notes = "添加认可某人")
 	@Loggable
 	public Response create(@RequestBody @Valid RecognizedVO vo) {
-		return Response.buildSuccess(recognizedService.create(vo));
+		return Response.buildSuccess(recognizedService.recognized(vo));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
@@ -57,8 +57,7 @@ public class RecognizedApi {
 	@ApiOperation(value = "删除认可某人", notes = "删除认可某人")
 	@Loggable
 	public Response remove(@PathVariable("id") Long memberId) {
-		recognizedService.unRecognized(memberId);
-		return Response.buildSuccess();
+		return Response.buildSuccess(recognizedService.unRecognized(memberId));
 	}
 	
 	@PreAuthorize("isFullyAuthenticated()")

@@ -7,6 +7,9 @@ import com.cloudok.core.vo.Page;
 import com.cloudok.uc.po.RecognizedPO;
 import com.cloudok.uc.vo.RecognizedVO;
 
+import lombok.Builder;
+import lombok.Data;
+
 public interface RecognizedService extends IService<RecognizedVO,RecognizedPO>{
 
 	@Deprecated
@@ -16,7 +19,21 @@ public interface RecognizedService extends IService<RecognizedVO,RecognizedPO>{
 	
 	void read(List<Long> memberIds);
 	
-	void unRecognized(Long memberId);
+	RecognizedTotalDTO unRecognized(Long memberId);
 
 	Page<RecognizedVO> getSecondDegreeRecognized(Long currentUserId, Long memberId, Integer pageNo, Integer pageSize);
+	
+	RecognizedTotalDTO recognized(RecognizedVO vo);
+	
+	@Builder
+	@Data
+	public static class RecognizedTotalDTO{
+		
+		private long friendCount;
+		
+		private long fromCount;
+		
+		private long toCount;
+		
+	}
 }

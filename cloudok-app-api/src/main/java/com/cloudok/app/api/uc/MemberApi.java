@@ -166,10 +166,10 @@ public class MemberApi {
 	
 	
 	@PreAuthorize("isFullyAuthenticated()")
-	@GetMapping("/{memberId}/bbs")
+	@GetMapping("/{memberId}/posts")
 	@ApiOperation(value = "查询某一个人的动态列表", notes = "查询某一个人的动态列表")
 	@Loggable
-	public Response search(@PathVariable("memberId") Long memberId,HttpServletRequest request) {
+	public Response getPostsByMemberId(@PathVariable("memberId") Long memberId,HttpServletRequest request) {
 		QueryBuilder query = QueryBuilder.create(com.cloudok.bbs.mapping.PostMapping.class).with(request);
 		query.and(com.cloudok.bbs.mapping.PostMapping.CREATEBY,  memberId);
 		return Response.buildSuccess(postService.page(query));

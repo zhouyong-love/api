@@ -8,28 +8,33 @@
 		
 		<result property="thumbsUpCount" column="thumbs_up_count"/>
 		
-		<result property="replyCount" column="reply_count"/>
-		
 		<result property="collectCount" column="collect_count"/>
 		
 		<result property="attachIds" column="attach_ids"/>
 		
-		<result property="isPublic" column="is_public"/>
+		<result property="commentCount" column="comment_count"/>
 		
+		<result property="topicType" column="topic_type"/>
+		
+		<result property="topicId" column="topic_id"/>
+		
+		<result property="topicName" column="topic_name"/>
+		
+		<result property="topicIcon" column="topic_icon"/>
 		
 	</resultMap>
 
 	<sql id="columns">
-		t.content,t.thumbs_up_count,t.reply_count,t.collect_count,t.attach_ids,t.is_public<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.content,t.thumbs_up_count,t.collect_count,t.attach_ids,t.comment_count,t.topic_type,t.topic_id,t.topic_name,t.topic_icon,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.bbs.po.PostPO">
-		insert into bbs_post(content,thumbs_up_count,reply_count,collect_count,attach_ids,is_public,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{content},#{thumbsUpCount},#{replyCount},#{collectCount},#{attachIds},#{isPublic},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into bbs_post(content,thumbs_up_count,collect_count,attach_ids,comment_count,topic_type,topic_id,topic_name,topic_icon,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{content},#{thumbsUpCount},#{collectCount},#{attachIds},#{commentCount},#{topicType},#{topicId},#{topicName},#{topicIcon},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.bbs.po.PostPO">
-		update bbs_post set content=#{content},thumbs_up_count=#{thumbsUpCount},reply_count=#{replyCount},collect_count=#{collectCount},attach_ids=#{attachIds},is_public=#{isPublic},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update bbs_post set content=#{content},thumbs_up_count=#{thumbsUpCount},collect_count=#{collectCount},attach_ids=#{attachIds},comment_count=#{commentCount},topic_type=#{topicType},topic_name=#{topicName},topic_icon=#{topicIcon},topic_id=#{topicId},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -42,13 +47,19 @@
 			
 			<if test="thumbsUpCount != null ">thumbs_up_count = #{thumbsUpCount},</if>
 			
-			<if test="replyCount != null ">reply_count = #{replyCount},</if>
-			
 			<if test="collectCount != null ">collect_count = #{collectCount},</if>
 			
-			<if test="attachIds != null ">attach_ids=#{attachIds},</if>
+			<if test="attachIds != null ">attach_ids = #{attachIds},</if>
 			
-			<if test="isPublic != null ">is_public=#{isPublic},</if>
+			<if test="commentCount != null ">comment_count = #{commentCount},</if>
+			
+			<if test="topicType != null ">topic_type = #{topicType},</if>
+			
+			<if test="topicId != null ">topic_id = #{topicId},</if>
+			
+			<if test="topicName != null ">topic_name = #{topicName},</if>
+			
+			<if test="topicIcon != null ">topic_icon = #{topicIcon},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

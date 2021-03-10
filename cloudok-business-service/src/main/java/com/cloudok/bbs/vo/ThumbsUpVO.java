@@ -1,6 +1,9 @@
 package com.cloudok.bbs.vo;
 
+import java.sql.Timestamp;
+
 import com.cloudok.core.vo.VO;
+import com.cloudok.uc.dto.SimpleMemberInfo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -17,5 +20,11 @@ public class ThumbsUpVO extends VO {
 	
 	private Long businessId;
 	
+
+	private SimpleMemberInfo memberInfo;
+	
+	private Integer status;
+	
+	private Timestamp statusTs;
 	
 }

@@ -1,5 +1,7 @@
 package com.cloudok.bbs.vo;
 
+import java.sql.Timestamp;
+
 import com.cloudok.core.vo.VO;
 import com.cloudok.uc.dto.SimpleMemberInfo;
 
@@ -10,30 +12,20 @@ import lombok.Setter;
 @Setter
 public class CommentVO extends VO {
 
-	private static final long serialVersionUID = 107853640230485710L;
-	
-	
+	private static final long serialVersionUID = 181319963814568160L;
+
 	private String content;
-	
-	
-	private Integer thumbsUpCount;
-	
-	
-	private Integer replyCount;
-	
-	
-	private Integer collectCount;
-	
-	
+
 	private Long postId;
-	
-	
+
 	private String path;
-	
-	
+
 	private Long parentId;
-	
-	private SimpleMemberInfo member;
- 
-	
+
+	private SimpleMemberInfo memberInfo;
+
+	private Integer status;
+
+	private Timestamp statusTs;
+
 }

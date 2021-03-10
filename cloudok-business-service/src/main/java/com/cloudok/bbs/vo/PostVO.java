@@ -13,28 +13,35 @@ import lombok.Setter;
 @Setter
 public class PostVO extends VO {
 
-	private static final long serialVersionUID = 135668491124968370L;
+	private static final long serialVersionUID = 993543937784132600L;
 
 	private String content;
 
 	private Integer thumbsUpCount;
 
-	private Integer replyCount;
-
 	private Integer collectCount;
 
-	private List<TopicVO> topicList;
+	private String attachIds;
+
+	private Integer commentCount;
+
+	//type目前支持  0 系统推荐 1 研究领域 2 行业 3 社团 4 个性 5 状态标签 6 学校 7 专业
+	private Integer topicType;
+
+	private Long topicId;
+	
+	private String topicName;
+	
+	private String topicIcon;
 
 	private List<AttachVO> attachList;
 
-	private List<CommentVO> comments;
+	private List<CommentVO> commentList;
+
+	private List<ThumbsUpVO> thumbsUpList;
+
+	private SimpleMemberInfo memberInfo;
 	
-	private Boolean isPublic;
-	
-	private SimpleMemberInfo member;
-	
-	
-	
-	
+	private CommentVO latestComment;
 
 }

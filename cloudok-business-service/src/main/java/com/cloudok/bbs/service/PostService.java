@@ -2,16 +2,17 @@ package com.cloudok.bbs.service;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import com.cloudok.bbs.po.PostPO;
+import com.cloudok.bbs.vo.BBSNotificationVO;
 import com.cloudok.bbs.vo.PostVO;
+import com.cloudok.bbs.vo.TopicGroupVO;
+import com.cloudok.bbs.vo.TopticPostResult;
 import com.cloudok.core.service.IService;
 import com.cloudok.core.vo.Page;
 
 public interface PostService extends IService<PostVO,PostPO>{
-
-	Page<PostVO> searchByTopic(List<Long> topicIdList, Integer pageNo, Integer pageSize);
-
-	public void customUpdate(PostVO vo);
 
 	Boolean cancelThumbsUp(Long id);
 
@@ -22,5 +23,19 @@ public interface PostService extends IService<PostVO,PostPO>{
 	Boolean cancelCollect(Long id);
 
 	Page<PostVO> getMyCollectPosts(Long currentUserId, Integer pageNo, Integer pageSize);
+
+	List<TopicGroupVO> getTopicList();
+
+	PostVO createByMember(@Valid PostVO vo);
+
+	PostVO updateByMember(@Valid PostVO vo);
+
+	Page<PostVO> discover(Integer pageNo, Integer pageSize);
+
+	TopticPostResult getPostsByTopic(Long topicId, Integer topicType, Integer pageNo, Integer pageSize);
+
+	PostVO getDetails(Long id);
+
+	Page<BBSNotificationVO> getNotification(Integer autoRead, Integer pageNo, Integer pageSize);
 
 }

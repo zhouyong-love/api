@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.bbs.mapper.ThumbsUpMapper">
-	
+	<update id="idList" parameterType="Map">
+		update bbs_thumbs_up set status =1 , status_ts = current_timestamp() where id in 
+		<foreach collection="idList" separator="," open="(" close=")" item="item">
+    		#{item}
+    	</foreach>
+	</update>
 </mapper>

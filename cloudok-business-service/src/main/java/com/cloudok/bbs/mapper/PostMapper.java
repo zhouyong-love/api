@@ -1,24 +1,30 @@
 package com.cloudok.bbs.mapper;
 
-import com.cloudok.core.mapper.IMapper;
-
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.cloudok.bbs.po.BBSNotificationPO;
 import com.cloudok.bbs.po.PostPO;
+import com.cloudok.core.mapper.IMapper;
 
 public interface PostMapper extends IMapper<PostPO>{
 
-	public void customUpdate(PostPO po);
-
-	public Long searchByTopicCount(@Param("topicIdList") List<Long> topicIdList);
-
-	public List<PostPO> searchByTopic(@Param("topicIdList") List<Long> topicIdList, @Param("start") Integer start, @Param("end") Integer end);
-
 	public Long getMyCollectPostsCount( @Param("memberId") Long memberId);
 
-	public List<PostPO> getMyCollectPosts( @Param("memberId") Long memberId, @Param("start") Integer start, @Param("end") Integer end);
+	public List<PostPO> getMyCollectPosts( @Param("memberId") Long memberId, @Param("offset") Integer offset, @Param("pageSize") Integer pageSize);
+
+	public void updateByMember(PostPO po);
+
+	public Long getPeersCount(@Param("topicId") Long topicId, @Param("topicType") Integer topicType);
+
+	public void updateThumbsUpCount(@Param("postId")Long postId);
+
+	public void updateCommentCount(@Param("postId")Long postId);
+
+	public Long getNotificationCount(@Param("currentUserId")Long currentUserId);
+
+	public List<BBSNotificationPO> getNotificationList(@Param("currentUserId")Long currentUserId,@Param("offset") Integer offset, @Param("pageSize") Integer pageSize);
 	
 	
 }

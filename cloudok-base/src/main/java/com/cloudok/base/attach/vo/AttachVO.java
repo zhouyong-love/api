@@ -42,4 +42,11 @@ public class AttachVO extends VO {
 	private String businessRemark;
 	
 	private String url;
+	
+	public AttachVO() {
+		
+	}
+	public AttachVO(Long id) {
+		this.setId(id);
+	}
 }

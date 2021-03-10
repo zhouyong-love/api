@@ -1,57 +1,77 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.bbs.mapper.PostMapper">
-	<update id="customUpdate" parameterType="com.cloudok.bbs.po.PostPO">
-		update bbs_post set  content = #{content}, attach_ids=#{attachIds}
+
+	<select id="getMyCollectPosts" parameterType="Map" resultMap="postMap">
+		select
+		<include refid="columns"></include>
+		from bbs_post t inner join bbs_collect pt on t.id = pt.business_id and
+		pt.deleted=false and t.deleted=false and pt.create_by = #{memberId}
+		limit #{offset},#{pageSize}
+
+	</select>
+
+	<select id="getMyCollectPostsCount" parameterType="Map"
+		resultType="long">
+		select count(1)
+		from bbs_post t inner join bbs_collect pt on t.id = pt.business_id and
+		pt.deleted=false and t.deleted=false and pt.create_by = #{memberId}
+	</select>
+
+	<update id="updateByMember" parameterType="com.cloudok.bbs.po.PostPO">
+		update bbs_post set
+		content=#{content},attach_ids=#{attachIds},topic_type=#{topicType},topic_id=#{topicId},topic_name=#{topicName},topic_icon=#{topicIcon},
+		<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns" />
 		<where>
-			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId" />
 		</where>
 	</update>
-	<select id="searchByTopic"
-		parameterType="Map"
-		resultMap="postMap">
-		select
-		<include refid="columns"></include>
-		from bbs_post  t inner join bbs_post_topic pt on t.id = pt.post_id and pt.deleted=false and t.deleted=false
-		<if test="topicList != null">
-			and pt.topic_id in 
-			<foreach collection="topicIdList" close=")" item="item" open="(" separator=",">
-				#{item}
-			</foreach>
-		</if>
-		
-		limit #{start},#{end}
-		 
-	</select>
-
-	<select id="searchByTopicCount"
-		parameterType="Map"
+	
+	<select id="getPeersCount" parameterType="Map"
 		resultType="long">
-		select count(1)
-			from bbs_post  t inner join bbs_post_topic pt on t.id = pt.post_id and pt.deleted=false and t.deleted=false
-		<if test="topicList != null">
-			and pt.topic_id in 
-			<foreach collection="topicIdList" close=")" item="item" open="(" separator=",">
-				#{item}
-			</foreach>
-		</if>
+		select count(distinct t.create_by) from bbs_post t where t.deleted=false and t.topic_id=#{topicId} and t.topic_type=#{topicType}
 	</select>
 	
-	<select id="getMyCollectPosts"
-		parameterType="Map"
-		resultMap="postMap">
-		select
-		<include refid="columns"></include>
-		from bbs_post  t inner join bbs_collect pt on t.id = pt.business_id and pt.deleted=false and t.deleted=false and pt.create_by = #{memberId}
-		limit #{start},#{end}
-		 
+	<update id="updateThumbsUpCount" parameterType="Map">
+		update bbs_post set thumbs_up_count = (select count(1) from bbs_thumbs_up where business_id= #{postId} and deleted=false) where id = #{postId}
+	</update>
+	<update id="updateCommentCount" parameterType="Map">
+		update bbs_post set comment_count = (select count(1) from bbs_comment where post_id= #{postId} and deleted=false) where id = #{postId}
+	</update>
+	
+	<resultMap  type="com.cloudok.bbs.po.BBSNotificationPO" id="suggsetMemberScoreMap">
+		<result property="id" column="id"/>
+		<result property="createTs" column="id"/>
+		<result property="type" column="type"/>
+		<result property="postId" column="post_id"/>
+		<result property="comment" column="comment_content"/>
+		<result property="content" column="content"/>
+		<result property="attachIds" column="attach_ids"/>
+		<result property="memberId" column="member_id"/>
+	</resultMap>
+
+	<select id="getNotificationList" parameterType="Map" resultMap="postMap">
+		select * from (
+			select c.id,c.create_ts,'1' as type,c.post_id,c.content as comment_content,p.attach_ids,p.content,c.create_by as member_id from bbs_comment c 
+			inner join bbs_post p on c.post_id = p.id and p.deleted =false and c.deleted = false and p.create_by=#{currentUserId} and c.status !=  1
+		union
+			select c.id,c.create_ts,'2' as type,c.business_id,'' as comment_content,p.attach_ids,p.content,c.create_by as member_id from bbs_thumbs_up c
+	 		inner join bbs_post p on c.business_id = p.id and p.deleted =false and c.deleted = false and p.create_by=#{currentUserId} and c.status !=  1
+ 		) t order by t.id desc
+		limit #{offset},#{pageSize}
+
 	</select>
 
-	<select id="getMyCollectPostsCount"
-		parameterType="Map"
+	<select id="getNotificationCount" parameterType="Map"
 		resultType="long">
-		select count(1)
-			from bbs_post  t inner join bbs_collect pt on t.id = pt.business_id and pt.deleted=false and t.deleted=false and pt.create_by = #{memberId}
+		 select count(1) from (
+		 	select c.id from bbs_comment c inner join bbs_post p on c.post_id = p.id and p.deleted =false and c.deleted = false and p.create_by=#{currentUserId}
+				and c.status != 1 
+				union
+				select c.id from bbs_thumbs_up c inner join bbs_post p on c.business_id = p.id and p.deleted =false and c.deleted = false and p.create_by=#{currentUserId}
+				and c.status != 1 
+		 ) t 
 		 
 	</select>
+	
 </mapper>

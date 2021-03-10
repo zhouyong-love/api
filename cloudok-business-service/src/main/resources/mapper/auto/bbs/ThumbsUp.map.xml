@@ -8,19 +8,23 @@
 		
 		<result property="businessId" column="business_id"/>
 		
+		<result property="status" column="status"/>
+		
+		<result property="statusTs" column="status_ts"/>
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.business_type,t.business_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.business_type,t.business_id,t.status,t.status_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.bbs.po.ThumbsUpPO">
-		insert into bbs_thumbs_up(business_type,business_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{businessType},#{businessId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into bbs_thumbs_up(business_type,business_id,status,status_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{businessType},#{businessId},#{status},#{statusTs},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.bbs.po.ThumbsUpPO">
-		update bbs_thumbs_up set business_type=#{businessType},business_id=#{businessId},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update bbs_thumbs_up set business_type=#{businessType},business_id=#{businessId},status=#{status},status_ts=#{statusTs},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -32,6 +36,10 @@
 			<if test="businessType != null ">business_type = #{businessType},</if>
 			
 			<if test="businessId != null ">business_id = #{businessId},</if>
+			
+			<if test="status != null ">status = #{status},</if>
+			
+			<if test="statusTs != null ">status_ts = #{statusTs},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

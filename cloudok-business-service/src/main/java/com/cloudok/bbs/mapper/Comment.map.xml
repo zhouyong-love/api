@@ -2,4 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.bbs.mapper.CommentMapper">
 	
+	
+	<select id="getMyRecognizedComments" parameterType="Map" resultMap="commentMap">
+		 SELECT 
+			    t.id, t.create_by, t.create_ts
+			FROM
+			    bbs_comment t
+			        INNER JOIN
+			    uc_recognized r ON t.create_by = r.target_id and r.source_id=#{currentUserId}
+			    	and t.post_id in <foreach collection="postIdList" separator="," open="(" close=")" item="item">
+			    		#{item}
+			    	</foreach>
+			        AND t.deleted = FALSE
+			        AND r.deleted = FALSE
+			        INNER JOIN
+			    uc_member m ON m.id = r.target_id AND m.deletd = FALSE
+			ORDER BY t.create_ts DESC
+			limit 0, #{maxSize}
+	</select>
+	
+	<update id="idList" parameterType="Map">
+		update bbs_comment set status =1 , status_ts = current_timestamp() where id in 
+		<foreach collection="idList" separator="," open="(" close=")" item="item">
+    		#{item}
+    	</foreach>
+	</update>
 </mapper>

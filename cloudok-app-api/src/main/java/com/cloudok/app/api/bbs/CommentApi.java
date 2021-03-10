@@ -5,11 +5,13 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudok.bbs.service.CommentService;
@@ -34,7 +36,8 @@ public class CommentApi {
 	@PostMapping
 	@ApiOperation(value = "添加文章评论", notes = "添加文章评论")
 	@Loggable
-	public Response create(@RequestBody @Valid CommentVO vo) {
+	public Response create(@PathVariable("postId") Long postId, @RequestBody @Valid CommentVO vo) {
+		vo.setPostId(postId);
 		return Response.buildSuccess(commentService.create(vo));
 	}
  
@@ -43,19 +46,29 @@ public class CommentApi {
 	@PutMapping("/{id}")
 	@ApiOperation(value = "修改文章评论", notes = "修改文章评论")
 	@Loggable
-	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid CommentVO vo) {
+	public Response modify(@PathVariable("postId") Long postId, @PathVariable("id") Long id,@RequestBody @Valid CommentVO vo) {
 		vo.setId(id);
+		vo.setPostId(postId);
 		return Response.buildSuccess(commentService.update(vo));
 	}
-
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")
 	@Loggable
 	@ApiOperation(value = "删除文章评论", notes = "删除文章评论")
-	public Response remove(@PathVariable("id") Long id) {
+	public Response remove(@PathVariable("postId") Long postId, @PathVariable("id") Long id) {
 		return Response.buildSuccess(commentService.remove(id));
 	}
-
-	 
+	
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping
+	@ApiOperation(value = "发现", notes = "发现")
+	@Loggable
+	public Response getCommentList(
+			@PathVariable("postId") Long postId,
+			@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
+			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
+		return Response.buildSuccess(commentService.getCommentList(postId,pageNo,pageSize));
+	}
+	
 }

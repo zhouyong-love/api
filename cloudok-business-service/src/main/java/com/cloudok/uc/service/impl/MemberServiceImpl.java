@@ -647,7 +647,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 						});
 					});
 
-			internshipExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class).and(InternshipExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end())
+			internshipExperienceService.list(QueryBuilder.create(InternshipExperienceMapping.class).and(InternshipExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end())
 					.stream().collect(Collectors.groupingBy(InternshipExperienceVO::getMemberId)).forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
 							if (!CollectionUtils.isEmpty(valueList)) {
@@ -657,7 +657,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 						});
 					});
 
-			memberTagsService.list(QueryBuilder.create(EducationExperienceMapping.class).and(MemberTagsMapping.MEMBERID, QueryOperator.IN, memberIdList).end()).stream()
+			memberTagsService.list(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.MEMBERID, QueryOperator.IN, memberIdList).end()).stream()
 					.collect(Collectors.groupingBy(MemberTagsVO::getMemberId)).forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
 							if (!CollectionUtils.isEmpty(valueList)) {
@@ -667,7 +667,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 						});
 					});
 
-			projectExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class).and(ProjectExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end())
+			projectExperienceService.list(QueryBuilder.create(ProjectExperienceMapping.class).and(ProjectExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end())
 					.stream().collect(Collectors.groupingBy(ProjectExperienceVO::getMemberId)).forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
 							if (!CollectionUtils.isEmpty(valueList)) {
@@ -677,7 +677,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 						});
 					});
 
-			researchExperienceService.list(QueryBuilder.create(EducationExperienceMapping.class).and(ResearchExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end())
+			researchExperienceService.list(QueryBuilder.create(ResearchExperienceMapping.class).and(ResearchExperienceMapping.MEMBERID, QueryOperator.IN, memberIdList).end())
 					.stream().collect(Collectors.groupingBy(ResearchExperienceVO::getMemberId)).forEach((memberId, valueList) -> {
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
 							if (!CollectionUtils.isEmpty(valueList)) {

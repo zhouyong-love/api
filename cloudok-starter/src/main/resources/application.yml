@@ -68,3 +68,13 @@ attach:
           name: 图片文件
           maxSize: 50 #MB
           suffix: [jpg,jpeg,png,bmp,gif]
+
+    friend-zone: 
+      name: 动态
+      storageType: oss  #配置存储方式 存储方式需先实现存储方式接口"com.smaltech.base.attach.io.AttachIoHandle 支持 tencentCOS，aliyunOSS，localFile
+      authorityInterface: attachAuthorityDefault #文件读写权限接口实现 com.smaltech.base.attach.AttachAuthorityHandle  文件读写权限接口登录校验实现 com.smaltech.base.attach.AttachAuthorityDefault用户登录即有权限上传以及下载
+      fileTypes: 
+        image:
+          name: 图片文件
+          maxSize: 50 #MB
+          suffix: [jpg,jpeg,png,bmp,gif]

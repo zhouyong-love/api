@@ -1177,7 +1177,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		return page;
 	}
 
-	private static final int SUGGEST_MEMBER_SIZE = 3; // 每次n个
+	private static final int SUGGEST_MEMBER_SIZE = 5; // 每次n个
 	private static final int SUGGEST_MEMBER_TIME_LIMIT = 5; // 总共推荐5次
 
 	private SuggestedHistory getSuggestedHistory(String key) {

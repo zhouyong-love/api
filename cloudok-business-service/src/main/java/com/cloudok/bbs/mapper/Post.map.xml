@@ -41,7 +41,7 @@
 	
 	<resultMap  type="com.cloudok.bbs.po.BBSNotificationPO" id="suggsetMemberScoreMap">
 		<result property="id" column="id"/>
-		<result property="createTs" column="id"/>
+		<result property="createTs" column="create_ts"/>
 		<result property="type" column="type"/>
 		<result property="postId" column="post_id"/>
 		<result property="comment" column="comment_content"/>

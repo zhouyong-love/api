@@ -244,11 +244,13 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		if(!CollectionUtils.isEmpty(attachIdList)) {
 			List<AttachVO> attachList = AttachRWHandle.sign(attachIdList);
 			postList.stream().forEach(post->{
-				post.getAttachList().stream().forEach(item ->{
-					attachList.stream().filter(a -> a.getId().equals(item.getId())).findAny().ifPresent(a ->{
-						BeanUtils.copyProperties(a, item);
+				if(!CollectionUtils.isEmpty(post.getAttachList())) {
+					post.getAttachList().stream().forEach(item ->{
+						attachList.stream().filter(a -> a.getId().equals(item.getId())).findAny().ifPresent(a ->{
+							BeanUtils.copyProperties(a, item);
+						});
 					});
-				});
+				}
 			});
 		}
 		List<SimpleMemberInfo> memberList =	this.memberService.getSimpleMemberInfo( memberIdList.stream().distinct().collect(Collectors.toList()));
@@ -272,6 +274,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		
 	}
 	private void fillPostThumbsUp(List<PostVO> postList,int size) {
+		if(CollectionUtils.isEmpty(postList)) {
+			return;
+		}
 		List<Long> postIdList = postList.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
 		//获取我关注的人的评论，只要有一条，则前端显示第一条，不显示点赞
 		List<ThumbsUpVO> thumbsUpList = this.thumbsUpService.list(QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.BUSINESSID, QueryOperator.IN,postIdList)
@@ -302,6 +307,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		}
 	}
 	private void fillPostComments(List<PostVO> postList) {
+		if(CollectionUtils.isEmpty(postList)) {
+			return;
+		}
 		List<Long> postIdList = postList.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
 		//获取我关注的人的评论，只要有一条，则前端显示第一条，不显示点赞
 		List<CommentVO> commemntList = commentService.getMyRecognizedComments(SecurityContextHelper.getCurrentUserId(),postIdList,1000);

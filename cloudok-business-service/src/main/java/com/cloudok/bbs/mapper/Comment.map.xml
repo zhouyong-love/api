@@ -16,7 +16,7 @@
 			        AND t.deleted = FALSE
 			        AND r.deleted = FALSE
 			        INNER JOIN
-			    uc_member m ON m.id = r.target_id AND m.deletd = FALSE
+			    uc_member m ON m.id = r.target_id AND m.deleted = FALSE
 			ORDER BY t.create_ts DESC
 			limit 0, #{maxSize}
 	</select>

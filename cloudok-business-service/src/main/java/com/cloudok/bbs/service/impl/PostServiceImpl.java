@@ -395,11 +395,11 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		List<ThumbsUpVO> list = thumbsUpService
 				.list(QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.CREATEBY, SecurityContextHelper.getCurrentUserId()).and(ThumbsUpMapping.BUSINESSID, id).end());
 		if (CollectionUtils.isEmpty(list)) {
-			CollectVO vo = new CollectVO();
+			ThumbsUpVO vo = new ThumbsUpVO();
 			vo.setBusinessId(id);
 			vo.setBusinessType(Integer.parseInt(CollectType.post.getValue()));
-			collectService.create(vo);
-			SpringApplicationContext.publishEvent(new CollectCreateEvent(vo));
+			thumbsUpService.create(vo);
+			SpringApplicationContext.publishEvent(new ThumbsUpCreateEvent(vo));
 			return true;
 		} else {
 			return false;

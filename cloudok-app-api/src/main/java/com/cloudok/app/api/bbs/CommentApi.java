@@ -24,7 +24,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController("AppCommentApi")
-@RequestMapping("/v1/bbs/{postId}/comment")
+@RequestMapping("/v1/bbs/post/{postId}/comment")
 @Api(tags = "文章评论")
 @LogModule
 public class CommentApi {

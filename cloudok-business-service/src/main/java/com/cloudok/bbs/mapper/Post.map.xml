@@ -50,7 +50,7 @@
 		<result property="memberId" column="member_id"/>
 	</resultMap>
 
-	<select id="getNotificationList" parameterType="Map" resultMap="postMap">
+	<select id="getNotificationList" parameterType="Map" resultMap="suggsetMemberScoreMap">
 		select * from (
 			select c.id,c.create_ts,'1' as type,c.post_id,c.content as comment_content,p.attach_ids,p.content,c.create_by as member_id from bbs_comment c 
 			inner join bbs_post p on c.post_id = p.id and p.deleted =false and c.deleted = false and p.create_by=#{currentUserId} and c.status !=  1

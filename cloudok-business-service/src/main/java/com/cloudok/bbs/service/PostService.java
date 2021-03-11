@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import com.cloudok.bbs.po.PostPO;
 import com.cloudok.bbs.vo.BBSNotificationVO;
 import com.cloudok.bbs.vo.PostVO;
+import com.cloudok.bbs.vo.ThumbsUpVO;
 import com.cloudok.bbs.vo.TopicGroupVO;
 import com.cloudok.bbs.vo.TopticPostResult;
 import com.cloudok.core.service.IService;
@@ -37,5 +38,7 @@ public interface PostService extends IService<PostVO,PostPO>{
 	PostVO getDetails(Long id);
 
 	Page<BBSNotificationVO> getNotification(Integer autoRead, Integer pageNo, Integer pageSize);
+
+	Page<ThumbsUpVO> getPostThumbsUps(Long id, Integer pageNo, Integer pageSize);
 
 }

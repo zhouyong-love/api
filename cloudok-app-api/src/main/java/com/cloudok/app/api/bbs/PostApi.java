@@ -110,6 +110,17 @@ public class PostApi {
 	public Response getDetails(@PathVariable("id") Long id) {
 		return Response.buildSuccess(postService.getDetails(id));
 	}
+	
+
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/{id}/thumbsUps")
+	@ApiOperation(value = "查询动态、帖子等的点赞列表", notes = "查询动态、帖子等的点赞列表")
+	@Loggable
+	public Response getPostThumbsUps(@PathVariable("id") Long id,	
+			@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
+			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
+		return Response.buildSuccess(postService.getPostThumbsUps(id,pageNo,pageSize));
+	}
 
 	@PreAuthorize("isFullyAuthenticated()")
 	@DeleteMapping("/{id}")

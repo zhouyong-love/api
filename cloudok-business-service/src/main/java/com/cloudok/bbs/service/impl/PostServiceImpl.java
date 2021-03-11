@@ -105,6 +105,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 
 	@Override
 	public PostVO createByMember(@Valid PostVO vo) {
+		vo.setCollectCount(0);
+		vo.setCommentCount(0);
+		vo.setThumbsUpCount(0);
 		super.create(vo);
 		SpringApplicationContext.publishEvent(new PostCreateEvent(vo));
 		return vo;

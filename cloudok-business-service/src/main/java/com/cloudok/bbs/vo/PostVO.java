@@ -43,5 +43,7 @@ public class PostVO extends VO {
 	private SimpleMemberInfo memberInfo;
 	
 	private CommentVO latestComment;
+	
+	private ThumbsUpVO myThumbsUp;
 
 }

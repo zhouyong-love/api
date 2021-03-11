@@ -271,6 +271,20 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				item.setMemberInfo(m);
 			});
 		});
+		List<Long> idList = postList.stream().filter(item -> item.getMyThumbsUp() == null).map(item -> item.getId()).distinct().collect(Collectors.toList());
+		if(!CollectionUtils.isEmpty(idList)) {
+			List<ThumbsUpVO> thumbsUpList = this.thumbsUpService.list(QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.BUSINESSID, QueryOperator.IN,idList)
+					.and(ThumbsUpMapping.CREATEBY, getCurrentUserId())
+					.end()
+				);
+			if(!CollectionUtils.isEmpty(thumbsUpList)) {
+				postList.stream().filter(item -> item.getMyThumbsUp() == null).forEach(item ->{
+					thumbsUpList.stream().filter(th -> th.getBusinessId().equals(item.getId())).findAny().ifPresent(th->{
+						item.setMyThumbsUp(th);
+					});
+				});
+			}
+		}
 		
 	}
 	private void fillPostThumbsUp(List<PostVO> postList,int size) {
@@ -290,6 +304,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				if(!CollectionUtils.isEmpty(list)) { //排序
 					list.sort((a,b)->a.getCreateTs().compareTo(b.getCreateTs()));
 					item.setThumbsUpList(list);
+					list.stream().filter(th -> th.getCreateBy().equals(getCurrentUserId())).findAny().ifPresent(th->{
+						item.setMyThumbsUp(th);
+					});
 				}
 			});
 			if(thumbsUpList.size() == postList.size()*100) { //只有还有数据才去取

@@ -44,6 +44,6 @@ public class PostVO extends VO {
 	
 	private CommentVO latestComment;
 	
-	private ThumbsUpVO myThumbsUp;
+	private Boolean myThumbsUp;
 
 }

@@ -276,8 +276,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 					QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.BUSINESSID, QueryOperator.IN, idList).and(ThumbsUpMapping.CREATEBY, getCurrentUserId()).end());
 			if (!CollectionUtils.isEmpty(thumbsUpList)) {
 				postList.stream().filter(item -> item.getMyThumbsUp() == null).forEach(item -> {
+					item.setMyThumbsUp(false);
 					thumbsUpList.stream().filter(th -> th.getBusinessId().equals(item.getId())).findAny().ifPresent(th -> {
-						item.setMyThumbsUp(th);
+						item.setMyThumbsUp(true);
 					});
 				});
 			}
@@ -300,8 +301,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				if (!CollectionUtils.isEmpty(list)) { // 排序
 					list.sort((a, b) -> a.getCreateTs().compareTo(b.getCreateTs()));
 					item.setThumbsUpList(list);
+					item.setMyThumbsUp(false);
 					list.stream().filter(th -> th.getCreateBy().equals(getCurrentUserId())).findAny().ifPresent(th -> {
-						item.setMyThumbsUp(th);
+						item.setMyThumbsUp(true);
 					});
 				}
 			});
@@ -373,9 +375,8 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			}
 		});
 		post.setThumbsUpList(thumbsUpList);
-		ThumbsUpVO myThumbsUp = this.thumbsUpService
-				.get(QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.BUSINESSID, id).and(ThumbsUpMapping.CREATEBY, getCurrentUserId()).end());
-		post.setMyThumbsUp(myThumbsUp);
+		post.setMyThumbsUp(this.thumbsUpService
+				.count(QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.BUSINESSID, id).and(ThumbsUpMapping.CREATEBY, getCurrentUserId()).end())>0);
 		// 填充图片
 		if (!CollectionUtils.isEmpty(post.getAttachList())) {
 			List<Long> attachIdList = post.getAttachList().stream().map(item -> item.getId()).distinct().collect(Collectors.toList());

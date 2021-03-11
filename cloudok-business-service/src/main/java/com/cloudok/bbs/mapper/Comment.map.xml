@@ -5,7 +5,7 @@
 	
 	<select id="getMyRecognizedComments" parameterType="Map" resultMap="commentMap">
 		 SELECT 
-			    t.id, t.create_by, t.create_ts
+			    t.id, t.create_by, t.create_ts,t.post_id,t.content
 			FROM
 			    bbs_comment t
 			        INNER JOIN

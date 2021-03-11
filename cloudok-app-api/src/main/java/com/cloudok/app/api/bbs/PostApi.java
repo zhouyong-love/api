@@ -147,8 +147,8 @@ public class PostApi {
 	@ApiOperation(value = "动态云圈", notes = "动态云圈")
 	@Loggable
 	public Response getPostsByTopic(
-			@PathVariable("topicId") Long topicId,
-			@PathVariable("topicType") Integer topicType,
+			@RequestParam("topicId") Long topicId,
+			@RequestParam("topicType") Integer topicType,
 			@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
 			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
 		return Response.buildSuccess(postService.getPostsByTopic(topicId,topicType,pageNo,pageSize));

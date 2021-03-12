@@ -31,7 +31,7 @@ public interface PostService extends IService<PostVO,PostPO>{
 
 	PostVO updateByMember(@Valid PostVO vo);
 
-	Page<PostVO> discover(Integer pageNo, Integer pageSize);
+	Page<PostVO> discover(Integer pageNo, Integer pageSize,Long memberId);
 
 	TopticPostResult getPostsByTopic(Long topicId, Integer topicType, Integer pageNo, Integer pageSize);
 

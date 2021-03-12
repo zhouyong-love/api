@@ -212,8 +212,12 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 	}
 
 	@Override
-	public Page<PostVO> discover(Integer pageNo, Integer pageSize) {
-		Page<PostVO> page = this.page(QueryBuilder.create(PostMapping.class).sort(PostMapping.CREATETIME).desc().enablePaging().page(pageNo, pageSize).end());
+	public Page<PostVO> discover(Integer pageNo, Integer pageSize,Long memberId) {
+		QueryBuilder build = QueryBuilder.create(PostMapping.class).sort(PostMapping.CREATETIME).desc().enablePaging().page(pageNo, pageSize).end();
+		if(memberId!=null&&memberId>0) {
+			build.and(PostMapping.CREATEBY, memberId);
+		}
+		Page<PostVO> page = this.page(build);
 		this.fillPostInfo(page.getData());
 		return page;
 	}

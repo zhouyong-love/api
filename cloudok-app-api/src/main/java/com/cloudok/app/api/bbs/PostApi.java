@@ -137,8 +137,9 @@ public class PostApi {
 	@Loggable
 	public Response discover(
 			@RequestParam(name = "pageNo",defaultValue="1") Integer pageNo,
+			@RequestParam(name = "memberId",required = false) Long memberId,
 			@RequestParam(name = "pageSize",defaultValue="10") Integer pageSize) {
-		return Response.buildSuccess(postService.discover(pageNo,pageSize));
+		return Response.buildSuccess(postService.discover(pageNo,pageSize,memberId));
 	}
  
 

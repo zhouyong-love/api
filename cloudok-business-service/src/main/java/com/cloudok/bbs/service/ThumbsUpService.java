@@ -10,4 +10,6 @@ public interface ThumbsUpService extends IService<ThumbsUpVO,ThumbsUpPO>{
 
 	void markAsRead(List<Long> thumupIdList);
 
+	void removeByPostId(Long postId);
+
 }

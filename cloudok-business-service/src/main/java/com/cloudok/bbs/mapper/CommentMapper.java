@@ -14,4 +14,6 @@ public interface CommentMapper extends IMapper<CommentPO> {
 
 	void markAsRead(@Param("idList") List<Long> idList);
 
+	void removeByPostId(@Param("postId") Long postId);
+
 }

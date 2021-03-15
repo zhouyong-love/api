@@ -7,4 +7,7 @@
     		#{item}
     	</foreach>
 	</update>
+	<update id="removeByPostId" parameterType="Map">
+		update bbs_thumbs_up set deleted=true where business_id = #{postId}
+	</update>
 </mapper>

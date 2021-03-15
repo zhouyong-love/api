@@ -27,4 +27,7 @@
     		#{item}
     	</foreach>
 	</update>
+	<update id="removeByPostId" parameterType="Map">
+		update bbs_comment set deleted=true where post_id = #{postId}
+	</update>
 </mapper>

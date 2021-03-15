@@ -41,4 +41,6 @@ public interface PostService extends IService<PostVO,PostPO>{
 
 	Page<ThumbsUpVO> getPostThumbsUps(Long id, Integer pageNo, Integer pageSize);
 
+	Boolean removeById(Long id);
+
 }

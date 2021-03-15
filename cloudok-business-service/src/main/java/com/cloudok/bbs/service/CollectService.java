@@ -10,4 +10,6 @@ public interface CollectService extends IService<CollectVO,CollectPO>{
 
 	Page<PostVO> getMyCollectPosts(Long currentUserId, Integer pageNo, Integer pageSize);
 
+	void removeByPostId(Long postId);
+
 }

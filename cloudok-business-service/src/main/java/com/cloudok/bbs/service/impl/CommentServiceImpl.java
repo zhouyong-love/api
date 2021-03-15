@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.cloudok.bbs.event.CommentCreateEvent;
 import com.cloudok.bbs.event.CommentDeleteEvent;
@@ -75,7 +76,17 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 			d.setStatus(0);
 			d.setStatusTs(new Timestamp(System.currentTimeMillis()));
 		}
-	
+		if(d.getParentId() != null) { //path
+			CommentVO parent = this.get(d.getParentId());
+			if(parent != null) {
+				if(StringUtils.isEmpty(parent.getPath())) {
+					d.setPath("/"+parent.getId());
+				}else {
+					d.setPath("/"+parent.getPath()+"/"+parent.getId());
+				}
+				
+			} 
+		}
 		CommentVO vo =  super.create(d);
 		SpringApplicationContext.publishEvent(new CommentCreateEvent(vo));
 		return vo;

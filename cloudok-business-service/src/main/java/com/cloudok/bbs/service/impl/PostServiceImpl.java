@@ -60,7 +60,6 @@ import com.cloudok.core.service.AbstractService;
 import com.cloudok.core.vo.Page;
 import com.cloudok.enums.BBSTopicType;
 import com.cloudok.enums.CollectType;
-import com.cloudok.enums.NotificationType;
 import com.cloudok.enums.TagCategory;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.dto.SimpleMemberInfo;

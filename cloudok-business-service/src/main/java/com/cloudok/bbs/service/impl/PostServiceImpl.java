@@ -355,7 +355,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		PostVO post = this.get(id);
 		// 查询最新的10个点赞
 		List<ThumbsUpVO> thumbsUpList = this.thumbsUpService.list(
-				QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.BUSINESSID, id).end().sort(ThumbsUpMapping.CREATETIME).desc().enablePaging().page(1, 3).end());
+				QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.BUSINESSID, id).end().sort(ThumbsUpMapping.CREATETIME).desc().enablePaging().page(1, 5).end());
 		List<Long> memberIdList = new ArrayList<Long>();
 		if (!CollectionUtils.isEmpty(thumbsUpList)) {
 			List<Long> userIdList = thumbsUpList.stream().map(item -> item.getCreateBy()).distinct().collect(Collectors.toList());

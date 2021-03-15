@@ -1,6 +1,7 @@
 package com.cloudok.bbs.service.impl;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.cloudok.bbs.event.CommentCreateEvent;
 import com.cloudok.bbs.event.CommentDeleteEvent;
 import com.cloudok.bbs.mapper.CommentMapper;
 import com.cloudok.bbs.mapping.CommentMapping;
@@ -44,6 +46,23 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 	}
 	
 	@Override
+	public CommentPO convert2PO(CommentVO d) {
+		CommentPO po =  super.convert2PO(d);
+		if(d.getReplyTo() != null) {
+			po.setReplyTo(d.getReplyTo().getId());
+		}
+		return po;
+	}
+	@Override
+	public CommentVO convert2VO(CommentPO e) {
+		CommentVO vo =  super.convert2VO(e);
+		if(e.getReplyTo() != null) {
+			vo.setReplyTo(new SimpleMemberInfo(e.getReplyTo()));
+		}
+		return vo;
+	}
+	
+	@Override
 	public CommentVO create(CommentVO d) {
 		PostVO post = this.postService.get(d.getPostId());
 		if(post == null) {
@@ -58,7 +77,7 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 		}
 	
 		CommentVO vo =  super.create(d);
-		SpringApplicationContext.publishEvent(new CommentDeleteEvent(vo));
+		SpringApplicationContext.publishEvent(new CommentCreateEvent(vo));
 		return vo;
 	}
 	@Override
@@ -99,11 +118,23 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 	
 	public void fillMemberInfo(List<CommentVO> list) {
 		if (!CollectionUtils.isEmpty(list)) {
-			List<SimpleMemberInfo> simpleList =  memberService.getSimpleMemberInfo(list.stream().map(item -> item.getCreateBy()).distinct().collect(Collectors.toList()));
+			List<Long> memberIdList = new ArrayList<Long>();
+			list.stream().forEach(item ->{
+				if(item.getReplyTo() != null) {
+					memberIdList.add(item.getReplyTo().getId());
+				}
+				memberIdList.add(item.getCreateBy());
+			});
+			List<SimpleMemberInfo> simpleList =  memberService.getSimpleMemberInfo( memberIdList.stream().distinct().collect(Collectors.toList()));
 			list.stream().forEach(item -> {
 				simpleList.stream().filter(mem -> mem.getId().equals(item.getCreateBy())).findAny().ifPresent(mem -> {
 					item.setMemberInfo(mem);
 				});
+				if(item.getReplyTo() != null) {
+					simpleList.stream().filter(mem -> mem.getId().equals(item.getReplyTo().getId())).findAny().ifPresent(mem -> {
+						item.setReplyTo(mem);
+					});
+				}
 			});
 		}
 	}
@@ -121,6 +152,7 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 	public List<CommentVO> getMyRecognizedComments(Long currentUserId, List<Long> postIdList, int maxSize) {
 		return this.convert2VO(this.repository.getMyRecognizedComments(currentUserId,postIdList,maxSize));
 	}
+	@Deprecated
 	@Override
 	public void markAsRead(List<Long> commentIdList) {
 		if(CollectionUtils.isEmpty(commentIdList)) {

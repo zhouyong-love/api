@@ -18,6 +18,8 @@ public class BBSNotificationPO extends PO {
 	
 	private Long postId; 
 	
+	private Long businssId; // 业务主键id
+	
 	private String comment; //评论内容
 	 
 	private String content; //动态内容

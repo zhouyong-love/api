@@ -60,11 +60,13 @@ import com.cloudok.core.service.AbstractService;
 import com.cloudok.core.vo.Page;
 import com.cloudok.enums.BBSTopicType;
 import com.cloudok.enums.CollectType;
+import com.cloudok.enums.NotificationType;
 import com.cloudok.enums.TagCategory;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.service.MemberService;
+import com.cloudok.uc.service.NotificationService;
 
 @Service
 public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements PostService, ApplicationListener<BusinessEvent<?>> {
@@ -98,6 +100,8 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 	//
 	// @Autowired
 	// private SpecialismService specialismService;
+	@Autowired
+	private NotificationService notificationService;
 
 	@Autowired
 	public PostServiceImpl(PostMapper repository) {
@@ -729,10 +733,8 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				}
 			});
 			if (autoRead != null && autoRead == 1) {
-				List<Long> commentIdList = list.stream().filter(item -> item.getType() == 1).map(item -> item.getId()).collect(Collectors.toList());
-				List<Long> thumupIdList = list.stream().filter(item -> item.getType() == 2).map(item -> item.getId()).collect(Collectors.toList());
-				this.commentService.markAsRead(commentIdList);
-				this.thumbsUpService.markAsRead(thumupIdList);
+				//标记为已读
+				 this.notificationService.markAsRead(getCurrentUserId(), Arrays.asList(NotificationType.comment.getValue(),NotificationType.replyComment.getValue(),NotificationType.thumbsUp.getValue()));
 			}
 
 			page.setData(voList);
@@ -772,6 +774,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		this.commentService.removeByPostId(pk);
 		this.collectService.removeByPostId(pk);
 		this.thumbsUpService.removeByPostId(pk);
+		this.notificationService.removeByPostId(pk);
 		
 		return true;
 	}

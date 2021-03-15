@@ -59,7 +59,7 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
 			} catch (InterruptedException e) {
 			}
-			 this.calcAll();
+//			 this.calcAll();
 		}) .start();
 	}
 	

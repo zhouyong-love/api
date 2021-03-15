@@ -21,8 +21,13 @@ public class CommentPO extends PO {
 
 	private Long parentId;
 
+	@Deprecated
 	private Integer status;
 
+	@Deprecated
 	private Timestamp statusTs;
+	
+	private Long replyTo;
+	 
 
 }

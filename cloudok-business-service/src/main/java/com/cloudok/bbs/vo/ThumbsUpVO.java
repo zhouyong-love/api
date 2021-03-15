@@ -23,8 +23,10 @@ public class ThumbsUpVO extends VO {
 
 	private SimpleMemberInfo memberInfo;
 	
+	@Deprecated
 	private Integer status;
 	
+	@Deprecated
 	private Timestamp statusTs;
 	
 }

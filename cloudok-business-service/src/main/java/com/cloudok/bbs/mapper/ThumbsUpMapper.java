@@ -8,10 +8,11 @@ import org.apache.ibatis.annotations.Param;
 
 import com.cloudok.bbs.po.ThumbsUpPO;
 
-public interface ThumbsUpMapper extends IMapper<ThumbsUpPO>{
+public interface ThumbsUpMapper extends IMapper<ThumbsUpPO> {
+	
+	@Deprecated
+	void markAsRead(@Param("idList") List<Long> idList);
 
-		void markAsRead(@Param("idList") List<Long> idList);
-
-		void removeByPostId(@Param("postId") Long postId);
+	void removeByPostId(@Param("postId") Long postId);
 
 }

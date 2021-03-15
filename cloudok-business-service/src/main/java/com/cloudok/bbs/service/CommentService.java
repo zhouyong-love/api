@@ -13,6 +13,7 @@ public interface CommentService extends IService<CommentVO,CommentPO>{
 
 	List<CommentVO> getMyRecognizedComments(Long currentUserId, List<Long> postIdList, int maxSize);
 
+	@Deprecated
 	void markAsRead(List<Long> commentIdList);
 
 	void removeByPostId(Long postId);

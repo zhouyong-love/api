@@ -738,7 +738,8 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			});
 			if (autoRead != null && autoRead == 1) {
 				//标记为已读
-				 this.notificationService.markAsRead(getCurrentUserId(), Arrays.asList(NotificationType.comment.getValue(),NotificationType.replyComment.getValue(),NotificationType.thumbsUp.getValue()));
+//				 this.notificationService.markAsRead(getCurrentUserId(), Arrays.asList(NotificationType.comment.getValue(),NotificationType.replyComment.getValue(),NotificationType.thumbsUp.getValue()));
+				 this.notificationService.markAsRead(page.getData().stream().map(item -> item.getId()).collect(Collectors.toList()));
 			}
 
 			page.setData(voList);

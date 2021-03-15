@@ -67,6 +67,7 @@ import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.service.NotificationService;
+import com.cloudok.util.StreamUtils;
 
 @Service
 public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements PostService, ApplicationListener<BusinessEvent<?>> {
@@ -558,10 +559,11 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				TopicVO specialism = new TopicVO(item.getSpecialism().getId(), BBSTopicType.specialism, item.getSpecialism().getName(), item.getSpecialism().getSn());
 				specialismTopicList.add(specialism);
 			});
+			
 			schoolTopicList.sort((a, b) -> a.getSn().compareTo(b.getSn()));
 			specialismTopicList.sort((a, b) -> a.getSn().compareTo(b.getSn()));
-			schoolGroup.setTopicList(schoolTopicList);
-			specialismGroup.setTopicList(specialismTopicList);
+			schoolGroup.setTopicList(schoolTopicList.stream().filter(StreamUtils.distinctByKey(item -> item.getId())).collect(Collectors.toList()));
+			specialismGroup.setTopicList(specialismTopicList.stream().filter(StreamUtils.distinctByKey(item -> item.getName())).collect(Collectors.toList()));
 			list.add(schoolGroup);
 			list.add(specialismGroup);
 		}
@@ -574,7 +576,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				topicList.add(topic);
 			});
 			topicList.sort((a, b) -> a.getSn().compareTo(b.getSn()));
-			group.setTopicList(topicList);
+			group.setTopicList(topicList.stream().filter(StreamUtils.distinctByKey(item -> item.getName())).collect(Collectors.toList()));
 			list.add(group);
 		}
 
@@ -591,7 +593,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				}
 			});
 			topicList.sort((a, b) -> a.getSn().compareTo(b.getSn()));
-			group.setTopicList(topicList);
+			group.setTopicList(topicList.stream().filter(StreamUtils.distinctByKey(item -> item.getName())).collect(Collectors.toList()));
 			list.add(group);
 		}
 		// 构建社团
@@ -607,7 +609,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				}
 			});
 			topicList.sort((a, b) -> a.getSn().compareTo(b.getSn()));
-			group.setTopicList(topicList);
+			group.setTopicList(topicList.stream().filter(StreamUtils.distinctByKey(item -> item.getName())).collect(Collectors.toList()));
 			list.add(group);
 		}
 
@@ -621,7 +623,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			});
 			if (!CollectionUtils.isEmpty(topicList)) {
 				topicList.sort((a, b) -> a.getSn().compareTo(b.getSn()));
-				group.setTopicList(topicList);
+				group.setTopicList(topicList.stream().filter(StreamUtils.distinctByKey(item -> item.getName())).collect(Collectors.toList()));
 				list.add(group);
 			}
 		}
@@ -635,7 +637,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			});
 			if (!CollectionUtils.isEmpty(topicList)) {
 				topicList.sort((a, b) -> a.getSn().compareTo(b.getSn()));
-				group.setTopicList(topicList);
+				group.setTopicList(topicList.stream().filter(StreamUtils.distinctByKey(item -> item.getName())).collect(Collectors.toList()));
 				list.add(group);
 			}
 		}
@@ -647,14 +649,16 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			TopicGroupVO group = new TopicGroupVO(BBSTopicType.system);
 			List<TopicVO> topicList = new ArrayList<TopicVO>();
 
-			systemTags.stream().filter(item -> item.getCategory().equals(TagCategory.systemTopic.getValue())).forEach(item -> {
+			List<TopicVO> memberTopics = list.stream().flatMap(a->a.getTopicList().stream()).collect(Collectors.toList());
+			
+			systemTags.stream().filter(item -> !memberTopics.stream().filter(x->item.getName().equals(x.getName())).findAny().isPresent()).forEach(item -> {
 				TopicVO topic = new TopicVO(item.getId(), BBSTopicType.system, item.getName(), item.getIcon(), item.getSn());
 				topicList.add(topic);
 			});
 
 			if (!CollectionUtils.isEmpty(topicList)) {
 				topicList.sort((a, b) -> a.getSn().compareTo(b.getSn()));
-				group.setTopicList(topicList);
+				group.setTopicList(topicList.stream().filter(StreamUtils.distinctByKey(item -> item.getName())).collect(Collectors.toList()));
 				list.add(group);
 			}
 		}

@@ -56,7 +56,7 @@
 			    t.id,
 			    t.business_id,
 			    1 AS type,
-			    t.create_ts,
+			    c.create_ts,
 			    c.post_id,
 			    c.content AS comment_content,
 			    p.content,
@@ -73,7 +73,7 @@
 			    t.id,
 			    t.business_id,
 			    1 AS type,
-			    t.create_ts,
+			    c.create_ts,
 			    c.business_id as post_id,
 			    '' AS comment_content,
 			    p.content,
@@ -85,7 +85,7 @@
 			    bbs_thumbs_up c ON t.business_id = c.id  and t.member_id = #{currentUserId}  AND t.deleted = FALSE  AND c.deleted = FALSE   AND t.`status` = 0  AND t.business_type = 2
 			        INNER JOIN
 			    bbs_post p ON p.id = c.business_id   AND p.deleted = FALSE
-			) t  order by t.id
+			) t  order by t.create_ts desc
 		  limit #{offset},#{pageSize}
 
 	</select>

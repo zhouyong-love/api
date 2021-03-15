@@ -22,4 +22,14 @@
     		#{item}
     	</foreach>
 	</update>
+	
+	<update id="markAsReadByIdList" parameterType="Map">
+		update uc_notification set status =1 , status_ts = current_timestamp() where
+		  id in 
+		<foreach collection="idList" separator="," open="(" close=")" item="item">
+    		#{item}
+    	</foreach>
+	</update>
+	
+	
 </mapper>

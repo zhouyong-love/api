@@ -239,7 +239,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				memberIdList.add(item.getLatestComment().getCreateBy());
 			}
 			//最多三个点赞
-			if(CollectionUtils.isEmpty(item.getThumbsUpList())) {
+			if(!CollectionUtils.isEmpty(item.getThumbsUpList())) {
 				item.setThumbsUpList(item.getThumbsUpList().stream().limit(3).collect(Collectors.toList()));
 			}
 			if (!CollectionUtils.isEmpty(item.getThumbsUpList())) {

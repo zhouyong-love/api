@@ -64,6 +64,11 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 		repository.markAsRead(memberId,businessTypeList);
 		
 	}
+	@Override
+	public void markAsRead(List<Long> idList) {
+		repository.markAsReadByIdList(idList);
+		
+	}
 
 
 	private PostPO getPostById(Long id) {

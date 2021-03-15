@@ -11,4 +11,6 @@ public interface NotificationService extends IService<NotificationVO,Notificatio
 	void removeByPostId(Long postId);
 
 	void markAsRead(Long memberId,List<String> businessTypeList);
+
+	void markAsRead(List<Long> idList);
 }

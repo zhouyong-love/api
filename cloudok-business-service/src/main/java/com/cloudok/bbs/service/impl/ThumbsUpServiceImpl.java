@@ -28,6 +28,7 @@ public class ThumbsUpServiceImpl extends AbstractService<ThumbsUpVO, ThumbsUpPO>
 		d.setStatusTs(new Timestamp(System.currentTimeMillis()));
 		return super.create(d);
 	}
+	@Deprecated
 	@Override
 	public void markAsRead(List<Long> thumupIdList) {
 		if(CollectionUtils.isEmpty(thumupIdList)) {

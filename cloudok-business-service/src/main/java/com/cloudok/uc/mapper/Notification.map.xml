@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.uc.mapper.NotificationMapper">
+	<update id="removeByPostId" parameterType="Map">
+		update uc_notification set deleted=true 
+		where 
+		business_id in (select id from bbs_comment where deleted=false and post_id=#{postId})
+		or business_id in (select id from bbs_collect where deleted=false and business_id = #{postId})
+	</update>
+
+	<update id="deleteByBusinessId" parameterType="Map">
+		update uc_notification
+		set deleted=true where business_id = #{businessId} and business_type =
+		#{businessType}
+	</update>
+	
+	<update id="markAsRead" parameterType="Map">
+		update uc_notification set status =1 , status_ts = current_timestamp() where
+		member_id = #{memberId}
+		and business_type in 
+		<foreach collection="businessTypeList" separator="," open="(" close=")" item="item">
+    		#{item}
+    	</foreach>
+	</update>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.uc.mapper.NotificationMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.uc.po.NotificationPO" id="notificationMap">
+		
+		<result property="businessType" column="business_type"/>
+		
+		<result property="businessId" column="business_id"/>
+		
+		<result property="title" column="title"/>
+		
+		<result property="remark" column="remark"/>
+		
+		<result property="status" column="status"/>
+		
+		<result property="statusTs" column="status_ts"/>
+		
+		<result property="memberId" column="member_id"/>
+		
+		
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.business_type,t.business_id,t.title,t.remark,t.status,t.status_ts,member_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.uc.po.NotificationPO">
+		insert into uc_notification(business_type,business_id,title,remark,status,status_ts,member_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{businessType},#{businessId},#{title},#{remark},#{status},#{statusTs},#{memberId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.uc.po.NotificationPO">
+		update uc_notification set business_type=#{businessType},business_id=#{businessId},title=#{title},remark=#{remark},status=#{status},status_ts=#{statusTs},member_id={memberId},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.uc.po.NotificationPO">
+		update uc_notification set 
+			
+			<if test="businessType != null ">business_type = #{businessType},</if>
+			
+			<if test="businessId != null ">business_id = #{businessId},</if>
+			
+			<if test="title != null ">title = #{title},</if>
+			
+			<if test="remark != null ">remark = #{remark},</if>
+			
+			<if test="status != null ">status = #{status},</if>
+			
+			<if test="statusTs != null ">status_ts = #{statusTs},</if>
+			
+			<if test="memberId != null ">member_id={memberId},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.logicDelete">
+			<property name="tableName" value="uc_notification"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="notificationMap">
+		select
+		<include refid="columns"></include>
+		from uc_notification  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from uc_notification t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

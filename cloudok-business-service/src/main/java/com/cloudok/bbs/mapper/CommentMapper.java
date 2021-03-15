@@ -12,6 +12,7 @@ public interface CommentMapper extends IMapper<CommentPO> {
 	List<CommentPO> getMyRecognizedComments(@Param("currentUserId") Long currentUserId,
 			@Param("postIdList") List<Long> postIdList, @Param("maxSize") int maxSize);
 
+	@Deprecated
 	void markAsRead(@Param("idList") List<Long> idList);
 
 	void removeByPostId(@Param("postId") Long postId);

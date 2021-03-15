@@ -23,9 +23,11 @@ public class CommentVO extends VO {
 	private Long parentId;
 
 	private SimpleMemberInfo memberInfo;
-
+	@Deprecated
 	private Integer status;
-
+	@Deprecated
 	private Timestamp statusTs;
+
+	private SimpleMemberInfo replyTo;
 
 }

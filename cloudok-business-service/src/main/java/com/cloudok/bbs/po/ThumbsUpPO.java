@@ -17,7 +17,9 @@ public class ThumbsUpPO extends PO {
 
 	private Long businessId;
 
+	@Deprecated
 	private Integer status;
 
+	@Deprecated
 	private Timestamp statusTs;
 }

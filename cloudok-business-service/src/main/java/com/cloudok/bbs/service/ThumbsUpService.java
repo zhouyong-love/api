@@ -8,6 +8,7 @@ import com.cloudok.core.service.IService;
 
 public interface ThumbsUpService extends IService<ThumbsUpVO,ThumbsUpPO>{
 
+	@Deprecated
 	void markAsRead(List<Long> thumupIdList);
 
 	void removeByPostId(Long postId);

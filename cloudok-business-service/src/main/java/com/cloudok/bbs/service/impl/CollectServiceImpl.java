@@ -17,7 +17,8 @@ public class CollectServiceImpl extends AbstractService<CollectVO, CollectPO> im
 
 	@Autowired
 	private PostService postService;
-	
+	@Autowired
+	private CollectMapper repository;
 	@Autowired
 	public CollectServiceImpl(CollectMapper repository) {
 		super(repository);
@@ -26,5 +27,9 @@ public class CollectServiceImpl extends AbstractService<CollectVO, CollectPO> im
 	@Override
 	public Page<PostVO> getMyCollectPosts(Long currentUserId, Integer pageNo, Integer pageSize) {
 		return this.postService.getMyCollectPosts(currentUserId,pageNo,pageSize);
+	}
+	@Override
+	public void removeByPostId(Long postId) {
+		this.repository.removeByPostId(postId);
 	}
 }

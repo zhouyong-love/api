@@ -127,7 +127,7 @@ public class PostApi {
 	@ApiOperation(value = "删除动态、帖子等", notes = "删除动态、帖子等")
 	@Loggable
 	public Response remove(@PathVariable("id") Long id) {
-		return Response.buildSuccess(postService.remove(id));
+		return Response.buildSuccess(postService.removeById(id));
 	}
 	
 

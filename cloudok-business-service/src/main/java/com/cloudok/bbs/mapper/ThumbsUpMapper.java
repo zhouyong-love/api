@@ -12,4 +12,6 @@ public interface ThumbsUpMapper extends IMapper<ThumbsUpPO>{
 
 		void markAsRead(@Param("idList") List<Long> idList);
 
+		void removeByPostId(@Param("postId") Long postId);
+
 }

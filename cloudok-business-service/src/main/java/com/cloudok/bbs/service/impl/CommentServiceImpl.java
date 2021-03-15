@@ -45,14 +45,28 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 	
 	@Override
 	public CommentVO create(CommentVO d) {
-		d.setStatus(0);
-		d.setStatusTs(new Timestamp(System.currentTimeMillis()));
+		PostVO post = this.postService.get(d.getPostId());
+		if(post == null) {
+			throw new SystemException("动态已经被删除",CoreExceptionMessage.NOTFOUND_ERR);
+		}
+		if(post.getCreateBy().equals(getCurrentUserId())) {
+			d.setStatus(1);
+			d.setStatusTs(new Timestamp(System.currentTimeMillis()));
+		}else {
+			d.setStatus(0);
+			d.setStatusTs(new Timestamp(System.currentTimeMillis()));
+		}
+	
 		CommentVO vo =  super.create(d);
 		SpringApplicationContext.publishEvent(new CommentDeleteEvent(vo));
 		return vo;
 	}
 	@Override
 	public CommentVO update(CommentVO d) {
+		PostVO post = this.postService.get(d.getPostId());
+		if(post == null) {
+			throw new SystemException("动态已经被删除",CoreExceptionMessage.NOTFOUND_ERR);
+		}
 		CommentVO vo = this.get(d.getId());
 		if (vo != null) {
 			if (!vo.getCreateBy().equals(SecurityContextHelper.getCurrentUserId())) {
@@ -66,10 +80,12 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 	public Integer remove(Long pk) {
 		CommentVO vo = this.get(pk);
 		if (vo != null) {
+			PostVO post = this.postService.get(vo.getPostId());
+			if(post == null) {
+				throw new SystemException("动态已经被删除",CoreExceptionMessage.NOTFOUND_ERR);
+			}
 			//检查评论是不是我发布的
 			if (!vo.getCreateBy().equals(SecurityContextHelper.getCurrentUserId())) { //不是我发的
-				//检查post是否是我的
-				PostVO post = this.postService.get(vo.getPostId());
 				//不是我发的
 				if(post == null || !post.getCreateBy().equals(SecurityContextHelper.getCurrentUserId())) {
 					throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
@@ -112,6 +128,10 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 		}
 		repository.markAsRead(commentIdList);
 		
+	}
+	@Override
+	public void removeByPostId(Long postId) {
+		this.repository.removeByPostId(postId);
 	}
 
 }

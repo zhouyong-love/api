@@ -36,4 +36,8 @@ public class ThumbsUpServiceImpl extends AbstractService<ThumbsUpVO, ThumbsUpPO>
 		repository.markAsRead(thumupIdList);
 		
 	}
+	@Override
+	public void removeByPostId(Long postId) {
+		this.repository.removeByPostId(postId);
+	}
 }

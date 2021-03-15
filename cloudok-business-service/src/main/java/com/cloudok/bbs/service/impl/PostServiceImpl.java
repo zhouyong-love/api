@@ -1,5 +1,6 @@
 package com.cloudok.bbs.service.impl;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -149,19 +150,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		}
 		return vo;
 	}
-
-	@Override
-	public Integer remove(Long pk) {
-		PostVO vo = this.getSampleInfo(pk);
-		if (vo != null) {
-			if (!vo.getCreateBy().equals(SecurityContextHelper.getCurrentUserId())) {
-				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
-			}
-		}
-		SpringApplicationContext.publishEvent(new PostDeleteEvent(vo));
-		return super.remove(pk);
-	}
-
+ 
 	private PostVO getSampleInfo(Long id) {
 		PostVO post = super.get(id);
 		return post;
@@ -236,12 +225,18 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		// 填充：图片，memberInfo，点赞，评论等数据
 		List<Long> attachIdList = new ArrayList<Long>();
 		List<Long> memberIdList = new ArrayList<Long>();
+	 
+
 		postList.stream().forEach(item -> {
 			if (!CollectionUtils.isEmpty(item.getAttachList())) {
 				attachIdList.addAll(item.getAttachList().stream().map(a -> a.getId()).collect(Collectors.toList()));
 			}
 			if (item.getLatestComment() != null) {
 				memberIdList.add(item.getLatestComment().getCreateBy());
+			}
+			//最多三个点赞
+			if(CollectionUtils.isEmpty(item.getThumbsUpList())) {
+				item.setThumbsUpList(item.getThumbsUpList().stream().limit(3).collect(Collectors.toList()));
 			}
 			if (!CollectionUtils.isEmpty(item.getThumbsUpList())) {
 				memberIdList.addAll(item.getThumbsUpList().stream().map(a -> a.getCreateBy()).collect(Collectors.toList()));
@@ -291,7 +286,6 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				});
 			}
 		}
-
 	}
 
 	private void fillPostThumbsUp(List<PostVO> postList, int size) {
@@ -401,12 +395,23 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 
 	@Override
 	public Boolean thumbsUp(Long id) {
+		PostVO post = this.get(id);
+		if(post == null) {
+			throw new SystemException("动态已经被删除",CoreExceptionMessage.NOTFOUND_ERR);
+		}
 		List<ThumbsUpVO> list = thumbsUpService
 				.list(QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.CREATEBY, SecurityContextHelper.getCurrentUserId()).and(ThumbsUpMapping.BUSINESSID, id).end());
 		if (CollectionUtils.isEmpty(list)) {
 			ThumbsUpVO vo = new ThumbsUpVO();
 			vo.setBusinessId(id);
 			vo.setBusinessType(Integer.parseInt(CollectType.post.getValue()));
+			if(post.getCreateBy().equals(getCurrentUserId())) {
+				vo.setStatus(1);
+				vo.setStatusTs(new Timestamp(System.currentTimeMillis()));
+			}else {
+				vo.setStatus(0);
+				vo.setStatusTs(new Timestamp(System.currentTimeMillis()));
+			}
 			thumbsUpService.create(vo);
 			SpringApplicationContext.publishEvent(new ThumbsUpCreateEvent(vo));
 			return true;
@@ -417,6 +422,10 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 
 	@Override
 	public Boolean cancelThumbsUp(Long id) {
+		PostVO post = this.get(id);
+		if(post == null) {
+			throw new SystemException("动态已经被删除",CoreExceptionMessage.NOTFOUND_ERR);
+		}
 		List<ThumbsUpVO> list = thumbsUpService
 				.list(QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.CREATEBY, SecurityContextHelper.getCurrentUserId()).and(ThumbsUpMapping.BUSINESSID, id).end());
 		if (!CollectionUtils.isEmpty(list)) {
@@ -430,6 +439,10 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 
 	@Override
 	public Boolean collect(Long id) {
+		PostVO post = this.get(id);
+		if(post == null) {
+			throw new SystemException("动态已经被删除",CoreExceptionMessage.NOTFOUND_ERR);
+		}
 		List<CollectVO> list = collectService
 				.list(QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.CREATEBY, SecurityContextHelper.getCurrentUserId()).and(ThumbsUpMapping.BUSINESSID, id).end());
 		if (CollectionUtils.isEmpty(list)) {
@@ -446,6 +459,10 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 
 	@Override
 	public Boolean cancelCollect(Long id) {
+		PostVO post = this.get(id);
+		if(post == null) {
+			throw new SystemException("动态已经被删除",CoreExceptionMessage.NOTFOUND_ERR);
+		}
 		List<CollectVO> list = collectService
 				.list(QueryBuilder.create(ThumbsUpMapping.class).and(ThumbsUpMapping.CREATEBY, SecurityContextHelper.getCurrentUserId()).and(ThumbsUpMapping.BUSINESSID, id).end());
 		if (!CollectionUtils.isEmpty(list)) {
@@ -743,6 +760,24 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			});
 		}
 		return page;
+	}
+
+	@Override
+	public Boolean removeById(Long pk) {
+		PostVO vo = this.getSampleInfo(pk);
+		if (vo != null) {
+			if (!vo.getCreateBy().equals(SecurityContextHelper.getCurrentUserId())) {
+				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
+			}
+		}
+		SpringApplicationContext.publishEvent(new PostDeleteEvent(vo));
+		this.remove(pk);
+		
+		this.commentService.removeByPostId(pk);
+		this.collectService.removeByPostId(pk);
+		this.thumbsUpService.removeByPostId(pk);
+		
+		return true;
 	}
 
 }

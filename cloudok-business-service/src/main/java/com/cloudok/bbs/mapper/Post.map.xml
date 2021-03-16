@@ -72,7 +72,7 @@
 			UNION SELECT 
 			    t.id,
 			    t.business_id,
-			    1 AS type,
+			    2 AS type,
 			    c.create_ts,
 			    c.business_id as post_id,
 			    '' AS comment_content,
@@ -111,7 +111,7 @@
 			UNION SELECT 
 			    t.id,
 			    t.business_id,
-			    1 AS type,
+			    2 AS type,
 			    t.create_ts,
 			    c.business_id as post_id,
 			    '' AS comment_content,

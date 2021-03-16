@@ -239,7 +239,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			}
 			//最多三个点赞
 			if(!CollectionUtils.isEmpty(item.getThumbsUpList())) {
-				item.setThumbsUpList(item.getThumbsUpList().stream().limit(3).collect(Collectors.toList()));
+				item.setThumbsUpList(item.getThumbsUpList().stream().limit(5).collect(Collectors.toList()));
 			}
 			if (!CollectionUtils.isEmpty(item.getThumbsUpList())) {
 				memberIdList.addAll(item.getThumbsUpList().stream().map(a -> a.getCreateBy()).collect(Collectors.toList()));
@@ -304,7 +304,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			postList.stream().forEach(item -> {
 				List<ThumbsUpVO> list = map.get(item.getId());
 				if (!CollectionUtils.isEmpty(list)) { // 排序
-					list.sort((a, b) -> a.getCreateTs().compareTo(b.getCreateTs()));
+					list.sort((b, a) -> a.getCreateTs().compareTo(b.getCreateTs()));
 					item.setThumbsUpList(list);
 					item.setMyThumbsUp(false);
 					list.stream().filter(th -> th.getCreateBy().equals(getCurrentUserId())).findAny().ifPresent(th -> {
@@ -339,7 +339,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			postList.stream().forEach(item -> {
 				List<CommentVO> list = map.get(item.getId());
 				if (!CollectionUtils.isEmpty(list)) { // 排序
-					list.sort((a, b) -> a.getCreateTs().compareTo(b.getCreateTs()));
+					list.sort((b,a) -> a.getCreateTs().compareTo(b.getCreateTs()));
 					item.setLatestComment(list.get(0));
 				}
 			});

@@ -185,7 +185,9 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	public MemberVO create(MemberVO d) {
 		// 默认注册时间为更新时间
 		d.setProfileUpdateTs(new Timestamp(System.currentTimeMillis()));
-		return super.create(d);
+		MemberVO m =  super.create(d);
+		SpringApplicationContext.getBean(MemberScoreCalcServiceV2.class).initMemberScoreOnCreate(m.getId());
+		return m;
 	}
 
 	@Override

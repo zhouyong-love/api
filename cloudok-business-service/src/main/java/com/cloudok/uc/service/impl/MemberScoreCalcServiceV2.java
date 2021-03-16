@@ -25,6 +25,7 @@ import com.cloudok.uc.event.RecognizedDeletedMemberScoreEvent;
 import com.cloudok.uc.mapper.MemberMapper;
 import com.cloudok.uc.mapping.MemberMapping;
 import com.cloudok.uc.mapping.RecognizedMapping;
+import com.cloudok.uc.po.MemberPO;
 import com.cloudok.uc.po.MemberSuggestScore;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.service.RecognizedService;
@@ -61,6 +62,23 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 			}
 //			 this.calcAll();
 		}) .start();
+	}
+	
+	public void initMemberScoreOnCreate(Long memberId) {
+		int pageIndex = 1;
+		List<MemberPO> memberList = repository.select(QueryBuilder.create(MemberMapping.class).sort(MemberMapping.ID).desc().enablePaging().page(pageIndex, 50).end());
+		while(!CollectionUtils.isEmpty(memberList)) {
+			List<MemberSuggestScore> list =	memberList.stream().filter(item -> !item.getId().equals(memberId))
+			.map(item ->  {
+				MemberSuggestScore s = new MemberSuggestScore(memberId,item.getId(),item.getWi(),0,0,0,0);
+				s.setId(SnowflakePrimaryKeyGenerator.SEQUENCE.next());
+				return s;
+			})
+				.collect(Collectors.toList());
+			this.repository.createScoreList(list);
+			pageIndex = pageIndex+1;
+			memberList = repository.select(QueryBuilder.create(MemberMapping.class).sort(MemberMapping.ID).desc().enablePaging().page(pageIndex, 50).end());
+		}
 	}
 	
 	private void onMemberScoreEvent(MemberScoreEvent cast) {

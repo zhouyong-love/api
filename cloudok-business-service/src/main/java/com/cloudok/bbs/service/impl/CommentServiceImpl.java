@@ -84,7 +84,7 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 				}else {
 					d.setPath("/"+parent.getPath()+"/"+parent.getId());
 				}
-				
+				d.setReplyTo(new SimpleMemberInfo(parent.getCreateBy()));
 			} 
 		}
 		CommentVO vo =  super.create(d);

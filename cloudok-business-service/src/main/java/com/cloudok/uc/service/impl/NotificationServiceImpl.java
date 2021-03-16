@@ -150,7 +150,7 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 			vo.setCreateTs(comment.getCreateTs());
 			vo.setUpdateBy(comment.getUpdateBy());
 			vo.setUpdateTs(comment.getUpdateTs());
-			vo.setMemberId(post.getCreateBy());
+			vo.setMemberId(comment.getReplyTo().getId());  //回复某人则提醒某人
 			list.add(vo);
 		}
 		

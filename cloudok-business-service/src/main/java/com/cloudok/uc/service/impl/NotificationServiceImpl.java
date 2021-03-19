@@ -134,24 +134,28 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 		vo.setMemberId(post.getCreateBy());
 		list.add(vo);
 		
-		if(comment.getReplyTo() != null) {
-			vo = new NotificationVO();
-			vo.setBusinessId(comment.getId());
-			vo.setBusinessType(Integer.parseInt(NotificationType.replyComment.getValue()));
-			vo.setTitle("评论新回复");
-			vo.setRemark(comment.getContent().substring(0, Math.min(100, comment.getContent().length())));
-			if(comment.getReplyTo().getId().equals(comment.getCreateBy())) {
-				vo.setStatus(1);
-			}else {
-				vo.setStatus(0);
-			}	
-			vo.setStatusTs(comment.getCreateTs());
-			vo.setCreateBy(comment.getCreateBy());
-			vo.setCreateTs(comment.getCreateTs());
-			vo.setUpdateBy(comment.getUpdateBy());
-			vo.setUpdateTs(comment.getUpdateTs());
-			vo.setMemberId(comment.getReplyTo().getId());  //回复某人则提醒某人
-			list.add(vo);
+		if(comment.getReplyTo() != null ) {
+			//动态发布人和RE人是同一个人，则不再提醒
+			if(!comment.getReplyTo().getId().equals(post.getCreateBy())) {
+				vo = new NotificationVO();
+				vo.setBusinessId(comment.getId());
+				vo.setBusinessType(Integer.parseInt(NotificationType.replyComment.getValue()));
+				vo.setTitle("评论新回复");
+				vo.setRemark(comment.getContent().substring(0, Math.min(100, comment.getContent().length())));
+				if(comment.getReplyTo().getId().equals(comment.getCreateBy())) {
+					vo.setStatus(1);
+				}else {
+					vo.setStatus(0);
+				}	
+				vo.setStatusTs(comment.getCreateTs());
+				vo.setCreateBy(comment.getCreateBy());
+				vo.setCreateTs(comment.getCreateTs());
+				vo.setUpdateBy(comment.getUpdateBy());
+				vo.setUpdateTs(comment.getUpdateTs());
+				vo.setMemberId(comment.getReplyTo().getId());  //回复某人则提醒某人
+				list.add(vo);
+			}
+			
 		}
 		
 		return list;

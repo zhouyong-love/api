@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.uc.mapper.MemberTopicMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.uc.po.MemberTopicPO" id="memberTopicMap">
+		
+		<result property="memberId" column="member_id"/>
+		
+		<result property="topicId" column="topic_id"/>
+		
+		<result property="lastPostId" column="last_post_id"/>
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.member_id,t.topic_id,t.last_post_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.uc.po.MemberTopicPO">
+		insert into uc_member_topic(member_id,topic_id,last_post_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{memberId},#{topicId},#{lastPostId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.uc.po.MemberTopicPO">
+		update uc_member_topic set member_id=#{memberId},topic_id=#{topicId},last_post_id=#{lastPostId},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.uc.po.MemberTopicPO">
+		update uc_member_topic set 
+			
+			<if test="memberId != null ">member_id = #{memberId},</if>
+			
+			<if test="topicId != null ">topic_id = #{topicId},</if>
+			
+			<if test="lastPostId != null ">last_post_id = #{lastPostId},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="uc_member_topic"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="memberTopicMap">
+		select
+		<include refid="columns"></include>
+		from uc_member_topic  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from uc_member_topic t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

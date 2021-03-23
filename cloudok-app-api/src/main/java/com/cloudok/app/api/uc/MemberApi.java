@@ -282,6 +282,7 @@ public class MemberApi {
 	@GetMapping("/circle")
 	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签, filterType=0 查已经关注的人的云圈，filterType=1 查未关注的人的云圈，总peers=两个查询的total相加")
 	@Loggable
+	@Deprecated
 	public Response getMemberCircles(
 			@RequestParam(name = "filterType", required=false, defaultValue="0") Integer filterType,
 			@RequestParam(name = "type", required=true) Integer type,
@@ -289,6 +290,18 @@ public class MemberApi {
 			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
 			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
 		return Response.buildSuccess(memberService.getMemberCircles(filterType,type,businessId,pageNo,pageSize));
+	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/newCircle")
+	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 0 动态标签 1 研究领域 2 行业 3 社团 4 个性 5状态标签 6 学校 7 专业")
+	@Loggable
+	public Response getMemberCirclesV2(
+			@RequestParam(name = "type", required=true) Integer type,
+			@RequestParam(name = "businessId", required=false) Long businessId,
+			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+		return Response.buildSuccess(memberService.getMemberCirclesV2(type,businessId,pageNo,pageSize));
 	}
 	
 

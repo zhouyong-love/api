@@ -70,6 +70,7 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	Page<SimpleMemberInfo>  getSecondDegreeRecognized(Long memberId, Integer pageNo, Integer pageSize);
 
+	@Deprecated
 	Page<WholeMemberDTO> getMemberCircles(Integer filterType,Integer type, Long businessId, Integer pageNo, Integer pageSize);
 	
 	MemberVO getMemberDetails(Long memberId);
@@ -86,8 +87,11 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	SuggestResult suggestV2(Integer filterType, Boolean refresh);
 
+	@Deprecated
 	Object ignoreSuggestMember(Long memberId);
 
 	Page<SimpleMemberInfo>  searchMembers(String keywords, Integer pageNo, Integer pageSize);
+
+	Page<WholeMemberDTO> getMemberCirclesV2(Integer type, Long businessId, Integer pageNo, Integer pageSize);
 
 }

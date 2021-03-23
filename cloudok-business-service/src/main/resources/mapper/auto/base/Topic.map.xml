@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudok.base.mapper.TopicMapper">
+	
+	<resultMap extends="com.cloudok.core.mybatis.BaseMapper.baseMap" type="com.cloudok.base.po.TopicPO" id="topicMap">
+		
+		<result property="topicId" column="topic_id"/>
+		
+		<result property="topicType" column="topic_type"/>
+		
+		<result property="topicName" column="topic_name"/>
+		
+		<result property="topicIcon" column="topic_icon"/>
+		
+		<result property="postCount" column="post_count"/>
+		
+		<result property="peerCount" column="peer_count"/>
+		
+		<result property="lastUpdateTs" column="last_update_ts"/>
+		
+	</resultMap>
+
+	<sql id="columns">
+		t.topic_id,t.topic_type,t.topic_name,t.topic_icon,t.post_count,t.peer_count,t.last_update_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+	</sql>
+	
+	<insert id="create" parameterType="com.cloudok.base.po.TopicPO">
+		insert into base_topic(topic_id,topic_type,topic_name,topic_icon,post_count,peer_count,last_update_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{topicId},#{topicType},#{topicName},#{topicIcon},#{postCount},#{peerCount},#{lastUpdateTs},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+	</insert>
+	
+	<update id="update" parameterType="com.cloudok.base.po.TopicPO">
+		update base_topic set topic_id=#{topicId},topic_type=#{topicType},topic_name=#{topicName},topic_icon=#{topicIcon},post_count=#{postCount},peer_count=#{peerCount},last_update_ts=#{lastUpdateTs},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="merge" parameterType="com.cloudok.base.po.TopicPO">
+		update base_topic set 
+			
+			<if test="topicId != null ">topic_id = #{topicId},</if>
+			
+			<if test="topicType != null ">topic_type = #{topicType},</if>
+			
+			<if test="topicName != null ">topic_name = #{topicName},</if>
+			
+			<if test="topicIcon != null ">topic_icon = #{topicIcon},</if>
+			
+			<if test="postCount != null ">post_count = #{postCount},</if>
+			
+			<if test="peerCount != null ">peer_count = #{peerCount},</if>
+			
+			<if test="lastUpdateTs != null ">last_update_ts = #{lastUpdateTs},</if>
+			
+			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
+		</where>
+	</update>
+	
+	<update id="delete" parameterType="list">
+		<include refid="com.cloudok.core.mybatis.BaseMapper.delete">
+			<property name="tableName" value="base_topic"/>
+		</include>	
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.byIds"></include>
+		</where>
+	</update>
+	
+	<select id="select"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultMap="topicMap">
+		select
+		<include refid="columns"></include>
+		from base_topic  t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+
+	<select id="count"
+		parameterType="com.cloudok.core.query.QueryBuilder"
+		resultType="long">
+		select
+		count(1)
+		from base_topic t
+		<where>
+			<include refid="com.cloudok.core.mybatis.BaseMapper.condition"/>
+		</where>
+	</select>
+</mapper>

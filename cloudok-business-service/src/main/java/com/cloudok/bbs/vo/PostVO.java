@@ -5,6 +5,7 @@ import java.util.List;
 import com.cloudok.base.attach.vo.AttachVO;
 import com.cloudok.core.vo.VO;
 import com.cloudok.uc.dto.SimpleMemberInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -45,5 +46,13 @@ public class PostVO extends VO {
 	private CommentVO latestComment;
 	
 	private Boolean myThumbsUp;
+
+	/**
+	 * post 修改事件用的数据，不返回其他任何地方
+	 */
+	@JsonIgnore
+	private Integer oldTopicType;
+	@JsonIgnore
+	private Long oldTopicId;
 
 }

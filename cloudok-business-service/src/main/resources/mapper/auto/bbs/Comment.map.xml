@@ -12,25 +12,21 @@
 		
 		<result property="parentId" column="parent_id"/>
 		
-		<result property="status" column="status"/>
-		
-		<result property="statusTs" column="status_ts"/>
-		
 		<result property="replyTo" column="reply_to"/>
 		
 	</resultMap>
 
 	<sql id="columns">
-		t.content,t.post_id,t.path,t.parent_id,t.status,t.status_ts,t.reply_to,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.content,t.post_id,t.path,t.parent_id,t.reply_to,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.bbs.po.CommentPO">
-		insert into bbs_comment(content,post_id,path,parent_id,status,status_ts,reply_to,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		insert into bbs_comment(content,post_id,path,parent_id,reply_to,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
 		values(#{content},#{postId},#{path},#{parentId},#{status},#{statusTs},#{replyTo},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.bbs.po.CommentPO">
-		update bbs_comment set content=#{content},post_id=#{postId},path=#{path},parent_id=#{parentId},status=#{status},status_ts=#{statusTs},reply_to=#{replyTo},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update bbs_comment set content=#{content},post_id=#{postId},path=#{path},parent_id=#{parentId},reply_to=#{replyTo},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -46,11 +42,7 @@
 			<if test="path != null ">path = #{path},</if>
 			
 			<if test="parentId != null ">parent_id = #{parentId},</if>
-			
-			<if test="status != null ">status = #{status},</if>
-			
-			<if test="statusTs != null ">status_ts = #{statusTs},</if>
-			
+
 			<if test="replyTo != null ">reply_to=#{replyTo},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>

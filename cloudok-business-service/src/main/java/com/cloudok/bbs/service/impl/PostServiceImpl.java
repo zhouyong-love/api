@@ -1,6 +1,5 @@
 package com.cloudok.bbs.service.impl;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -127,6 +126,8 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			}
 		}
 		repository.updateByMember(this.convert2PO(vo));
+		vo.setOldTopicId(db.getTopicId());
+		vo.setOldTopicType(db.getOldTopicType());
 		SpringApplicationContext.publishEvent(new PostUpdateEvent(vo));
 		return vo;
 	}
@@ -408,13 +409,13 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			ThumbsUpVO vo = new ThumbsUpVO();
 			vo.setBusinessId(id);
 			vo.setBusinessType(Integer.parseInt(CollectType.post.getValue()));
-			if(post.getCreateBy().equals(getCurrentUserId())) {
-				vo.setStatus(1);
-				vo.setStatusTs(new Timestamp(System.currentTimeMillis()));
-			}else {
-				vo.setStatus(0);
-				vo.setStatusTs(new Timestamp(System.currentTimeMillis()));
-			}
+//			if(post.getCreateBy().equals(getCurrentUserId())) {
+//				vo.setStatus(1);
+//				vo.setStatusTs(new Timestamp(System.currentTimeMillis()));
+//			}else {
+//				vo.setStatus(0);
+//				vo.setStatusTs(new Timestamp(System.currentTimeMillis()));
+//			}
 			thumbsUpService.create(vo);
 			SpringApplicationContext.publishEvent(new ThumbsUpCreateEvent(vo));
 			return true;
@@ -647,11 +648,14 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		if (!CollectionUtils.isEmpty(systemTags)) {
 			TopicGroupVO group = new TopicGroupVO(BBSTopicType.system);
 			List<TopicVO> topicList = new ArrayList<TopicVO>();
-
-			List<TopicVO> memberTopics = list.stream().flatMap(a->a.getTopicList().stream()).collect(Collectors.toList());
 			
+			List<TopicVO> memberTopics = list.stream().flatMap(a->a.getTopicList().stream()).collect(Collectors.toList());
+
 			systemTags.stream().filter(item -> !memberTopics.stream().filter(x->item.getName().equals(x.getName())).findAny().isPresent()).forEach(item -> {
 				TopicVO topic = new TopicVO(item.getId(), BBSTopicType.system, item.getName(), item.getIcon(), item.getSn());
+				if(item.getRelationTo()!=null) {
+					topic.setId(item.getRelationTo());
+				}
 				topicList.add(topic);
 			});
 

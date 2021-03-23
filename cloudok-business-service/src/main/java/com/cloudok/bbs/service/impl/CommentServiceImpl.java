@@ -1,6 +1,5 @@
 package com.cloudok.bbs.service.impl;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,13 +68,13 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 		if(post == null) {
 			throw new SystemException("动态已经被删除",CoreExceptionMessage.NOTFOUND_ERR);
 		}
-		if(post.getCreateBy().equals(getCurrentUserId())) {
-			d.setStatus(1);
-			d.setStatusTs(new Timestamp(System.currentTimeMillis()));
-		}else {
-			d.setStatus(0);
-			d.setStatusTs(new Timestamp(System.currentTimeMillis()));
-		}
+//		if(post.getCreateBy().equals(getCurrentUserId())) {
+//			d.setStatus(1);
+//			d.setStatusTs(new Timestamp(System.currentTimeMillis()));
+//		}else {
+//			d.setStatus(0);
+//			d.setStatusTs(new Timestamp(System.currentTimeMillis()));
+//		}
 		if(d.getParentId() != null) { //path
 			CommentVO parent = this.get(d.getParentId());
 			if(parent != null) {
@@ -163,15 +162,15 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 	public List<CommentVO> getMyRecognizedComments(Long currentUserId, List<Long> postIdList, int maxSize) {
 		return this.convert2VO(this.repository.getMyRecognizedComments(currentUserId,postIdList,maxSize));
 	}
-	@Deprecated
-	@Override
-	public void markAsRead(List<Long> commentIdList) {
-		if(CollectionUtils.isEmpty(commentIdList)) {
-			return;
-		}
-		repository.markAsRead(commentIdList);
-		
-	}
+//	@Deprecated
+//	@Override
+//	public void markAsRead(List<Long> commentIdList) {
+//		if(CollectionUtils.isEmpty(commentIdList)) {
+//			return;
+//		}
+//		repository.markAsRead(commentIdList);
+//		
+//	}
 	@Override
 	public void removeByPostId(Long postId) {
 		this.repository.removeByPostId(postId);

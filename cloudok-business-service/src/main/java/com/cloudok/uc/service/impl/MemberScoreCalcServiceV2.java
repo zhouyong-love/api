@@ -82,16 +82,28 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 	}
 	
 	private void onMemberScoreEvent(MemberScoreEvent cast) {
-		List<WholeMemberDTO> list = getAllMemberList(); //这个可以缓存吧。。。
-		//只要计算被改的人 与 其他人的评分
-		list.stream().filter(item -> item.getId().equals(cast.getEventData().getId())).findAny().ifPresent(item ->{
-			//1 我与所有人的变更
-			this.calcMemberScore(item, list);
-			//2 所有人与我的变更
-			list.stream().filter(other -> !other.getId().equals(cast.getEventData().getId())).forEach(other ->{
-				this.calcMemberScore(other, Arrays.asList(item));
-			});
-		});
+		int pageNo = 1;
+		QueryBuilder builder = QueryBuilder.create(MemberMapping.class).sort(MemberMapping.ID).desc().enablePaging().page(pageNo, 50).end();
+		List<MemberVO> list = this.memberService.list(builder);
+		WholeMemberDTO owner = this.memberService.getWholeMemberInfo(cast.getEventData().getId());
+		while(!CollectionUtils.isEmpty(list)) {
+			List<WholeMemberDTO> targetList = this.memberService.getWholeMemberInfo(list.stream().filter(item -> !item.getId().equals(cast.getEventData().getId()))
+					.map(item -> item.getId())
+					.collect(Collectors.toList()));
+			if(!CollectionUtils.isEmpty(targetList)) {
+				//1 我与所有人的变更
+				this.calcMemberScore(owner, targetList);
+				//只要计算被改的人 与 其他人的评分
+				targetList.stream().filter(item -> item.getId().equals(cast.getEventData().getId())).findAny().ifPresent(item ->{
+					//2 所有人与我的变更
+					this.calcMemberScore(item, Arrays.asList(owner));
+				});
+			}
+			 pageNo = pageNo + 1;
+			 builder = builder.enablePaging().page(pageNo, 50).end();
+			 list = this.memberService.list(builder);
+		}
+		
 	}
 
 	//认可事件发生变更，只要计算两个人的值就可以

@@ -1,7 +1,5 @@
 package com.cloudok.bbs.vo;
 
-import java.sql.Timestamp;
-
 import com.cloudok.core.vo.VO;
 import com.cloudok.uc.dto.SimpleMemberInfo;
 
@@ -22,11 +20,5 @@ public class ThumbsUpVO extends VO {
 	
 
 	private SimpleMemberInfo memberInfo;
-	
-	@Deprecated
-	private Integer status;
-	
-	@Deprecated
-	private Timestamp statusTs;
 	
 }

@@ -367,5 +367,108 @@
 	<select id="getUnSuggestCount" parameterType="Map" resultType="Long">
 		select count(1) from uc_member_suggest where owner_id = #{currentUserId}  and score>-100 and suggest_ts is null 
 	</select>
+	
+	
+	
+	
+	<select id="getMemberCirclesListV2" parameterType="map" resultMap="memberCircleMap">
+		select t1.id,t1.last_update_ts from (
+			select u.id,
+			<if test="type ==1">
+				(select max(temp.update_ts) from uc_research_experience  temp where temp.member_id = u.id and temp.deleted = false and temp.domain_id=#{businessId}) as last_update_ts
+			</if>
+			<if test="type ==2">
+				(select max(temp.update_ts) from  uc_internship_experience temp, base_industry bitemp  where temp.industry_id = bitemp.id and  temp.member_id = u.id and temp.deleted = false and bitemp.category=#{businessId} ) as last_update_ts
+			</if>
+			<if test="type ==3">
+				(select max(temp.update_ts) from  uc_project_experience  temp where  temp.member_id = u.id   and temp.deleted = false and temp.category=#{businessId}) as last_update_ts
+			</if>
+			<if test="type ==4">
+				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and mt.type='1') as last_update_ts
+			</if>
+			<if test="type ==5">
+				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and mt.type='2') as last_update_ts
+			</if>
+			<if test="type ==0">
+				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and mt.type='3') as last_update_ts
+			</if>
+			<if test="type ==6">
+				(select max(temp.update_ts)  from uc_education_experience  temp where  temp.member_id = u.id   and temp.deleted = false and temp.school_id=#{businessId} ) as last_update_ts
+			</if>
+			<if test="type ==7">
+				(select max(temp.update_ts)  from uc_education_experience  temp where  temp.member_id = u.id   and temp.deleted = false and temp.specialism_id=#{businessId} ) as last_update_ts
+			</if>
+			 from uc_member u where
+				<if test="type ==1">
+					EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
+				</if>
+				<if test="type ==2">
+					EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
+				</if>
+				<if test="type ==3">
+					EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
+				</if>
+				<if test="type ==4">
+					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}  and mt.type='1') 
+				</if>
+				<if test="type ==5">
+					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}  and mt.type='2') 
+				</if>
+				<if test="type ==0">
+					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId} and mt.type='3') 
+				</if>
+				<if test="type ==6">
+					EXISTS (select 1 from uc_education_experience  mt where  mt.member_id = u.id   and mt.deleted = false and mt.school_id=#{businessId}  ) 
+				</if>
+				<if test="type ==7">
+					EXISTS (select 1 from uc_education_experience  mt where  mt.member_id = u.id   and mt.deleted = false and mt.specialism_id=#{businessId} ) 
+				</if>
+				<if test="excludedIdList != null">
+					and u.id not in 
+					<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</if>
+				and u.deleted=false
+		) t1
+		order by t1.last_update_ts desc
+		limit #{offset},#{pageSize}
+	</select>
+	
+	<select id="getMemberCirclesCountV2" parameterType="map" resultType="Long">
+		select count(u.id) from uc_member u where
+		<if test="type ==1">
+			EXISTS (select 1 from uc_research_experience  re where re.member_id = u.id and re.deleted = false and re.domain_id=#{businessId}) 
+		</if>
+		<if test="type ==2">
+			EXISTS (select 1 from uc_internship_experience  re, base_industry bi  where re.industry_id = bi.id and  re.member_id = u.id and re.deleted = false and bi.category=#{businessId})
+		</if>
+		<if test="type ==3">
+			EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
+		</if>
+		<if test="type ==4">
+			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}   and mt.type='1') 
+		</if>
+		<if test="type ==5">
+			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}   and mt.type='2') 
+		</if>
+		<if test="type ==0">
+			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}   and mt.type='3') 
+		</if>
+		<if test="type ==6">
+			EXISTS (select 1 from uc_education_experience  mt where  mt.member_id = u.id   and mt.deleted = false and mt.school_id=#{businessId}  ) 
+		</if>
+		<if test="type ==7">
+			EXISTS (select 1 from uc_education_experience  mt where  mt.member_id = u.id   and mt.deleted = false and mt.specialism_id=#{businessId} ) 
+		</if>
+		<if test="excludedIdList != null">
+			and u.id not in 
+			<foreach collection="excludedIdList" close=")" item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		and u.deleted=false
+	</select>
+	
 
 </mapper>

@@ -7,16 +7,25 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.cloudok.base.service.TagService;
 import com.cloudok.base.vo.TagVO;
+import com.cloudok.bbs.event.PostCreateEvent;
+import com.cloudok.bbs.event.PostDeleteEvent;
+import com.cloudok.bbs.event.PostUpdateEvent;
+import com.cloudok.bbs.mapping.PostMapping;
+import com.cloudok.bbs.service.PostService;
+import com.cloudok.bbs.vo.PostVO;
 import com.cloudok.core.context.SpringApplicationContext;
+import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.enums.BBSTopicType;
 import com.cloudok.enums.TaggedType;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
@@ -30,10 +39,16 @@ import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.SwitchSNRequest;
 
 @Service
-public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberTagsPO> implements MemberTagsService{
+public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberTagsPO> implements MemberTagsService,ApplicationListener<BusinessEvent<?>>{
 
 	@Autowired
 	private TagService tagService;
+	
+	@Autowired
+	private MemberTagsMapper repository;
+	
+	@Autowired
+	private PostService postService;
 	
 	@Autowired
 	public MemberTagsServiceImpl(MemberTagsMapper repository) {
@@ -42,7 +57,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 
 
 	@Override
-	public MemberTagsVO create(MemberTagsVO d) {
+	public MemberTagsVO createByMember(MemberTagsVO d) {
 		List<MemberTagsVO> list = super.list(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.TAGID, d.getTag().getId()).and(MemberTagsMapping.MEMBERID, getCurrentUserId()).end());
 		if(!CollectionUtils.isEmpty(list)) {
 			super.remove(list.stream().map(item->item.getId()).collect(Collectors.toList()));
@@ -68,7 +83,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 	}
 
 	@Override
-	public MemberTagsVO update(MemberTagsVO d) {
+	public MemberTagsVO updateByMember(MemberTagsVO d) {
 		MemberTagsVO vo = this.get(d.getId());
 		if (vo != null) {
 			if (!vo.getMemberId().equals(SecurityContextHelper.getCurrentUserId())) {
@@ -169,5 +184,82 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 		this.merge(target);
 		
 		return true;
+	}
+
+
+	@Override
+	public void onApplicationEvent(BusinessEvent<?> event) {
+		if (event instanceof PostCreateEvent) {
+			this.onPostCreateEvent(PostCreateEvent.class.cast(event));
+		}
+		if (event instanceof PostUpdateEvent) {
+			this.onPostUpdateEvent(PostUpdateEvent.class.cast(event));
+		}
+		if (event instanceof PostDeleteEvent) {
+			this.onPostDeleteEvent(PostDeleteEvent.class.cast(event));
+		} 
+	}
+
+	private void onPostUpdateEvent(PostUpdateEvent cast) {
+		Integer topicType = cast.getEventData().getTopicType();
+		if(BBSTopicType.system.getValue().equals(topicType.toString())) { //是系统推荐标签
+			//新增新标签关联
+			this.addNewPostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
+		}
+	}
+
+	private void onPostDeleteEvent(PostDeleteEvent cast) {
+		Integer topicType = cast.getEventData().getTopicType();
+		if(BBSTopicType.system.getValue().equals(topicType.toString())) { //是系统推荐标签
+			//删除旧标签关联
+			this.removePostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
+		}
+	}
+
+	private void onPostCreateEvent(PostCreateEvent cast) {
+		PostVO post = cast.getEventData();
+		if(post.getTopicId().equals(post.getOldTopicId()) && post.getTopicType().equals(post.getOldTopicType())) {
+			return;
+		}
+		if(BBSTopicType.system.getValue().equals(post.getTopicType().toString())) { //是系统推荐标签
+			//新增新标签关联
+			this.addNewPostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
+		}
+		if(BBSTopicType.system.getValue().equals(post.getOldTopicType().toString())) { //是系统推荐标签
+			//删除旧标签关联
+			this.removePostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
+		}
+	}
+	
+	private void addNewPostTag(Long memberId,Long topicId) {
+		List<MemberTagsPO> list = this.repository.select(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.MEMBERID, memberId)
+				.and(MemberTagsMapping.TAGID, topicId).and(MemberTagsMapping.TYPE, TaggedType.POST.getValue()).end());
+		if(CollectionUtils.isEmpty(list)) {
+			MemberTagsVO vo = new MemberTagsVO();
+			 vo.setMemberId(memberId);
+			 vo.setSn(9999);
+			 vo.setType(Integer.parseInt(TaggedType.POST.getValue()));
+			 vo.setTag(new TagVO(topicId));
+			 this.create(vo);
+		}else {
+			if(list.size()>1) {
+				 this.repository.delete(list.stream().map(item -> item.getId()).skip(1).collect(Collectors.toList()));
+			}
+			MemberTagsPO target = list.get(0);
+			//触发一下更新时间
+			this.merge(this.convert2VO(target));
+		}
+	}
+	
+	private void removePostTag(Long memberId,Long topicId) {
+		List<MemberTagsPO> list = this.repository.select(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.MEMBERID, memberId)
+				.and(MemberTagsMapping.TAGID, topicId).and(MemberTagsMapping.TYPE, TaggedType.POST.getValue()).end());
+		if(!CollectionUtils.isEmpty(list)) {
+			Long count  = this.postService.count(QueryBuilder.create(PostMapping.class).and(PostMapping.CREATEBY, memberId)
+					.and(PostMapping.topicType, BBSTopicType.system.getValue()).and(PostMapping.topicId, topicId).end());
+			if(count == null || count.compareTo(0L)==0) {
+				 this.repository.delete(list.stream().map(item -> item.getId()).collect(Collectors.toList()));
+			}
+		}
 	}
 }

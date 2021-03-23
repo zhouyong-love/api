@@ -1,7 +1,5 @@
 package com.cloudok.bbs.po;
 
-import java.sql.Timestamp;
-
 import com.cloudok.core.po.PO;
 
 import lombok.Getter;
@@ -21,11 +19,11 @@ public class CommentPO extends PO {
 
 	private Long parentId;
 
-	@Deprecated
-	private Integer status;
-
-	@Deprecated
-	private Timestamp statusTs;
+//	@Deprecated
+//	private Integer status;
+//
+//	@Deprecated
+//	private Timestamp statusTs;
 	
 	private Long replyTo;
 	 

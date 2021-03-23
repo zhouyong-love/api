@@ -1089,6 +1089,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	// 查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签，filterType=0 查已经关注的人的云圈，filterType=1
 	// 查未关注的人的云圈
 	@Override
+	@Deprecated
 	public Page<WholeMemberDTO> getMemberCircles(Integer filterType, Integer type, Long businessId, Integer pageNo, Integer pageSize) {
 		if (type == null || businessId == null) {
 			return new Page<>();
@@ -1552,6 +1553,98 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			}
 		}
 		return imperfect;
+	}
+	//查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性 5状态标签 6 学校 7 专业
+	@Override
+	public Page<WholeMemberDTO> getMemberCirclesV2(Integer type, Long businessId, Integer pageNo, Integer pageSize) {
+		if (type == null || businessId == null) {
+			return new Page<>();
+		}
+		if (type == null || businessId == null) {
+			return new Page<>();
+		}
+		Long currentUserId = getCurrentUserId();
+		Long count = this.repository.getMemberCirclesCountV2(currentUserId, Arrays.asList(currentUserId), type, businessId);
+		Page<WholeMemberDTO> page = new Page<WholeMemberDTO>();
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		page.setTotalCount(count);
+		if (page.getTotalCount() > 0 && (page.getTotalCount() / page.getPageSize() + 1) >= page.getPageNo()) {
+			// 查询分页数据
+			List<MemberCirclePO> suggestMemberList = this.repository.getMemberCirclesListV2(currentUserId, Arrays.asList(currentUserId), type, businessId,
+					(pageNo - 1) * pageSize, pageSize);
+			List<Long> suggestMemberIdList = suggestMemberList.stream().map(item -> item.getMemberId()).collect(Collectors.toList());
+			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(suggestMemberIdList);
+			List<RecognizedVO> recoginzedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
+					.and(RecognizedMapping.TARGETID, QueryOperator.IN, suggestMemberIdList).end().or(RecognizedMapping.TARGETID, currentUserId)
+					.and(RecognizedMapping.SOURCEID, QueryOperator.IN, suggestMemberIdList).end());
+			if (!CollectionUtils.isEmpty(recoginzedList)) {
+				memberList.stream().forEach(member -> {
+					recoginzedList.stream().filter(item -> item.getSourceId().equals(currentUserId) && item.getTargetId().equals(member.getId())).findAny().ifPresent(item -> {
+						member.setTo(true);
+					});
+					recoginzedList.stream().filter(item -> item.getTargetId().equals(currentUserId) && item.getSourceId().equals(member.getId())).findAny().ifPresent(item -> {
+						member.setFrom(true);
+					});
+				});
+			}
+			// 查询圈子，Type目前支持 1 研究领域 2 行业 3 社团 4 个性/状态标签
+			memberList.stream().forEach(item -> {
+				switch (type) {
+				case 1: // 研究领域
+					item.setInternshipList(null);
+					item.setProjectList(null);
+					item.setTagsList(null);
+					List<ResearchExperienceVO> researchList = item.getResearchList();
+					if (!CollectionUtils.isEmpty(researchList)) {
+						item.setResearchList(
+								researchList.stream().filter(r -> r.getDomain() != null).filter(r -> businessId.equals(r.getDomain().getId())).collect(Collectors.toList()));
+					}
+					break;
+				case 2: // 行业
+					item.setProjectList(null);
+					item.setResearchList(null);
+					item.setTagsList(null);
+					List<InternshipExperienceVO> internshipList = item.getInternshipList();
+					if (!CollectionUtils.isEmpty(internshipList)) {
+						item.setInternshipList(internshipList.stream().filter(r -> r.getIndustry() != null).filter(r -> businessId.toString().equals(r.getIndustry().getCategory()))
+								.collect(Collectors.toList()));
+					}
+					break;
+				case 3:// 社团
+					item.setInternshipList(null);
+					item.setResearchList(null);
+					item.setTagsList(null);
+					List<ProjectExperienceVO> projectList = item.getProjectList();
+					if (!CollectionUtils.isEmpty(projectList)) {
+						item.setProjectList(projectList.stream().filter(r -> businessId.toString().equals(r.getCategory())).collect(Collectors.toList()));
+					}
+					break;
+				case 0:// 个性标签 动态标签
+				case 4:// 个性标签
+				case 5:// 状态标签
+					item.setInternshipList(null);
+					item.setProjectList(null);
+					item.setResearchList(null);
+					List<MemberTagsVO> tagsList = item.getTagsList();
+					if (!CollectionUtils.isEmpty(tagsList)) {
+						item.setTagsList(tagsList.stream().filter(r -> r.getTag() != null).filter(r -> businessId.equals(r.getTag().getId())).collect(Collectors.toList()));
+					}
+					break;	
+				case 6:// 学校
+				case 7:// 专业
+					item.setInternshipList(null);
+					item.setProjectList(null);
+					item.setResearchList(null);
+					item.setTagsList(null);
+					break;
+				default:
+					break;
+				}
+			});
+			page.setData(memberList);
+		}
+		return page;
 	}
 
 }

@@ -85,7 +85,20 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	List<MemberSuggestScore> getUnSuggestList(@Param("currentUserId") Long currentUserId);
 	
 	Long getUnSuggestCount(@Param("currentUserId") Long currentUserId);
+
+	Long getMemberCirclesCountV2(
+			@Param("currentUserId") Long currentUserId,
+			@Param("excludedIdList")List<Long> excludedIdList,
+			@Param("type") Integer type,
+			@Param("businessId") Long businessId);
 	
+	List<MemberCirclePO> getMemberCirclesListV2(
+			@Param("currentUserId") Long currentUserId,
+			@Param("excludedIdList")List<Long> excludedIdList,
+			@Param("type") Integer type,
+			@Param("businessId") Long businessId,
+			@Param("offset") Integer offset,
+			@Param("pageSize") Integer pageSize);
 	
  
 }

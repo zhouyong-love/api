@@ -21,12 +21,12 @@
 			limit 0, #{maxSize}
 	</select>
 	
-	<update id="markAsRead" parameterType="Map">
+	<!-- <update id="markAsRead" parameterType="Map">
 		update bbs_comment set status =1 , status_ts = current_timestamp() where id in 
 		<foreach collection="idList" separator="," open="(" close=")" item="item">
     		#{item}
     	</foreach>
-	</update>
+	</update> -->
 	<update id="removeByPostId" parameterType="Map">
 		update bbs_comment set deleted=true where post_id = #{postId}
 	</update>

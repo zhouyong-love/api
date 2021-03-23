@@ -25,4 +25,5 @@ public class TagPO extends PO {
 	
 	private Integer sn;
 
+	private Long relationTo;
 }

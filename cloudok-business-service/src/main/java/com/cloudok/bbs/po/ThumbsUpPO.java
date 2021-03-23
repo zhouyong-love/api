@@ -1,7 +1,5 @@
 package com.cloudok.bbs.po;
 
-import java.sql.Timestamp;
-
 import com.cloudok.core.po.PO;
 
 import lombok.Getter;
@@ -17,9 +15,9 @@ public class ThumbsUpPO extends PO {
 
 	private Long businessId;
 
-	@Deprecated
-	private Integer status;
-
-	@Deprecated
-	private Timestamp statusTs;
+//	@Deprecated
+//	private Integer status;
+//
+//	@Deprecated
+//	private Timestamp statusTs;
 }

@@ -38,7 +38,7 @@ public class MemberTagsApi {
 	@ApiOperation(value = "添加用户标签", notes = "添加用户标签")
 	@Loggable
 	public Response create(@RequestBody @Valid MemberTagsVO vo) {
-		return Response.buildSuccess(memberTagsService.create(vo));
+		return Response.buildSuccess(memberTagsService.createByMember(vo));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")
@@ -63,7 +63,7 @@ public class MemberTagsApi {
 	@Loggable
 	public Response modify(@PathVariable("id") Long id,@RequestBody @Valid MemberTagsVO vo) {
 		vo.setId(id);
-		return Response.buildSuccess(memberTagsService.update(vo));
+		return Response.buildSuccess(memberTagsService.updateByMember(vo));
 	}
 
 	@PreAuthorize("isFullyAuthenticated()")

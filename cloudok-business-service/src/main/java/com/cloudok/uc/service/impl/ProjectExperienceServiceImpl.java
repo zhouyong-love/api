@@ -14,14 +14,14 @@ import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.enums.MemberProfileType;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
-import com.cloudok.uc.event.MemberUpdateEvent;
+import com.cloudok.uc.event.MemberProfileEvent;
 import com.cloudok.uc.mapper.ProjectExperienceMapper;
 import com.cloudok.uc.mapping.ProjectExperienceMapping;
 import com.cloudok.uc.po.ProjectExperiencePO;
 import com.cloudok.uc.service.ProjectExperienceService;
-import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.ProjectExperienceVO;
 import com.cloudok.uc.vo.SwitchSNRequest;
 
@@ -47,7 +47,7 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 			}
 		}
 		ProjectExperienceVO v =  super.create(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.create(getCurrentUserId(),MemberProfileType.project,d));
 		return v;
 	}
 
@@ -64,7 +64,7 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 			d.setSn(vo.getSn());
 		}
 		ProjectExperienceVO v =  super.update(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.update(getCurrentUserId(),MemberProfileType.project,d,vo));
 		return v;
 	}
 
@@ -77,7 +77,7 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 			}
 		}
 		int r = super.remove(pk);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.delete(getCurrentUserId(),MemberProfileType.project,vo));
 		return r;
 	}
 	 @Override

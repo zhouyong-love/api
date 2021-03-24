@@ -17,14 +17,14 @@ import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.enums.MemberProfileType;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
-import com.cloudok.uc.event.MemberUpdateEvent;
+import com.cloudok.uc.event.MemberProfileEvent;
 import com.cloudok.uc.mapper.ResearchExperienceMapper;
 import com.cloudok.uc.mapping.ResearchExperienceMapping;
 import com.cloudok.uc.po.ResearchExperiencePO;
 import com.cloudok.uc.service.ResearchExperienceService;
-import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.ResearchExperienceVO;
 import com.cloudok.uc.vo.SwitchSNRequest;
 
@@ -53,7 +53,7 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 			}
 		}
 		ResearchExperienceVO v =  super.create(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.create(getCurrentUserId(),MemberProfileType.research,d));
 		return v;
 	}
 
@@ -71,7 +71,7 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 			d.setSn(vo.getSn());
 		}
 		ResearchExperienceVO v =  super.update(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.update(getCurrentUserId(),MemberProfileType.research,d,vo));
 		return v;
 	}
 
@@ -84,7 +84,7 @@ public class ResearchExperienceServiceImpl extends AbstractService<ResearchExper
 			}
 		}
 		int r =  super.remove(pk);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.delete(getCurrentUserId(),MemberProfileType.research,vo));
 		return r;
 	}
 

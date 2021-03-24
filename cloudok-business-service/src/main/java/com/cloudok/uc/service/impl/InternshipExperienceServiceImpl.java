@@ -21,15 +21,15 @@ import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.enums.MemberProfileType;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
-import com.cloudok.uc.event.MemberUpdateEvent;
+import com.cloudok.uc.event.MemberProfileEvent;
 import com.cloudok.uc.mapper.InternshipExperienceMapper;
 import com.cloudok.uc.mapping.InternshipExperienceMapping;
 import com.cloudok.uc.po.InternshipExperiencePO;
 import com.cloudok.uc.service.InternshipExperienceService;
 import com.cloudok.uc.vo.InternshipExperienceVO;
-import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.SwitchSNRequest;
 
 @Service
@@ -65,7 +65,7 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 			}
 		}
 		InternshipExperienceVO v = super.create(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.create(getCurrentUserId(),MemberProfileType.internship,d));
 		return v;
 		
 	}
@@ -85,7 +85,7 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 			d.setSn(vo.getSn());
 		}
 		InternshipExperienceVO v = super.update(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.update(getCurrentUserId(),MemberProfileType.internship,d,vo));
 		return v;
 	}
 	
@@ -143,7 +143,7 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 			}
 		}
 		int r =  super.remove(pk);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.delete(getCurrentUserId(),MemberProfileType.internship,vo));
 		return r;
 	}
 

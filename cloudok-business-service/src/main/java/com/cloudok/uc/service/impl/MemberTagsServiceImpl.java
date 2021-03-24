@@ -26,16 +26,16 @@ import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.enums.BBSTopicType;
+import com.cloudok.enums.MemberProfileType;
 import com.cloudok.enums.TaggedType;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
-import com.cloudok.uc.event.MemberUpdateEvent;
+import com.cloudok.uc.event.MemberProfileEvent;
 import com.cloudok.uc.mapper.MemberTagsMapper;
 import com.cloudok.uc.mapping.MemberTagsMapping;
 import com.cloudok.uc.po.MemberTagsPO;
 import com.cloudok.uc.service.MemberTagsService;
 import com.cloudok.uc.vo.MemberTagsVO;
-import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.SwitchSNRequest;
 
 @Service
@@ -78,7 +78,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 			}
 		}
 		MemberTagsVO m = super.create(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.create(getCurrentUserId(),MemberProfileType.tag,d));
 		return m;
 	}
 
@@ -100,7 +100,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 			d.setSn(vo.getSn());
 		}
 		MemberTagsVO v = super.update(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.update(getCurrentUserId(),MemberProfileType.tag,d,vo));
 		return v;
 	}
 
@@ -113,7 +113,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 			}
 		}
 		int r =  super.remove(pk);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.delete(getCurrentUserId(),MemberProfileType.tag,vo));
 		return r;
 	}
 
@@ -202,7 +202,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 
 	private void onPostUpdateEvent(PostUpdateEvent cast) {
 		Integer topicType = cast.getEventData().getTopicType();
-		if(BBSTopicType.system.getValue().equals(topicType.toString())) { //是系统推荐标签
+		if(BBSTopicType.systemSuggestTag.getValue().equals(topicType.toString())) { //是系统推荐标签
 			//新增新标签关联
 			this.addNewPostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
 		}
@@ -210,7 +210,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 
 	private void onPostDeleteEvent(PostDeleteEvent cast) {
 		Integer topicType = cast.getEventData().getTopicType();
-		if(BBSTopicType.system.getValue().equals(topicType.toString())) { //是系统推荐标签
+		if(BBSTopicType.systemSuggestTag.getValue().equals(topicType.toString())) { //是系统推荐标签
 			//删除旧标签关联
 			this.removePostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
 		}
@@ -221,11 +221,11 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 		if(post.getTopicId().equals(post.getOldTopicId()) && post.getTopicType().equals(post.getOldTopicType())) {
 			return;
 		}
-		if(BBSTopicType.system.getValue().equals(post.getTopicType().toString())) { //是系统推荐标签
+		if(BBSTopicType.systemSuggestTag.getValue().equals(post.getTopicType().toString())) { //是系统推荐标签
 			//新增新标签关联
 			this.addNewPostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
 		}
-		if(BBSTopicType.system.getValue().equals(post.getOldTopicType().toString())) { //是系统推荐标签
+		if(BBSTopicType.systemSuggestTag.getValue().equals(post.getOldTopicType().toString())) { //是系统推荐标签
 			//删除旧标签关联
 			this.removePostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
 		}
@@ -256,7 +256,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 				.and(MemberTagsMapping.TAGID, topicId).and(MemberTagsMapping.TYPE, TaggedType.POST.getValue()).end());
 		if(!CollectionUtils.isEmpty(list)) {
 			Long count  = this.postService.count(QueryBuilder.create(PostMapping.class).and(PostMapping.CREATEBY, memberId)
-					.and(PostMapping.topicType, BBSTopicType.system.getValue()).and(PostMapping.topicId, topicId).end());
+					.and(PostMapping.topicType, BBSTopicType.systemSuggestTag.getValue()).and(PostMapping.topicId, topicId).end());
 			if(count == null || count.compareTo(0L)==0) {
 				 this.repository.delete(list.stream().map(item -> item.getId()).collect(Collectors.toList()));
 			}

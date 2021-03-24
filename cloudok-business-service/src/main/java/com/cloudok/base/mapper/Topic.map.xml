@@ -1,5 +1,70 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.base.mapper.TopicMapper">
+	<update id="updatePeersCount" parameterType="Map">
+		update base_topic set peer_count = (
+		select count( u.id) from uc_member u where u.deleted=false and
+		<if test="topicType ==0">
+			EXISTS (select 1 from uc_member_tags mt where mt.member_id = u.id and
+			mt.deleted = false and mt.tag_id=#{topicId} and mt.type='3')
+		</if>
+		<if test="topicType ==1">
+			EXISTS (select 1 from uc_research_experience re where re.member_id = u.id
+			and re.deleted = false and re.domain_id=#{topicId})
+		</if>
+		<if test="topicType ==2">
+			EXISTS (select 1 from uc_internship_experience re, base_industry bi where
+			re.industry_id = bi.id and re.member_id = u.id and re.deleted = false
+			and bi.category=#{topicId})
+		</if>
+		<if test="topicType ==3">
+			EXISTS (select 1 from uc_project_experience pe where pe.member_id = u.id
+			and pe.deleted = false and pe.category=#{topicId})
+		</if>
+		<if test="topicType ==4">
+			EXISTS (select 1 from uc_member_tags mt where mt.member_id = u.id and
+			mt.deleted = false and mt.tag_id=#{topicId} and mt.type='1')
+		</if>
+		<if test="topicType ==5">
+			EXISTS (select 1 from uc_member_tags mt where mt.member_id = u.id and
+			mt.deleted = false and mt.tag_id=#{topicId} and mt.type='2')
+		</if>
+		
+		<if test="topicType ==6">
+			EXISTS (select 1 from uc_education_experience mt where mt.member_id = u.id
+			and mt.deleted = false and mt.school_id=#{topicId} )
+		</if>
+		<if test="topicType ==7">
+			EXISTS (select 1 from uc_education_experience mt where mt.member_id = u.id
+			and mt.deleted = false and mt.specialism_id=#{topicId} )
+		</if>
+		) where topic_id = #{topicId} and topic_type=#{topicType}
+	</update>
 	
+	<update id="updatePostCount" parameterType="Map">
+		update base_topic set post_count = ( select count( p.id) from 	bbs_post p where p.deleted=false and p.topic_id = #{topicId} and p.topic_type=#{topicType}	),
+		last_update_ts =  ( select max(p.create_ts) from 	bbs_post p where p.deleted=false and p.topic_id = #{topicId} and p.topic_type=#{topicType} order by p.id desc limit 0,1	),
+		 where topic_id = #{topicId} and topic_type=#{topicType}
+	</update>
+	
+	<select id="getTopicInfo" resultMap="topicMap">
+		<if test="topicType ==0 or topicType==4 or topicType==5">
+			 select id as topic_id,name as topic_name,icon as topic_icon from base_tag t where t.id=#{topicId} and t.deleted=false limit 0,1
+		 </if>
+		 <if test="topicType ==1 ">
+			 select id as topic_id,name as topic_name from base_research_domain t where t.id=#{topicId} and t.deleted=false limit 0,1
+		 </if>
+		  <if test="topicType ==2 ">
+			 select dict_value as topic_id,dict_show_name as topic_name from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='industry' and t.deleted=false limit 0,1
+		 </if>
+		  <if test="topicType ==3 ">
+			 select dict_value as topic_id,dict_show_name as topic_name from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='experience' and t.deleted=false limit 0,1
+		 </if>
+		 <if test="topicType ==6 ">
+			 select id as topic_id,abbreviation as topic_name from base_school t where t.id=#{topicId} and t.deleted=false limit 0,1
+		 </if>
+		 <if test="topicType ==7 ">
+			   select id as topic_id,name as topic_name from base_school t where t.id=#{topicId} and t.deleted=false limit 0,1
+		 </if>
+	</select>
 </mapper>

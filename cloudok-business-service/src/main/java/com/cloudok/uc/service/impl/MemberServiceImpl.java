@@ -44,6 +44,7 @@ import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.core.vo.Page;
+import com.cloudok.enums.MemberProfileType;
 import com.cloudok.enums.TagCategory;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
@@ -56,8 +57,7 @@ import com.cloudok.security.token.TokenType;
 import com.cloudok.uc.dto.SimpleMemberDTO;
 import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.dto.WholeMemberDTO;
-import com.cloudok.uc.event.MemberCreateEvent;
-import com.cloudok.uc.event.MemberUpdateEvent;
+import com.cloudok.uc.event.MemberProfileEvent;
 import com.cloudok.uc.event.RecognizedCreateEvent;
 import com.cloudok.uc.event.ViewMemberDetailEvent;
 import com.cloudok.uc.mapper.MemberMapper;
@@ -383,9 +383,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		cacheService.evict(CacheType.Member, sysUser.getId().toString());
 		User user = this.loadUserInfo(sysUser.getId(), sysUser);
 		TokenVO token = TokenVO.build(JWTUtil.genToken(user, TokenType.ACCESS), JWTUtil.genToken(user, TokenType.REFRESH), user);
-
-		SpringApplicationContext.publishEvent(new MemberCreateEvent(member));
-
+		SpringApplicationContext.publishEvent(MemberProfileEvent.create(getCurrentUserId(),MemberProfileType.base,member));
 		return token;
 	}
 
@@ -396,6 +394,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		if (isExits) {
 			throw new SystemException(CloudOKExceptionMessage.USERNAME_ALREADY_EXISTS);
 		}
+		MemberVO db = this.get(getCurrentUserId());
 		member.setId(SecurityContextHelper.getCurrentUserId());
 		if (!StringUtils.isEmpty(vo.getNickName())) {
 			member.setNickName(vo.getNickName().trim());
@@ -417,7 +416,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		}
 		this.merge(member);
 
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(member));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.update(getCurrentUserId(),MemberProfileType.base,vo,db));
 
 		return this.get(member.getId());
 	}
@@ -563,7 +562,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			user.setId(vo.getId());
 			this.merge(user);
 		}
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(vo));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.update(getCurrentUserId(),MemberProfileType.base,this.get(getCurrentUserId()),vo));
 		return true;
 	}
 

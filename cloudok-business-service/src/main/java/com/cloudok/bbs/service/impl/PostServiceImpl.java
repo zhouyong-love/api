@@ -646,13 +646,13 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 				.end().sort(TagMapping.SN).asc());
 		// 系统推荐
 		if (!CollectionUtils.isEmpty(systemTags)) {
-			TopicGroupVO group = new TopicGroupVO(BBSTopicType.system);
+			TopicGroupVO group = new TopicGroupVO(BBSTopicType.systemSuggestTag);
 			List<TopicVO> topicList = new ArrayList<TopicVO>();
 			
 			List<TopicVO> memberTopics = list.stream().flatMap(a->a.getTopicList().stream()).collect(Collectors.toList());
 
 			systemTags.stream().filter(item -> !memberTopics.stream().filter(x->item.getName().equals(x.getName())).findAny().isPresent()).forEach(item -> {
-				TopicVO topic = new TopicVO(item.getId(), BBSTopicType.system, item.getName(), item.getIcon(), item.getSn());
+				TopicVO topic = new TopicVO(item.getId(), BBSTopicType.systemSuggestTag, item.getName(), item.getIcon(), item.getSn());
 				if(item.getRelationTo()!=null) {
 					topic.setId(item.getRelationTo());
 				}

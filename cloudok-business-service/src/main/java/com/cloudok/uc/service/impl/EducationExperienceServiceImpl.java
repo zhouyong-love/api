@@ -19,9 +19,10 @@ import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.enums.MemberProfileType;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
-import com.cloudok.uc.event.MemberUpdateEvent;
+import com.cloudok.uc.event.MemberProfileEvent;
 import com.cloudok.uc.mapper.EducationExperienceMapper;
 import com.cloudok.uc.mapping.EducationExperienceMapping;
 import com.cloudok.uc.po.EducationExperiencePO;
@@ -66,8 +67,7 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 			}
 		}
 		EducationExperienceVO vo = super.create(d);
-		
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(member));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.create(getCurrentUserId(),MemberProfileType.eduction,d));
 		
 		return vo;
 	}
@@ -85,7 +85,7 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 			d.setSn(vo.getSn());
 		}
 		EducationExperienceVO t = super.update(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.update(getCurrentUserId(),MemberProfileType.eduction,d,vo));
 		return t;
 	}
 
@@ -137,7 +137,7 @@ public class EducationExperienceServiceImpl extends AbstractService<EducationExp
 			}
 		}
 		int r =  super.remove(pk);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.delete(getCurrentUserId(),MemberProfileType.eduction,vo));
 		return r;
 	}
 

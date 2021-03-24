@@ -14,15 +14,15 @@ import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.enums.MemberProfileType;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.security.SecurityContextHelper;
-import com.cloudok.uc.event.MemberUpdateEvent;
+import com.cloudok.uc.event.MemberProfileEvent;
 import com.cloudok.uc.mapper.AssociationExperienceMapper;
 import com.cloudok.uc.mapping.AssociationExperienceMapping;
 import com.cloudok.uc.po.AssociationExperiencePO;
 import com.cloudok.uc.service.AssociationExperienceService;
 import com.cloudok.uc.vo.AssociationExperienceVO;
-import com.cloudok.uc.vo.MemberVO;
 import com.cloudok.uc.vo.SwitchSNRequest;
 
 @Service
@@ -45,7 +45,7 @@ public class AssociationExperienceServiceImpl extends AbstractService<Associatio
 			}
 		}
 		AssociationExperienceVO v = super.create(d);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.create(getCurrentUserId(),MemberProfileType.association,d));
 		return v;
 	}
 	@Override
@@ -65,7 +65,7 @@ public class AssociationExperienceServiceImpl extends AbstractService<Associatio
 			}
 		}
 		d.setMemberId(SecurityContextHelper.getCurrentUserId());
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.update(getCurrentUserId(),MemberProfileType.association,d,vo));
 		if(d.getSn() == null) {
 			d.setSn(vo.getSn());
 		}
@@ -81,7 +81,7 @@ public class AssociationExperienceServiceImpl extends AbstractService<Associatio
 			}
 		}
 		int r =  super.remove(pk);
-		SpringApplicationContext.publishEvent(new MemberUpdateEvent(new MemberVO(SecurityContextHelper.getCurrentUserId())));
+		SpringApplicationContext.publishEvent(MemberProfileEvent.delete(getCurrentUserId(),MemberProfileType.association,vo));
 		return r;
 	}
 

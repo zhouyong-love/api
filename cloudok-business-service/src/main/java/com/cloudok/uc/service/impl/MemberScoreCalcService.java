@@ -24,15 +24,16 @@ import com.cloudok.core.context.SpringApplicationContext;
 import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.query.QueryOperator;
+import com.cloudok.enums.ActionType;
+import com.cloudok.enums.MemberProfileType;
 import com.cloudok.enums.UCMessageType;
 import com.cloudok.log.event.UserActionEvent;
 import com.cloudok.log.mapping.SysLogMapping;
 import com.cloudok.log.service.SysLogService;
 import com.cloudok.log.vo.SysLogVO;
 import com.cloudok.uc.dto.WholeMemberDTO;
-import com.cloudok.uc.event.MemberCreateEvent;
+import com.cloudok.uc.event.MemberProfileEvent;
 import com.cloudok.uc.event.MemberScoreEvent;
-import com.cloudok.uc.event.MemberUpdateEvent;
 import com.cloudok.uc.event.MessageSendEvent;
 import com.cloudok.uc.event.RecognizedCreateEvent;
 import com.cloudok.uc.event.RecognizedCreateMemberScoreEvent;
@@ -62,9 +63,18 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 	private SysLogService sysLogService; 
 	@Autowired
 	private Cache cache;
+
+	private void onMemberProfileEvent(MemberProfileEvent event) {
+		if(event.getActionType() == ActionType.CREATE && event.getType() == MemberProfileType.base) {
+			this.onMemberCreateEvent(event);
+		}else {
+			this.onMemberUpdateEvent(event);
+		}
+			
+	}
 	
-	private void onMemberCreateEvent(MemberCreateEvent event) {
-		WholeMemberDTO member = memberService.getWholeMemberInfo(event.getEventData().getId());
+	private void onMemberCreateEvent(MemberProfileEvent event) {
+		WholeMemberDTO member = memberService.getWholeMemberInfo(event.getEventData());
 		double score = calcMemberWIScore(member);
 		MemberVO vo = new MemberVO();
 		vo.setId(member.getId());
@@ -141,8 +151,8 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 		}
 	}
 
-	private void onMemberUpdateEvent(MemberUpdateEvent event) {
-		WholeMemberDTO member = memberService.getWholeMemberInfo(event.getEventData().getId());
+	private void onMemberUpdateEvent(MemberProfileEvent event) {
+		WholeMemberDTO member = memberService.getWholeMemberInfo(event.getEventData());
 		double score = calcMemberWIScore(member);
 		MemberVO vo = new MemberVO();
 		vo.setId(member.getId());
@@ -284,7 +294,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 		List<MemberVO> list = this.memberService.list(builder);
 		while(!CollectionUtils.isEmpty(list)) {
 			list.stream().forEach(item -> {
-				SpringApplicationContext.publishEvent(new MemberCreateEvent(item));
+				SpringApplicationContext.publishEvent(MemberProfileEvent.update(item.getId(), MemberProfileType.base, item, item));
 			});
 			 pageNo = pageNo + 1;
 			 builder = builder.enablePaging().page(pageNo, 100).end();
@@ -392,12 +402,8 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 			if (arg0 instanceof RecognizedDeleteEvent) {
 				this.onRecognizedDeleteEvent(RecognizedDeleteEvent.class.cast(arg0));
 			}
-			if (arg0 instanceof MemberUpdateEvent) {
-				this.onMemberUpdateEvent(MemberUpdateEvent.class.cast(arg0));
-			}
-
-			if (arg0 instanceof MemberCreateEvent) {
-				this.onMemberCreateEvent(MemberCreateEvent.class.cast(arg0));
+			if (arg0 instanceof MemberProfileEvent) {
+				this.onMemberProfileEvent(MemberProfileEvent.class.cast(arg0));
 			}
 
 			if (arg0 instanceof MessageSendEvent) {
@@ -415,6 +421,7 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 			
 		});
 	}
+
 
 
 }

@@ -8,15 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.cloudok.base.event.TopicCreateEvent;
 import com.cloudok.base.mapper.TagMapper;
 import com.cloudok.base.mapping.TagMapping;
 import com.cloudok.base.po.TagPO;
 import com.cloudok.base.service.TagService;
 import com.cloudok.base.vo.TagVO;
+import com.cloudok.base.vo.TopicInfo;
+import com.cloudok.core.context.SpringApplicationContext;
 import com.cloudok.core.exception.CoreExceptionMessage;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.enums.BBSTopicType;
+import com.cloudok.enums.TagCategory;
 import com.cloudok.enums.TagType;
 import com.cloudok.security.SecurityContextHelper;
 
@@ -46,6 +51,25 @@ public class TagServiceImpl extends AbstractService<TagVO, TagPO> implements Tag
 		}
 		vo.setParentId(0L);
 		vo.setType(TagType.CUSTOM.getValue());
+		
+		if(TagCategory.personality.getValue().equals(vo.getCategory())) {
+			SpringApplicationContext.publishEvent(new TopicCreateEvent(TopicInfo.builder()
+					.forceUpate(false)
+					.topicId(vo.getId())
+					.topicName(vo.getName())
+					.topicType(Integer.parseInt(BBSTopicType.personalityTag.getValue()))
+					.build())
+			);
+		}else if(TagCategory.statement.getValue().equals(vo.getCategory())) {
+			SpringApplicationContext.publishEvent(new TopicCreateEvent(TopicInfo.builder()
+					.forceUpate(false)
+					.topicId(vo.getId())
+					.topicName(vo.getName())
+					.topicType(Integer.parseInt(BBSTopicType.statementTag.getValue()))
+					.build())
+			);
+		}
+		
 		return this.create(vo);
 	}
 

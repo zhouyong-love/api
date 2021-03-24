@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.cloudok.base.dict.enums.EnumInfo;
+import com.cloudok.base.event.TopicCreateEvent;
 import com.cloudok.base.mapper.TopicMapper;
 import com.cloudok.base.mapping.TopicMapping;
 import com.cloudok.base.po.TopicPO;
 import com.cloudok.base.service.TopicService;
+import com.cloudok.base.vo.TopicInfo;
 import com.cloudok.base.vo.TopicVO;
 import com.cloudok.bbs.event.PostCreateEvent;
 import com.cloudok.bbs.event.PostDeleteEvent;
@@ -55,6 +57,15 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 		}
 		if (event instanceof PostDeleteEvent) {
 			this.onPostDeleteEvent(PostDeleteEvent.class.cast(event));
+		}
+		if(event instanceof TopicCreateEvent) {
+			TopicCreateEvent target = TopicCreateEvent.class.cast(event);
+			TopicInfo topicInfo = target.getEventData();
+			TopicVO topic  = this.createOrGetTopic(topicInfo.getTopicType(), topicInfo.getTopicId(), topicInfo.getTopicName(), topicInfo.getTopicIcon());
+			if(topicInfo.getForceUpate() != null && topicInfo.getForceUpate()) {
+				this.repository.updatePeersCount(topic.getId(), topic.getTopicType(), topic.getTopicId());
+				this.repository.updatePostCount(topic.getId(),  topic.getTopicType(), topic.getTopicId());
+			}
 		}
 	}
 
@@ -153,14 +164,14 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 		TopicVO oldTopicVO = this.createOrGetTopic(topicType, oldTopicId);
 		switch (actionType) {
 		case CREATE:
-			this.repository.updatePeersCount(newTopicVO.getId(),topicType.getValue(),newTopicId);
+			this.repository.updatePeersCount(newTopicVO.getId(),Integer.parseInt(topicType.getValue()),newTopicId);
 			break;
 		case UPDATE:
-			this.repository.updatePeersCount(newTopicVO.getId(),topicType.getValue(),newTopicId);
-			this.repository.updatePeersCount(oldTopicVO.getId(),topicType.getValue(),oldTopicId);
+			this.repository.updatePeersCount(newTopicVO.getId(),Integer.parseInt(topicType.getValue()),newTopicId);
+			this.repository.updatePeersCount(oldTopicVO.getId(),Integer.parseInt(topicType.getValue()),oldTopicId);
 			break;
 		case DELETE:
-			this.repository.updatePeersCount(newTopicVO.getId(),topicType.getValue(),newTopicId);
+			this.repository.updatePeersCount(newTopicVO.getId(),Integer.parseInt(topicType.getValue()),newTopicId);
 			break;
 		default:
 			break;

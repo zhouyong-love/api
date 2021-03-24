@@ -32,5 +32,6 @@ public class TopicVO extends VO {
 	
 	private java.sql.Timestamp lastUpdateTs;
 	
+	private Long lastPostId;
 	
 }

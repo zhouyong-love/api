@@ -32,5 +32,6 @@ public class TopicPO extends PO {
 	
 	private java.sql.Timestamp lastUpdateTs;
 	
+	private Long lastPostId;
 	
 }

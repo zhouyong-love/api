@@ -18,19 +18,22 @@
 		
 		<result property="lastUpdateTs" column="last_update_ts"/>
 		
+		<result property="lastPostId" column="last_post_id"/>
+		
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.topic_id,t.topic_type,t.topic_name,t.topic_icon,t.post_count,t.peer_count,t.last_update_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.topic_id,t.topic_type,t.topic_name,t.topic_icon,t.post_count,t.peer_count,t.last_update_ts,last_post_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.base.po.TopicPO">
-		insert into base_topic(topic_id,topic_type,topic_name,topic_icon,post_count,peer_count,last_update_ts,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{topicId},#{topicType},#{topicName},#{topicIcon},#{postCount},#{peerCount},#{lastUpdateTs},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into base_topic(topic_id,topic_type,topic_name,topic_icon,post_count,peer_count,last_update_ts,last_post_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{topicId},#{topicType},#{topicName},#{topicIcon},#{postCount},#{peerCount},#{lastUpdateTs},#{lastPostId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.base.po.TopicPO">
-		update base_topic set topic_id=#{topicId},topic_type=#{topicType},topic_name=#{topicName},topic_icon=#{topicIcon},post_count=#{postCount},peer_count=#{peerCount},last_update_ts=#{lastUpdateTs},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update base_topic set topic_id=#{topicId},topic_type=#{topicType},topic_name=#{topicName},topic_icon=#{topicIcon},post_count=#{postCount},peer_count=#{peerCount},last_update_ts=#{lastUpdateTs},last_post_id=#{lastPostId},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -52,6 +55,8 @@
 			<if test="peerCount != null ">peer_count = #{peerCount},</if>
 			
 			<if test="lastUpdateTs != null ">last_update_ts = #{lastUpdateTs},</if>
+			
+			<if test="lastPostId != null ">last_post_id=#{lastPostId},</if>
 			
 			<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>

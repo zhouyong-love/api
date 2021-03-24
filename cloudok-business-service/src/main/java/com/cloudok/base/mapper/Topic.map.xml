@@ -43,28 +43,34 @@
 	
 	<update id="updatePostCount" parameterType="Map">
 		update base_topic set post_count = ( select count( p.id) from 	bbs_post p where p.deleted=false and p.topic_id = #{topicId} and p.topic_type=#{topicType}	),
-		last_update_ts =  ( select max(p.create_ts) from 	bbs_post p where p.deleted=false and p.topic_id = #{topicId} and p.topic_type=#{topicType} order by p.id desc limit 0,1	),
+		<if test="lastUpdateTs == null">
+			last_update_ts = create_ts,
+		</if>
+		<if test="lastUpdateTs != null">
+			last_update_ts = #{lastUpdateTs},
+		</if>
+		last_post_id = #{lastPostId}
 		 where topic_id = #{topicId} and topic_type=#{topicType}
 	</update>
 	
 	<select id="getTopicInfo" resultMap="topicMap">
 		<if test="topicType ==0 or topicType==4 or topicType==5">
-			 select id as topic_id,name as topic_name,icon as topic_icon from base_tag t where t.id=#{topicId} and t.deleted=false limit 0,1
+			 select id as topic_id,name as topic_name,icon as topic_icon,create_ts from base_tag t where t.id=#{topicId} and t.deleted=false limit 0,1
 		 </if>
 		 <if test="topicType ==1 ">
-			 select id as topic_id,name as topic_name from base_research_domain t where t.id=#{topicId} and t.deleted=false limit 0,1
+			 select id as topic_id,name as topic_name,create_ts from base_research_domain t where t.id=#{topicId} and t.deleted=false limit 0,1
 		 </if>
 		  <if test="topicType ==2 ">
-			 select dict_value as topic_id,dict_show_name as topic_name from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='industry' and t.deleted=false limit 0,1
+			 select dict_value as topic_id,dict_show_name as topic_name,create_ts from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='industry' and t.deleted=false limit 0,1
 		 </if>
 		  <if test="topicType ==3 ">
-			 select dict_value as topic_id,dict_show_name as topic_name from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='experience' and t.deleted=false limit 0,1
+			 select dict_value as topic_id,dict_show_name as topic_name,create_ts from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='experience' and t.deleted=false limit 0,1
 		 </if>
 		 <if test="topicType ==6 ">
-			 select id as topic_id,abbreviation as topic_name from base_school t where t.id=#{topicId} and t.deleted=false limit 0,1
+			 select id as topic_id,abbreviation as topic_name,create_ts from base_school t where t.id=#{topicId} and t.deleted=false limit 0,1
 		 </if>
 		 <if test="topicType ==7 ">
-			   select id as topic_id,name as topic_name from base_school t where t.id=#{topicId} and t.deleted=false limit 0,1
+			   select id as topic_id,name as topic_name,create_ts from base_specialism t where t.id=#{topicId} and t.deleted=false limit 0,1
 		 </if>
 	</select>
 </mapper>

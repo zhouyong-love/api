@@ -51,6 +51,7 @@ public class MemberApi {
 	@Autowired
 	private CollectService collectService;
 	
+	@Deprecated
 	@PostMapping("/register")
 	@ApiOperation(value = "注册", notes = "注册")
 	@Loggable
@@ -118,19 +119,19 @@ public class MemberApi {
 	public Response fullUserInfo() {
 		return Response.buildSuccess(memberService.getWholeMemberInfo(SecurityContextHelper.getCurrentUserId(),true));
 	}
-	
+	@Deprecated
 	@PostMapping("/exists/username")
 	@ApiOperation(value = "check user name exists or not", notes = "check user name exists or not")
 	public Response checkUserName(@RequestBody UserCheckRequest request) {
 		return Response.buildSuccess(memberService.checkUserName(request));
 	}
-	
+	@Deprecated
 	@PostMapping("/exists/email")
 	@ApiOperation(value = "check user email exists or not", notes = "check user email exists or not")
 	public Response checkEmail(@RequestBody UserCheckRequest request) {
 		return Response.buildSuccess(memberService.checkEmail(request));
 	}
-	
+	@Deprecated
 	@PostMapping("/exists/phone")
 	@ApiOperation(value = "check user phone exists or not", notes = "check user phone exists or not")
 	public Response checkPhone(@RequestBody UserCheckRequest request) {
@@ -143,20 +144,20 @@ public class MemberApi {
 	public Response sendVerifycode(@RequestBody VerifyCodeRequest vo) {
 		return Response.buildSuccess(memberService.sendVerifycode(vo));
 	}
-	
+	@Deprecated
 	@PostMapping("/reset")
 	@ApiOperation(value = "user reset password", notes = "user reset password")
 	public Response resetPwd(@RequestBody ForgotVO vo) {
 			return Response.buildSuccess(memberService.resetPwd(vo));
 	}
-
+	@Deprecated
 	@PostMapping("/changePassword")
 	@ApiOperation(value = "user register", notes = "user register")
 	public Response changePassword(@RequestBody ChangePasswordRequest vo) {
 			return Response.buildSuccess(memberService.changePassword(vo));
 	}
 	
-
+	@Deprecated
 	@PostMapping("/bind")
 	@ApiOperation(value = "user register", notes = "user register")
 	@Loggable
@@ -175,6 +176,7 @@ public class MemberApi {
 		return Response.buildSuccess(postService.page(query));
 	}
 	
+	@Deprecated
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/collect/posts")
 	@ApiOperation(value = "我收藏的动态", notes = "我收藏的动态")
@@ -291,19 +293,19 @@ public class MemberApi {
 			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
 		return Response.buildSuccess(memberService.getMemberCircles(filterType,type,businessId,pageNo,pageSize));
 	}
-	
-	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/newCircle")
-	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 0 动态标签 1 研究领域 2 行业 3 社团 4 个性 5状态标签 6 学校 7 专业")
-	@Loggable
-	public Response getMemberCirclesV2(
-			@RequestParam(name = "type", required=true) Integer type,
-			@RequestParam(name = "businessId", required=false) Long businessId,
-			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
-			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
-		return Response.buildSuccess(memberService.getMemberCirclesV2(type,businessId,pageNo,pageSize));
-	}
-	
+//	
+//	@PreAuthorize("isAuthenticated()")
+//	@GetMapping("/newCircle")
+//	@ApiOperation(value="查询云圈member",notes="查询圈子，Type目前支持 0 动态标签 1 研究领域 2 行业 3 社团 4 个性 5状态标签 6 学校 7 专业")
+//	@Loggable
+//	public Response getMemberCirclesV2(
+//			@RequestParam(name = "type", required=true) Integer type,
+//			@RequestParam(name = "businessId", required=false) Long businessId,
+//			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+//			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+//		return Response.buildSuccess(memberService.getMemberCirclesV2(type,businessId,pageNo,pageSize));
+//	}
+//	
 
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/search")

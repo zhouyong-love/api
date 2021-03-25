@@ -43,4 +43,8 @@ public interface PostService extends IService<PostVO,PostPO>{
 
 	Boolean removeById(Long id);
 
+	Page<PostVO>  getPostCircles(Long topicId, Integer topicType, Integer pageNo, Integer pageSize);
+
+	List<PostVO> getBaseInfo(List<Long> postIdList);
+
 }

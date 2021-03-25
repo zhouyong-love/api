@@ -1,6 +1,5 @@
 package com.cloudok.uc.dto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.cloudok.core.vo.VO;
@@ -34,12 +33,6 @@ public class SimpleMemberInfo extends VO {
 	
 	public SimpleMemberInfo(Long id) {
 		this.setId(id);
-	}
-	
-	public void setEducation(EducationExperienceVO education) {
-		this.education = education;
-		this.educationList = new ArrayList<EducationExperienceVO>();
-		educationList.add(education);
 	}
 	
 }

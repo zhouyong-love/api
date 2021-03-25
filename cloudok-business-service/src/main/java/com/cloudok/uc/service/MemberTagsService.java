@@ -20,5 +20,13 @@ public interface MemberTagsService extends IService<MemberTagsVO, MemberTagsPO> 
 	MemberTagsVO createByMember(MemberTagsVO d);
 
 	MemberTagsVO updateByMember(MemberTagsVO d);
+	
+	/**
+	 * 第一次数据同步使用，后面不会用了
+	 * @param memberId
+	 * @param topicId
+	 */
+	@Deprecated
+	void sysnc(Long memberId,Long topicId);
 
 }

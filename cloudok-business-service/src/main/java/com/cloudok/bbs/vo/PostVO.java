@@ -54,5 +54,12 @@ public class PostVO extends VO {
 	private Integer oldTopicType;
 	@JsonIgnore
 	private Long oldTopicId;
+	
+	public PostVO() {
+		
+	}
+	public PostVO(long id) {
+		this.setId(id);
+	}
 
 }

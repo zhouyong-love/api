@@ -38,16 +38,21 @@ import com.cloudok.uc.vo.ResearchExperienceVO;
 
 @Service
 public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implements TopicService, ApplicationListener<BusinessEvent<?>> {
- 
+
 	@Autowired
 	private TopicMapper repository;
-	
+
 	@Autowired
 	private PostMapper postMapper;
-	
+
 	@Autowired
 	public TopicServiceImpl(TopicMapper repository) {
 		super(repository);
+	}
+
+	@Override
+	public TopicVO getDetails(Integer topicType, Long topicId) {
+		return this.get(QueryBuilder.create(TopicMapping.class).and(TopicMapping.TOPICTYPE, topicType).and(TopicMapping.TOPICID, topicId).end());
 	}
 
 	@Override
@@ -67,15 +72,15 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 		if (event instanceof PostDeleteEvent) {
 			this.onPostDeleteEvent(PostDeleteEvent.class.cast(event));
 		}
-		if(event instanceof TopicCreateEvent) {
+		if (event instanceof TopicCreateEvent) {
 			TopicCreateEvent target = TopicCreateEvent.class.cast(event);
 			TopicInfo topicInfo = target.getEventData();
-			TopicPO d =  this.repository.getTopicInfo(topicInfo.getTopicType(), topicInfo.getTopicId());
-			TopicVO topic  = this.createOrGetTopic(topicInfo.getTopicType(), topicInfo.getTopicId(), topicInfo.getTopicName(), topicInfo.getTopicIcon(),d.getCreateTs());
-			if(topicInfo.getForceUpate() != null && topicInfo.getForceUpate()) {
+			TopicVO topic = this.createOrGetTopic(topicInfo.getTopicType(), topicInfo.getTopicId(), topicInfo.getTopicName(), topicInfo.getTopicIcon());
+			if (topicInfo.getForceUpate() != null && topicInfo.getForceUpate()) {
 				this.repository.updatePeersCount(topic.getId(), topic.getTopicType(), topic.getTopicId());
 				PostPO post = this.getLatestPost(topic.getTopicType(), topic.getTopicId());
-				this.repository.updatePostCount(topic.getId(),  topic.getTopicType(), topic.getTopicId(), post == null? null:post.getId(),post == null ? null : post.getCreateTs());
+				this.repository.updatePostCount(topic.getId(), topic.getTopicType(), topic.getTopicId(), post == null ? null : post.getId(),
+						post == null ? null : post.getCreateTs());
 			}
 		}
 	}
@@ -87,25 +92,43 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 		Integer topicType = event.getEventData().getTopicType();
 		TopicVO topic = this.createOrGetTopic(topicType, topicId, topicName, topicIcon);
 		PostPO post = this.getLatestPost(topic.getTopicType(), topic.getTopicId());
-		this.repository.updatePostCount(topic.getId(), topicType, topicId,post == null? null:post.getId(),post == null ? null : post.getCreateTs());
+		Timestamp lastUpdateTs  = post == null ? null : post.getCreateTs();
+//		if(lastUpdateTs == null) {
+//			TopicPO d = this.repository.getTopicInfo(topicType, topicId);
+//			if(d != null) {
+//				lastUpdateTs = d.getCreateTs();
+//			}
+//		}
+		this.repository.updatePostCount(topic.getId(), topicType, topicId, post == null ? null : post.getId(), lastUpdateTs);
 	}
 
 	private void onPostUpdateEvent(PostUpdateEvent event) {
-		Long topicId = event.getEventData().getTopicId();
-		String topicName = event.getEventData().getTopicName();
-		String topicIcon = event.getEventData().getTopicIcon();
-		Integer topicType = event.getEventData().getTopicType();
-		TopicVO topic = this.createOrGetTopic(topicType, topicId, topicName, topicIcon);
-		PostPO post = this.getLatestPost(topic.getTopicType(), topic.getTopicId());
-		this.repository.updatePostCount(topic.getId(), topicType, topicId,post == null? null:post.getId(),post == null ? null : post.getCreateTs());
-		
-		 topicId = event.getEventData().getOldTopicId();
-		 topicType = event.getEventData().getOldTopicType();
-		 topic = this.createOrGetTopic(topicType, topicId);
-		 post = this.getLatestPost(topic.getTopicType(), topic.getTopicId());
-		this.repository.updatePostCount(topic.getId(), topicType, topicId,post == null? null:post.getId(),post == null ? null : post.getCreateTs());
-	}
+		//更新了topic 才更新这个数据
+		if (!event.getEventData().getTopicId().equals(event.getEventData().getOldTopicId()) || !event.getEventData().getTopicType().equals(event.getEventData().getOldTopicType())) {
+			Long topicId = event.getEventData().getTopicId();
+			String topicName = event.getEventData().getTopicName();
+			String topicIcon = event.getEventData().getTopicIcon();
+			Integer topicType = event.getEventData().getTopicType();
+			TopicVO topic = this.createOrGetTopic(topicType, topicId, topicName, topicIcon);
+			if (event.getEventData().getCreateTs() == null) {
+				event.getEventData().setCreateTs(new Timestamp(System.currentTimeMillis()));
+			}
+			this.repository.updatePostCount(topic.getId(), topicType, topicId, event.getEventData().getId(), event.getEventData().getCreateTs());
+			topicId = event.getEventData().getOldTopicId();
+			topicType = event.getEventData().getOldTopicType();
+			topic = this.createOrGetTopic(topicType, topicId);
+			PostPO post = this.getLatestPost(topic.getTopicType(), topic.getTopicId());
+			Timestamp lastUpdateTs  = post == null ? null : post.getCreateTs();
+//			if(lastUpdateTs == null) {
+//				TopicPO d = this.repository.getTopicInfo(topicType, topicId);
+//				if(d != null) {
+//					lastUpdateTs = d.getCreateTs();
+//				}
+//			}
+			this.repository.updatePostCount(topic.getId(), topicType, topicId, post == null ? null : post.getId(), lastUpdateTs);
+		}
 
+	}
 
 	private void onPostCreateEvent(PostCreateEvent event) {
 		Long topicId = event.getEventData().getTopicId();
@@ -113,8 +136,10 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 		String topicIcon = event.getEventData().getTopicIcon();
 		Integer topicType = event.getEventData().getTopicType();
 		TopicVO topic = this.createOrGetTopic(topicType, topicId, topicName, topicIcon);
-		PostPO post = this.getLatestPost(topic.getTopicType(), topic.getTopicId());
-		this.repository.updatePostCount(topic.getId(), topicType, topicId,post == null? null:post.getId(),post == null ? null : post.getCreateTs());
+		if (event.getEventData().getCreateTs() == null) {
+			event.getEventData().setCreateTs(new Timestamp(System.currentTimeMillis()));
+		}
+		this.repository.updatePostCount(topic.getId(), topicType, topicId, event.getEventData().getId(), event.getEventData().getCreateTs());
 	}
 
 	private void onMemberProfileEvent(MemberProfileEvent event) {
@@ -179,29 +204,29 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 		TopicVO oldTopicVO = this.createOrGetTopic(topicType, oldTopicId);
 		switch (actionType) {
 		case CREATE:
-			this.repository.updatePeersCount(newTopicVO.getId(),Integer.parseInt(topicType.getValue()),newTopicId);
+			this.repository.updatePeersCount(newTopicVO.getId(), Integer.parseInt(topicType.getValue()), newTopicId);
 			break;
 		case UPDATE:
-			this.repository.updatePeersCount(newTopicVO.getId(),Integer.parseInt(topicType.getValue()),newTopicId);
-			this.repository.updatePeersCount(oldTopicVO.getId(),Integer.parseInt(topicType.getValue()),oldTopicId);
+			this.repository.updatePeersCount(newTopicVO.getId(), Integer.parseInt(topicType.getValue()), newTopicId);
+			this.repository.updatePeersCount(oldTopicVO.getId(), Integer.parseInt(topicType.getValue()), oldTopicId);
 			break;
 		case DELETE:
-			this.repository.updatePeersCount(newTopicVO.getId(),Integer.parseInt(topicType.getValue()),newTopicId);
+			this.repository.updatePeersCount(newTopicVO.getId(), Integer.parseInt(topicType.getValue()), newTopicId);
 			break;
 		default:
 			break;
 		}
 
 	}
-	
-	private TopicVO createOrGetTopic(EnumInfo topicType,long topicId) {
-		 return this.createOrGetTopic(Integer.parseInt(topicType.getValue()), topicId);
+
+	private TopicVO createOrGetTopic(EnumInfo topicType, long topicId) {
+		return this.createOrGetTopic(Integer.parseInt(topicType.getValue()), topicId);
 	}
 
 	private TopicVO createOrGetTopic(Integer topicType, Long topicId) {
 		List<TopicVO> newList = this.list(QueryBuilder.create(TopicMapping.class).and(TopicMapping.TOPICTYPE, topicType).and(TopicMapping.TOPICID, topicId).end());
-		if(CollectionUtils.isEmpty(newList)) {
-			TopicPO d =  this.repository.getTopicInfo(topicType,topicId);
+		if (CollectionUtils.isEmpty(newList)) {
+			TopicPO d = this.repository.getTopicInfo(topicType, topicId);
 			TopicVO topic = new TopicVO();
 			topic.setLastUpdateTs(null);
 			topic.setPeerCount(0);
@@ -210,23 +235,18 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 			topic.setTopicIcon(d.getTopicIcon());
 			topic.setTopicType(topicType);
 			topic.setTopicName(d.getTopicName());
-			return	this.create(topic);
+			return this.create(topic);
 		}
-		if(newList.size()>1) {
+		if (newList.size() > 1) {
 			this.remove(newList.stream().skip(1).map(item -> item.getId()).collect(Collectors.toList()));
 		}
 		return newList.get(0);
 	}
 
-	private TopicVO createOrGetTopic(Integer topicType,long topicId,String topicName,String topicIcon) {
-		return this.createOrGetTopic(topicType, topicId, topicName, topicIcon,null);
-	}
-
-	private TopicVO createOrGetTopic(Integer topicType,long topicId,String topicName,String topicIcon,Timestamp createTs) {
+	private TopicVO createOrGetTopic(Integer topicType, long topicId, String topicName, String topicIcon) {
 		List<TopicVO> newList = this.list(QueryBuilder.create(TopicMapping.class).and(TopicMapping.TOPICTYPE, topicType).and(TopicMapping.TOPICID, topicId).end());
-		if(CollectionUtils.isEmpty(newList)) {
+		if (CollectionUtils.isEmpty(newList)) {
 			TopicVO topic = new TopicVO();
-			topic.setLastUpdateTs(createTs);
 			topic.setPeerCount(0);
 			topic.setPostCount(0);
 			topic.setTopicId(topicId);
@@ -235,17 +255,17 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 			topic.setTopicName(topicName);
 			return this.create(topic);
 		}
-		if(newList.size()>1) {
+		if (newList.size() > 1) {
 			this.remove(newList.stream().skip(1).map(item -> item.getId()).collect(Collectors.toList()));
 		}
 		return newList.get(0);
 	}
-	
+ 
 
 	private PostPO getLatestPost(Integer topicType, Long topicId) {
 		List<PostPO> list = this.postMapper.select(QueryBuilder.create(PostMapping.class).and(PostMapping.topicType, topicType).and(PostMapping.topicId, topicId).end()
 				.sort(PostMapping.CREATETIME).desc().enablePaging().page(1, 1).end());
 		return CollectionUtils.isEmpty(list) ? null : list.get(0);
 	}
- 
+
 }

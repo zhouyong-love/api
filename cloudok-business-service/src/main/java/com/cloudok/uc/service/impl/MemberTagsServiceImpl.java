@@ -231,6 +231,11 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 		}
 	}
 	
+	@Override
+	public void sysnc(Long memberId, Long topicId) {
+		this.addNewPostTag(memberId, topicId);
+	}
+	
 	private void addNewPostTag(Long memberId,Long topicId) {
 		List<MemberTagsPO> list = this.repository.select(QueryBuilder.create(MemberTagsMapping.class).and(MemberTagsMapping.MEMBERID, memberId)
 				.and(MemberTagsMapping.TAGID, topicId).and(MemberTagsMapping.TYPE, TaggedType.POST.getValue()).end());
@@ -262,4 +267,5 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 			}
 		}
 	}
+	
 }

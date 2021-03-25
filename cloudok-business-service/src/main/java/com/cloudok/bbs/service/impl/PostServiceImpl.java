@@ -204,6 +204,14 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		result.setPeersCount(this.repository.getPeersCount(topicId, topicType));
 		return result;
 	}
+	
+	@Override
+	public Page<PostVO> getPostCircles(Long topicId, Integer topicType, Integer pageNo, Integer pageSize) {
+		Page<PostVO> page = this.page(QueryBuilder.create(PostMapping.class).and(PostMapping.topicId, topicId).and(PostMapping.topicType, topicType).end()
+				.sort(PostMapping.CREATETIME).desc().enablePaging().page(pageNo, pageSize).end());
+		this.fillPostInfo(page.getData());
+		return page;
+	}
 
 	@Override
 	public Page<PostVO> discover(Integer pageNo, Integer pageSize,Long memberId) {
@@ -214,6 +222,46 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		Page<PostVO> page = this.page(build);
 		this.fillPostInfo(page.getData());
 		return page;
+	}
+	@Override
+	public List<PostVO> getBaseInfo(List<Long> postIdList) {
+		List<PostVO> postList =	this.get(postIdList);
+		this.fillPostBaseInfo(postList);
+		return postList;
+	}
+
+	private void fillPostBaseInfo(List<PostVO> postList) {
+		if (CollectionUtils.isEmpty(postList)) {
+			return;
+		}
+		// 填充：图片，memberInfo
+		List<Long> attachIdList = new ArrayList<Long>();
+		List<Long> memberIdList = new ArrayList<Long>();
+	 
+		postList.stream().forEach(item -> {
+			if (!CollectionUtils.isEmpty(item.getAttachList())) {
+				attachIdList.addAll(item.getAttachList().stream().map(a -> a.getId()).collect(Collectors.toList()));
+			}
+			memberIdList.add(item.getCreateBy());
+		});
+		if (!CollectionUtils.isEmpty(attachIdList)) {
+			List<AttachVO> attachList = AttachRWHandle.sign(attachIdList);
+			postList.stream().forEach(post -> {
+				if (!CollectionUtils.isEmpty(post.getAttachList())) {
+					post.getAttachList().stream().forEach(item -> {
+						attachList.stream().filter(a -> a.getId().equals(item.getId())).findAny().ifPresent(a -> {
+							BeanUtils.copyProperties(a, item);
+						});
+					});
+				}
+			});
+		}
+		List<SimpleMemberInfo> memberList = this.memberService.getSimpleMemberInfo(memberIdList.stream().distinct().collect(Collectors.toList()));
+		postList.stream().forEach(item -> {
+			memberList.stream().filter(m -> m.getId().equals(item.getCreateBy())).findAny().ifPresent(m -> {
+				item.setMemberInfo(m);
+			});
+		});
 	}
 
 	private void fillPostInfo(List<PostVO> postList) {

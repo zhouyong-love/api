@@ -384,13 +384,13 @@
 				(select max(temp.update_ts) from  uc_project_experience  temp where  temp.member_id = u.id   and temp.deleted = false and temp.category=#{businessId}) as last_update_ts
 			</if>
 			<if test="type ==4">
-				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and mt.type='1') as last_update_ts
+				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and temp.type='1') as last_update_ts
 			</if>
 			<if test="type ==5">
-				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and mt.type='2') as last_update_ts
+				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and temp.type='2') as last_update_ts
 			</if>
 			<if test="type ==0">
-				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and mt.type='3') as last_update_ts
+				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and temp.type='3') as last_update_ts
 			</if>
 			<if test="type ==6">
 				(select max(temp.update_ts)  from uc_education_experience  temp where  temp.member_id = u.id   and temp.deleted = false and temp.school_id=#{businessId} ) as last_update_ts

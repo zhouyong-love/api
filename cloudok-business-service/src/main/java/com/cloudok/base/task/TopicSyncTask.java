@@ -1,11 +1,10 @@
-package com.cloudok.base;
+package com.cloudok.base.task;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.cloudok.base.dict.service.DictService;
 import com.cloudok.base.dict.vo.DictDataVO;
@@ -29,7 +28,7 @@ import com.cloudok.enums.BBSTopicType;
 import com.cloudok.enums.TagCategory;
 
 @Component
-public class TopicSyncTask implements InitializingBean {
+public class TopicSyncTask  {
 
 	@Autowired
 	private TagMapper tagMapper;
@@ -47,22 +46,26 @@ public class TopicSyncTask implements InitializingBean {
 	private DictService dictService;
 
 
-	@Override
+	
 	public void afterPropertiesSet() throws Exception {
-		new Thread(() -> {
-			try {
-				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			this.sysncTopics();
-
-		}).start();
+//		new Thread(() -> {
+//			try {
+//				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//			this.sysncTopics();
+//
+//		}).start();
+		this.sysncTopics();
 	}
 
 	private void sysncTopics() {
 		List<TagPO> tagList = tagMapper.select(QueryBuilder.create(TagMapping.class).sort(TagMapping.ID).desc());
 		tagList.stream().forEach(vo ->{
+			if(StringUtils.isEmpty(vo.getName()) || StringUtils.isEmpty(vo.getName().trim())) {
+				return;
+			}
 			if(TagCategory.personality.getValue().equals(vo.getCategory())) {
 				SpringApplicationContext.publishEvent(new TopicCreateEvent(TopicInfo.builder()
 						.forceUpate(true)

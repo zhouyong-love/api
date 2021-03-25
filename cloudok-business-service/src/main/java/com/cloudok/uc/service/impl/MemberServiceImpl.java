@@ -81,6 +81,7 @@ import com.cloudok.uc.service.MemberTagsService;
 import com.cloudok.uc.service.ProjectExperienceService;
 import com.cloudok.uc.service.RecognizedService;
 import com.cloudok.uc.service.ResearchExperienceService;
+import com.cloudok.uc.task.MemberScoreCalcServiceV2;
 import com.cloudok.uc.vo.BindRequest;
 import com.cloudok.uc.vo.ChangePasswordRequest;
 import com.cloudok.uc.vo.EducationExperienceVO;
@@ -774,6 +775,7 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 						}
 						memberList.stream().filter(item -> item.getId().equals(memberId)).findAny().ifPresent(item -> {
 							item.setEducation(valueList.get(0));
+							item.setEducationList(valueList);
 						});
 					});
 		}

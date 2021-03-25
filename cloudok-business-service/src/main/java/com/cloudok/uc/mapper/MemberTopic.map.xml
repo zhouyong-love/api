@@ -2,4 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.uc.mapper.MemberTopicMapper">
 	
+	<resultMap  type="com.cloudok.uc.po.UpdatePostCountPO" id="updatePostCountMap">
+		<result property="id" column="id"/>
+		<result property="count" column="c_count"/>
+	</resultMap>
+	
+	
+	<select id="getUpdatePostCount" parameterType="Map" resultMap="updatePostCountMap">
+		SELECT 
+		   t.id,count(1)-1 as c_count
+		FROM
+		    base_topic t
+		        INNER JOIN
+		    bbs_post p ON t.topic_id = p.topic_id
+		        AND p.topic_type = t.topic_type 
+		        AND t.deleted = FALSE
+		        AND p.deleted = FALSE  
+		        and t.id in 
+		        <foreach collection="topicIdList" close=")" item="item" open="(" separator=",">
+		        	#{item}
+		        </foreach>
+		        inner JOIN
+		    uc_member_topic m ON m.deleted = FALSE AND m.topic_id = t.id  and m.member_id=#{currentUserId} and m.last_post_id != null
+		        AND p.id >= m.last_post_id
+		        group by t.id
+	</select>
 </mapper>

@@ -43,12 +43,7 @@
 	
 	<update id="updatePostCount" parameterType="Map">
 		update base_topic set post_count = ( select count( p.id) from 	bbs_post p where p.deleted=false and p.topic_id = #{topicId} and p.topic_type=#{topicType}	),
-		<if test="lastUpdateTs == null">
-			last_update_ts = create_ts,
-		</if>
-		<if test="lastUpdateTs != null">
-			last_update_ts = #{lastUpdateTs},
-		</if>
+		last_update_ts = #{lastUpdateTs},
 		last_post_id = #{lastPostId}
 		 where topic_id = #{topicId} and topic_type=#{topicType}
 	</update>
@@ -61,10 +56,10 @@
 			 select id as topic_id,name as topic_name,create_ts from base_research_domain t where t.id=#{topicId} and t.deleted=false limit 0,1
 		 </if>
 		  <if test="topicType ==2 ">
-			 select dict_value as topic_id,dict_show_name as topic_name,create_ts from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='industry' and t.deleted=false limit 0,1
+			 select dict_value as topic_id,dict_show_name as topic_name, ifnull(create_ts,'2021-01-01 00:00:00') create_ts from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='industry' and t.deleted=false limit 0,1
 		 </if>
 		  <if test="topicType ==3 ">
-			 select dict_value as topic_id,dict_show_name as topic_name,create_ts from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='experience' and t.deleted=false limit 0,1
+			 select dict_value as topic_id,dict_show_name as topic_name, ifnull(create_ts,'2021-01-01 00:00:00') create_ts from sys_dict_data t  where t.dict_value=#{topicId} and t.dict_code='experience' and t.deleted=false limit 0,1
 		 </if>
 		 <if test="topicType ==6 ">
 			 select id as topic_id,abbreviation as topic_name,create_ts from base_school t where t.id=#{topicId} and t.deleted=false limit 0,1

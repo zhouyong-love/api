@@ -747,7 +747,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 	private void onCommentCreateEvent(CommentCreateEvent event) {
 		this.repository.updateCommentCount(event.getEventData().getPostId());
 	}
-
+	@Deprecated
 	@Override
 	public Page<BBSNotificationVO> getNotification(Integer autoRead, Integer pageNo, Integer pageSize) {
 		Page<BBSNotificationVO> page = new Page<>();

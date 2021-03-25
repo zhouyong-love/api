@@ -17,4 +17,5 @@ public interface NotificationMapper extends IMapper<NotificationPO>{
 
 	void markAsReadByIdList(@Param("idList") List<Long> idList);
 
+
 }

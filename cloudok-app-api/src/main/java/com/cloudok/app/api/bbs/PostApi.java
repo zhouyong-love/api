@@ -33,6 +33,7 @@ public class PostApi {
 	private PostService postService;
 	
 
+	@Deprecated
 	@PreAuthorize("isFullyAuthenticated()")
 	@GetMapping("/notification")
 	@ApiOperation(value = "动态的点赞和评论消息", notes = "动态的点赞和评论消息: read表示自定已读")

@@ -25,6 +25,10 @@ public interface PostMapper extends IMapper<PostPO>{
 	public Long getNotificationCount(@Param("currentUserId")Long currentUserId);
 
 	public List<BBSNotificationPO> getNotificationList(@Param("currentUserId")Long currentUserId,@Param("offset") Integer offset, @Param("pageSize") Integer pageSize);
+
+	public Long getNotificationCountByType(@Param("currentUserId")Long currentUserId,@Param("type")Integer type);
+
+	public List<BBSNotificationPO> getNotificationListByType(@Param("currentUserId")Long currentUserId,@Param("type")Integer type,@Param("offset") Integer offset, @Param("pageSize") Integer pageSize);
 	
 	
 }

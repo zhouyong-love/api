@@ -1,32 +1,43 @@
 package com.cloudok.uc.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import com.cloudok.base.attach.io.AttachRWHandle;
+import com.cloudok.base.attach.vo.AttachVO;
 import com.cloudok.bbs.event.CommentCreateEvent;
 import com.cloudok.bbs.event.CommentDeleteEvent;
 import com.cloudok.bbs.event.ThumbsUpCreateEvent;
 import com.cloudok.bbs.event.ThumbsUpDeleteEvent;
 import com.cloudok.bbs.mapper.PostMapper;
 import com.cloudok.bbs.mapping.PostMapping;
+import com.cloudok.bbs.po.BBSNotificationPO;
 import com.cloudok.bbs.po.PostPO;
 import com.cloudok.bbs.service.CommentService;
 import com.cloudok.bbs.service.ThumbsUpService;
+import com.cloudok.bbs.vo.BBSNotificationVO;
 import com.cloudok.bbs.vo.CommentVO;
 import com.cloudok.bbs.vo.ThumbsUpVO;
 import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
+import com.cloudok.core.vo.Page;
 import com.cloudok.enums.NotificationType;
+import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.mapper.NotificationMapper;
 import com.cloudok.uc.po.NotificationPO;
+import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.service.NotificationService;
 import com.cloudok.uc.vo.NotificationVO;
 
@@ -51,6 +62,9 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 	private ThumbsUpService thumbsUpService;
 	
 	@Autowired
+	private MemberService memberService;
+	
+	@Autowired
 	public NotificationServiceImpl(NotificationMapper repository) {
 		super(repository);
 	}
@@ -59,11 +73,11 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 		repository.removeByPostId(postId);
 
 	}
-	@Override
-	public void markAsRead(Long memberId, List<String> businessTypeList) {
-		repository.markAsRead(memberId,businessTypeList);
-		
-	}
+//	@Override
+//	public void markAsRead(Long memberId, List<String> businessTypeList) {
+//		repository.markAsRead(memberId,businessTypeList);
+//		
+//	}
 	@Override
 	public void markAsRead(List<Long> idList) {
 		repository.markAsReadByIdList(idList);
@@ -202,6 +216,55 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 			}
 
 		});
+	}
+	@Override
+	public NotificationVO getTotal() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Page<BBSNotificationVO> getNotificationList(Integer type, Integer pageNo, Integer pageSize) {
+			Page<BBSNotificationVO> page = new Page<>();
+			page.setTotalCount(postMapper.getNotificationCountByType(getCurrentUserId(),type));
+			page.setPageNo(pageNo);
+			page.setPageSize(pageSize);
+			if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
+				List<BBSNotificationPO> list = postMapper.getNotificationListByType(getCurrentUserId(),type, Math.max(pageNo - 1, 0) * pageSize, pageSize);
+				List<BBSNotificationVO> voList = list.stream().map(item -> {
+					BBSNotificationVO vo = new BBSNotificationVO();
+					BeanUtils.copyProperties(item, vo);
+					if (!StringUtils.isEmpty(item.getAttachIds())) {
+						List<Long> attachList = Arrays.asList(item.getAttachIds().split(",")).stream().distinct().filter(a -> !StringUtils.isEmpty(a)).map(a -> Long.parseLong(a))
+								.collect(Collectors.toList());
+						if (!CollectionUtils.isEmpty(attachList)) {
+							vo.setPhoto(new AttachVO(attachList.get(0))); // 取第一个图
+						}
+					}
+					vo.setMemberInfo(new SimpleMemberInfo(item.getMemberId()));
+					return vo;
+				}).collect(Collectors.toList());
+				// 填充memberInfo 和 图片数据
+				List<Long> memberIdList = voList.stream().filter(item -> item.getMemberInfo() != null).map(item -> item.getMemberInfo().getId()).distinct()
+						.collect(Collectors.toList());
+				List<Long> attachIdList = voList.stream().filter(item -> item.getPhoto() != null).map(item -> item.getPhoto().getId()).distinct().collect(Collectors.toList());
+				List<AttachVO> attachList = AttachRWHandle.sign(attachIdList);
+				List<SimpleMemberInfo> memberList = this.memberService.getSimpleMemberInfo(memberIdList);
+				voList.stream().forEach(item -> {
+					if (item.getMemberInfo() != null) {
+						memberList.stream().filter(m -> m.getId().equals(item.getMemberInfo().getId())).findAny().ifPresent(m -> {
+							item.setMemberInfo(m);
+						});
+					}
+					if (item.getPhoto() != null) {
+						attachList.stream().filter(m -> m.getId().equals(item.getPhoto().getId())).findAny().ifPresent(m -> {
+							item.setPhoto(m);
+						});
+					}
+				});
+				this.repository.markAsRead(getCurrentUserId(),Arrays.asList(type.toString()));
+				page.setData(voList);
+			}
+			return page;
 	}
 
 	

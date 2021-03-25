@@ -37,6 +37,7 @@ public interface PostService extends IService<PostVO,PostPO>{
 
 	PostVO getDetails(Long id);
 
+	@Deprecated
 	Page<BBSNotificationVO> getNotification(Integer autoRead, Integer pageNo, Integer pageSize);
 
 	Page<ThumbsUpVO> getPostThumbsUps(Long id, Integer pageNo, Integer pageSize);

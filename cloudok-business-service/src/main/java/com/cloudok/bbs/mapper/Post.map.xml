@@ -144,7 +144,7 @@
 			FROM
 			    uc_notification t
 			        INNER JOIN
-			    bbs_comment c ON t.business_id = c.id and t.member_id = #{currentUserId} AND t.deleted = FALSE AND c.deleted = FALSE  AND t.`status` = 0   AND t.business_type IN (1 , 3) 
+			    bbs_comment c ON t.business_id = c.id and t.member_id = #{currentUserId} AND t.deleted = FALSE AND c.deleted = FALSE    AND t.business_type IN (1 , 3) 
 			        INNER JOIN
 			    bbs_post p ON p.id = c.post_id  AND p.deleted = FALSE
 		  </if>
@@ -162,7 +162,7 @@
 			FROM
 			    uc_notification t
 			        INNER JOIN
-			    bbs_thumbs_up c ON t.business_id = c.id  and t.member_id = #{currentUserId}  AND t.deleted = FALSE  AND c.deleted = FALSE   AND t.`status` = 0  AND t.business_type = 2
+			    bbs_thumbs_up c ON t.business_id = c.id  and t.member_id = #{currentUserId}  AND t.deleted = FALSE  AND c.deleted = FALSE    AND t.business_type = 2
 			        INNER JOIN
 			    bbs_post p ON p.id = c.business_id   AND p.deleted = FALSE
 		  </if>
@@ -180,7 +180,7 @@
 			FROM
 			    uc_notification t
 			        INNER JOIN
-			    bbs_comment c ON t.business_id = c.id and t.member_id = #{currentUserId} AND t.deleted = FALSE AND c.deleted = FALSE  AND t.`status` = 0   AND t.business_type IN (1 , 3) 
+			    bbs_comment c ON t.business_id = c.id and t.member_id = #{currentUserId} AND t.deleted = FALSE AND c.deleted = FALSE   AND t.business_type IN (1 , 3) 
 			        INNER JOIN
 			    bbs_post p ON p.id = c.post_id  AND p.deleted = FALSE
 		  </if>
@@ -190,7 +190,7 @@
 			FROM
 			    uc_notification t
 			        INNER JOIN
-			    bbs_thumbs_up c ON t.business_id = c.id  and t.member_id = #{currentUserId}  AND t.deleted = FALSE  AND c.deleted = FALSE   AND t.`status` = 0  AND t.business_type = 2
+			    bbs_thumbs_up c ON t.business_id = c.id  and t.member_id = #{currentUserId}  AND t.deleted = FALSE  AND c.deleted = FALSE     AND t.business_type = 2
 			        INNER JOIN
 			    bbs_post p ON p.id = c.business_id   AND p.deleted = FALSE
 		  </if>

@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.cloudok.core.mapper.IMapper;
 import com.cloudok.uc.po.NotificationPO;
+import com.cloudok.uc.po.NotificationTotalPO;
 
 public interface NotificationMapper extends IMapper<NotificationPO>{
 
@@ -16,6 +17,9 @@ public interface NotificationMapper extends IMapper<NotificationPO>{
 	void markAsRead(@Param("memberId")Long memberId,@Param("businessTypeList") List<String> businessTypeList);
 
 	void markAsReadByIdList(@Param("idList") List<Long> idList);
+
+	List<NotificationTotalPO> getTotal(@Param("memberId") Long currentUserId);
+
 
 
 }

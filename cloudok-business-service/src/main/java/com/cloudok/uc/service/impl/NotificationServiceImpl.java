@@ -31,14 +31,18 @@ import com.cloudok.bbs.vo.CommentVO;
 import com.cloudok.bbs.vo.ThumbsUpVO;
 import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.query.QueryBuilder;
+import com.cloudok.core.query.QueryOperator;
 import com.cloudok.core.service.AbstractService;
 import com.cloudok.core.vo.Page;
 import com.cloudok.enums.NotificationType;
 import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.mapper.NotificationMapper;
+import com.cloudok.uc.mapping.NotificationMapping;
 import com.cloudok.uc.po.NotificationPO;
+import com.cloudok.uc.po.NotificationTotalPO;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.service.NotificationService;
+import com.cloudok.uc.vo.NotificationTotalVO;
 import com.cloudok.uc.vo.NotificationVO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -218,9 +222,61 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 		});
 	}
 	@Override
-	public NotificationVO getTotal() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<NotificationTotalVO> getTotal() {
+		List<NotificationTotalPO> list = this.repository.getTotal(getCurrentUserId());
+		List<NotificationTotalVO> result = new ArrayList<NotificationTotalVO>();
+		//目前只有1，2,3 其中1，2 为回复，3为点赞
+		NotificationTotalVO  comment = NotificationTotalVO.builder().businessType(1).totalCount(0).unReadCount(0).build();
+		NotificationTotalVO  thumbsUp =  NotificationTotalVO.builder().businessType(2).totalCount(0).unReadCount(0).build();
+		if(!CollectionUtils.isEmpty(list)) {
+			list.stream().forEach(po -> {
+				if(po.getBusinessType().equals(1) || po.getBusinessType().equals(2)) {
+					comment.setTotalCount(comment.getTotalCount()+po.getCount());
+					if(po.getStatus().equals(0)) {
+						comment.setUnReadCount(po.getCount()+comment.getUnReadCount());
+					}
+				}
+				if(po.getBusinessType().equals(3)) {
+					thumbsUp.setTotalCount(thumbsUp.getTotalCount()+po.getCount());
+					if(po.getStatus().equals(0)) {
+						thumbsUp.setUnReadCount(po.getCount()+thumbsUp.getUnReadCount());
+					}
+				}
+			});
+			if(comment.getTotalCount()>0) {
+				comment.setLatestMemberList(this.memberService.getSimpleMemberInfo(this.getLatestMember(getCurrentUserId(), Arrays.asList(1,2), 3)));
+			}
+			if(thumbsUp.getTotalCount()>0) {
+				thumbsUp.setLatestMemberList(this.memberService.getSimpleMemberInfo(this.getLatestMember(getCurrentUserId(), Arrays.asList(3), 3)));
+			}
+			result.add(comment);
+			result.add(thumbsUp);
+		}
+		return result;
+	}
+	
+	private List<Long> getLatestMember(Long currentUserId,List<Integer> typeList,int maxSize){
+		List<Long> idList = new ArrayList<Long>();
+		int pageNo = 1;
+		int pageSize = 10;
+		List<NotificationPO> list = this.repository.select(QueryBuilder.create(NotificationMapping.class)
+				.and(NotificationMapping.BUSINESSTYPE,QueryOperator.IN, typeList)
+				.and(NotificationMapping.MEMBERID, getCurrentUserId())
+				.end().sort(NotificationMapping.CREATETIME).desc().enablePaging().page(pageNo, pageSize).end()
+				);
+		while(!CollectionUtils.isEmpty(list)) {
+			list.stream().forEach(item ->{
+				if(idList.size()<maxSize && !idList.contains(item.getCreateBy())) {
+					idList.add(item.getCreateBy());
+				}
+			});
+			if(idList.size()>=maxSize) {
+				break;
+			}
+			pageNo = pageNo + 1;
+		}
+		return idList;
+		
 	}
 	@Override
 	public Page<BBSNotificationVO> getNotificationList(Integer type, Integer pageNo, Integer pageSize) {

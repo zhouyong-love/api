@@ -32,4 +32,16 @@
 	</update>
 	
 	
+	<resultMap  type="com.cloudok.uc.po.NotificationTotalPO" id="notificationTotalMap">
+		<result property="businessType" column="business_type"/>
+		<result property="count" column="c_count"/>
+		<result property="status" column="status"/>
+	</resultMap>
+	
+	<select id="getTotal" resultMap="notificationTotalMap" parameterType="Map">
+		SELECT t.business_type,t.status,count(1) as c_count FROM cloudok.uc_notification t
+		where t.deleted=false and t.member_id=#{memberId}
+		 group by t.business_type,t.status
+	</select>
+	
 </mapper>

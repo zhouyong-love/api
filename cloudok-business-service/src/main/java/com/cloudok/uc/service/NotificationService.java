@@ -6,6 +6,7 @@ import com.cloudok.bbs.vo.BBSNotificationVO;
 import com.cloudok.core.service.IService;
 import com.cloudok.core.vo.Page;
 import com.cloudok.uc.po.NotificationPO;
+import com.cloudok.uc.vo.NotificationTotalVO;
 import com.cloudok.uc.vo.NotificationVO;
 
 public interface NotificationService extends IService<NotificationVO,NotificationPO>{
@@ -16,7 +17,7 @@ public interface NotificationService extends IService<NotificationVO,Notificatio
 
 	void markAsRead(List<Long> idList);
 
-	NotificationVO getTotal();
+	List<NotificationTotalVO> getTotal();
 
 	Page<BBSNotificationVO> getNotificationList(Integer type, Integer pageNo, Integer pageSize);
 }

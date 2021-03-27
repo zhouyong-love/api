@@ -225,9 +225,11 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 			//新增新标签关联
 			this.addNewPostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
 		}
-		if(BBSTopicType.systemSuggestTag.getValue().equals(post.getOldTopicType().toString())) { //是系统推荐标签
-			//删除旧标签关联
-			this.removePostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
+		if(post.getOldTopicType()!=null) {
+			if(BBSTopicType.systemSuggestTag.getValue().equals(post.getOldTopicType().toString())) { //是系统推荐标签
+				//删除旧标签关联
+				this.removePostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
+			}
 		}
 	}
 	

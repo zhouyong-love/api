@@ -137,17 +137,19 @@ public class MemberTopicServiceImpl extends AbstractService<MemberTopicVO, Membe
 	}
 	
 	private void updatePosition(TopicVO topic) {
-		MemberTopicVO record = this.get(QueryBuilder.create(MemberTopicMapping.class)
-				.and(MemberTopicMapping.MEMBERID, getCurrentUserId())
-				.and(MemberTopicMapping.TOPICID, topic.getId()).end());
-		if(record == null) {
-			record = new MemberTopicVO();
-			record.setTopicId(topic.getId());
-			record.setMemberId(getCurrentUserId());
-			record.setLastPostId(topic.getLastPostId());
-			this.create(record);
-		}else {
-			this.merge(record);
+		if(topic != null) {
+			MemberTopicVO record = this.get(QueryBuilder.create(MemberTopicMapping.class)
+					.and(MemberTopicMapping.MEMBERID, getCurrentUserId())
+					.and(MemberTopicMapping.TOPICID, topic.getId()).end());
+			if(record == null) {
+				record = new MemberTopicVO();
+				record.setTopicId(topic.getId());
+				record.setMemberId(getCurrentUserId());
+				record.setLastPostId(topic.getLastPostId());
+				this.create(record);
+			}else {
+				this.merge(record);
+			}
 		}
 	}
 	

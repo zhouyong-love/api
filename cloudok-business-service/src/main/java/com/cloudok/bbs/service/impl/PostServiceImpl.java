@@ -127,7 +127,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		}
 		repository.updateByMember(this.convert2PO(vo));
 		vo.setOldTopicId(db.getTopicId());
-		vo.setOldTopicType(db.getOldTopicType());
+		vo.setOldTopicType(db.getTopicType());
 		SpringApplicationContext.publishEvent(new PostUpdateEvent(vo));
 		return vo;
 	}
@@ -841,9 +841,8 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		}else {
 			return true;
 		}
-		SpringApplicationContext.publishEvent(new PostDeleteEvent(vo));
 		this.remove(pk);
-		
+		SpringApplicationContext.publishEvent(new PostDeleteEvent(vo));
 		this.commentService.removeByPostId(pk);
 		this.collectService.removeByPostId(pk);
 		this.thumbsUpService.removeByPostId(pk);

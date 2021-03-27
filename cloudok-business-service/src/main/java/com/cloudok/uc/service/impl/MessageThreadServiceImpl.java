@@ -436,11 +436,17 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> arg0) {
+		if(arg0.isProcessed(getClass())) {
+			return;
+		}
 		if (arg0 instanceof RecognizedCreateEvent) {
+			arg0.logDetails();
 			this.onRecognized(RecognizedCreateEvent.class.cast(arg0).getEventData());
 		} else if (arg0 instanceof RecognizedDeleteEvent) {
+			arg0.logDetails();
 			this.onUnRecognized(RecognizedDeleteEvent.class.cast(arg0).getEventData());
 		} else if (arg0 instanceof MessageSendEvent) {
+			arg0.logDetails();
 			this.onMessageSendEvent(MessageSendEvent.class.cast(arg0).getEventData());
 		}
 	}

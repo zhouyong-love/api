@@ -384,7 +384,7 @@
 				(select max(temp.update_ts) from  uc_project_experience  temp where  temp.member_id = u.id   and temp.deleted = false and temp.category=#{businessId}) as last_update_ts
 			</if>
 			<if test="type ==4">
-				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and temp.type='1') as last_update_ts
+				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and temp.type='2') as last_update_ts
 			</if>
 			<if test="type ==5">
 				(select max(temp.update_ts)  from uc_member_tags  temp where  temp.member_id = u.id   and temp.deleted = false and temp.tag_id=#{businessId}   and temp.type='2') as last_update_ts
@@ -409,7 +409,7 @@
 					EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
 				</if>
 				<if test="type ==4">
-					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}  and mt.type='1') 
+					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}  and mt.type='2') 
 				</if>
 				<if test="type ==5">
 					EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}  and mt.type='2') 
@@ -447,7 +447,7 @@
 			EXISTS (select 1 from uc_project_experience  pe where  pe.member_id = u.id   and pe.deleted = false and pe.category=#{businessId})
 		</if>
 		<if test="type ==4">
-			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}   and mt.type='1') 
+			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}   and mt.type='2') 
 		</if>
 		<if test="type ==5">
 			EXISTS (select 1 from uc_member_tags  mt where  mt.member_id = u.id   and mt.deleted = false and mt.tag_id=#{businessId}   and mt.type='2') 

@@ -111,6 +111,8 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 			if (!vo.getMemberId().equals(SecurityContextHelper.getCurrentUserId())) {
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
+		}else {
+			return 0;
 		}
 		int r =  super.remove(pk);
 		SpringApplicationContext.publishEvent(MemberProfileEvent.delete(getCurrentUserId(),MemberProfileType.tag,vo));
@@ -189,22 +191,35 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> event) {
+		if(event.isProcessed(getClass())) {
+			return;
+		}
 		if (event instanceof PostCreateEvent) {
+			event.logDetails();
 			this.onPostCreateEvent(PostCreateEvent.class.cast(event));
 		}
 		if (event instanceof PostUpdateEvent) {
+			event.logDetails();
 			this.onPostUpdateEvent(PostUpdateEvent.class.cast(event));
 		}
 		if (event instanceof PostDeleteEvent) {
+			event.logDetails();
 			this.onPostDeleteEvent(PostDeleteEvent.class.cast(event));
 		} 
 	}
 
 	private void onPostUpdateEvent(PostUpdateEvent cast) {
-		Integer topicType = cast.getEventData().getTopicType();
+		PostVO eventData = cast.getEventData();
+		Integer topicType = eventData.getTopicType();
 		if(BBSTopicType.systemSuggestTag.getValue().equals(topicType.toString())) { //是系统推荐标签
 			//新增新标签关联
-			this.addNewPostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
+			this.addNewPostTag(eventData.getCreateBy(), eventData.getTopicId());
+		}
+		if(eventData.getOldTopicType()!=null) {
+			if(BBSTopicType.systemSuggestTag.getValue().equals(eventData.getOldTopicType().toString())) { //是系统推荐标签
+				//删除旧标签关联
+				this.removePostTag(eventData.getCreateBy(), eventData.getTopicId());
+			}
 		}
 	}
 
@@ -225,12 +240,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 			//新增新标签关联
 			this.addNewPostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
 		}
-		if(post.getOldTopicType()!=null) {
-			if(BBSTopicType.systemSuggestTag.getValue().equals(post.getOldTopicType().toString())) { //是系统推荐标签
-				//删除旧标签关联
-				this.removePostTag(cast.getEventData().getCreateBy(), cast.getEventData().getTopicId());
-			}
-		}
+		
 	}
 	
 	@Override

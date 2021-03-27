@@ -702,6 +702,14 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			systemTags.stream().filter(item -> !memberTopics.stream().filter(x->item.getName().equals(x.getName())).findAny().isPresent()).forEach(item -> {
 				TopicVO topic = new TopicVO(item.getId(), BBSTopicType.systemSuggestTag, item.getName(), item.getIcon(), item.getSn());
 				if(item.getRelationTo()!=null) {
+					TagVO relationTag  = this.tagService.get(item.getRelationTo());
+					if(relationTag.getCategory().equals(TagCategory.statement.getValue())) {
+						topic.setType(BBSTopicType.statementTag.getValue());
+					}else if(relationTag.getCategory().equals(TagCategory.personality.getValue())) {
+						topic.setType(BBSTopicType.personalityTag.getValue());
+					}
+//					topic.setIcon(relationTag.getIcon());
+//					topic.setName(relationTag.getName());
 					topic.setId(item.getRelationTo());
 				}
 				topicList.add(topic);
@@ -718,16 +726,23 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> event) {
+		if(event.isProcessed(getClass())) {
+			return;
+		}
 		if (event instanceof CommentCreateEvent) {
+			event.logDetails();
 			this.onCommentCreateEvent(CommentCreateEvent.class.cast(event));
 		}
 		if (event instanceof CommentDeleteEvent) {
+			event.logDetails();
 			this.onCommentDeleteEvent(CommentDeleteEvent.class.cast(event));
 		}
 		if (event instanceof ThumbsUpCreateEvent) {
+			event.logDetails();
 			this.onThumbsUpCreateEvent(ThumbsUpCreateEvent.class.cast(event));
 		}
 		if (event instanceof ThumbsUpDeleteEvent) {
+			event.logDetails();
 			this.onThumbsUpDeleteEvent(ThumbsUpDeleteEvent.class.cast(event));
 		}
 	}
@@ -823,6 +838,8 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			if (!vo.getCreateBy().equals(SecurityContextHelper.getCurrentUserId())) {
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
+		}else {
+			return true;
 		}
 		SpringApplicationContext.publishEvent(new PostDeleteEvent(vo));
 		this.remove(pk);

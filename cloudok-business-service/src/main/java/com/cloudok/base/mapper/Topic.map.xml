@@ -23,7 +23,7 @@
 		</if>
 		<if test="topicType ==4">
 			EXISTS (select 1 from uc_member_tags mt where mt.member_id = u.id and
-			mt.deleted = false and mt.tag_id=#{topicId} and mt.type='1')
+			mt.deleted = false and mt.tag_id=#{topicId} and mt.type='2')
 		</if>
 		<if test="topicType ==5">
 			EXISTS (select 1 from uc_member_tags mt where mt.member_id = u.id and

@@ -45,6 +45,7 @@ import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.vo.InternshipExperienceVO;
 import com.cloudok.uc.vo.MemberTagsVO;
 import com.cloudok.uc.vo.MemberVO;
+import com.cloudok.uc.vo.MessageVO;
 import com.cloudok.uc.vo.ProjectExperienceVO;
 import com.cloudok.uc.vo.ResearchExperienceVO;
 import com.cloudok.util.DateTimeUtil;
@@ -198,8 +199,9 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 	}
 
 	private void onMessageSendEvent(MessageSendEvent event) {
-		MemberVO member = memberService.get(event.getEventData().getMemberId());
-		String type = event.getEventData().getType();
+		MessageVO eventData = event.getEventData();
+		MemberVO member = memberService.get(eventData.getMemberId());
+		String type = eventData.getType();
 		double score = member.getTi() == null ? 0 :  member.getTi().doubleValue();
 		if(UCMessageType.chatMessage.getValue().endsWith(type)) {
 			score = score + 2;
@@ -394,32 +396,47 @@ public class MemberScoreCalcService implements ApplicationListener<BusinessEvent
 
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> arg0) {
-		executor.submit(() -> {
-			Long start = System.currentTimeMillis();
-			if (arg0 instanceof RecognizedCreateEvent) {
-				this.onRecognizedCreateEvent(RecognizedCreateEvent.class.cast(arg0));
-			}
-			if (arg0 instanceof RecognizedDeleteEvent) {
-				this.onRecognizedDeleteEvent(RecognizedDeleteEvent.class.cast(arg0));
-			}
-			if (arg0 instanceof MemberProfileEvent) {
-				this.onMemberProfileEvent(MemberProfileEvent.class.cast(arg0));
-			}
+		if(arg0.isProcessed(getClass())) {
+			return;
+		}
+		if (	   arg0 instanceof RecognizedCreateEvent 
+				|| arg0 instanceof RecognizedDeleteEvent
+				|| arg0 instanceof MemberProfileEvent
+				|| arg0 instanceof MessageSendEvent
+				|| arg0 instanceof ViewMemberDetailEvent
+				|| arg0 instanceof UserActionEvent
+				) {
+			arg0.logDetails(); 
 
-			if (arg0 instanceof MessageSendEvent) {
-				this.onMessageSendEvent(MessageSendEvent.class.cast(arg0));
-			}
+			executor.submit(() -> {
+				Long start = System.currentTimeMillis();
+				if (arg0 instanceof RecognizedCreateEvent) {
+					this.onRecognizedCreateEvent(RecognizedCreateEvent.class.cast(arg0));
+				}
+				if (arg0 instanceof RecognizedDeleteEvent) {
+					this.onRecognizedDeleteEvent(RecognizedDeleteEvent.class.cast(arg0));
+				}
+				if (arg0 instanceof MemberProfileEvent) {
+					this.onMemberProfileEvent(MemberProfileEvent.class.cast(arg0));
+				}
 
-			if (arg0 instanceof ViewMemberDetailEvent) {
-				this.onViewMemberDetailEvent(ViewMemberDetailEvent.class.cast(arg0));
-			}
+				if (arg0 instanceof MessageSendEvent) {
+					this.onMessageSendEvent(MessageSendEvent.class.cast(arg0));
+				}
 
-			if (arg0 instanceof UserActionEvent) {
-				this.onUserActionEvent(UserActionEvent.class.cast(arg0));
-			}
-			log.debug("用户评分处理,事件为:{}，耗时={} mils",arg0.getClass().getSimpleName(),(System.currentTimeMillis()-start));
-			
-		});
+				if (arg0 instanceof ViewMemberDetailEvent) {
+					this.onViewMemberDetailEvent(ViewMemberDetailEvent.class.cast(arg0));
+				}
+
+				if (arg0 instanceof UserActionEvent) {
+					this.onUserActionEvent(UserActionEvent.class.cast(arg0));
+				}
+				log.debug("用户评分处理,事件为:{}，耗时={} mils",arg0.getClass().getSimpleName(),(System.currentTimeMillis()-start));
+				
+			});
+		}
+		
+		
 	}
 
 

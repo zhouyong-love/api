@@ -1210,10 +1210,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 	 * @param event
 	 */
 	private void onRecognizedCreateEvent(RecognizedCreateEvent event) {
-		String key = event.getEventData().getSourceId() + DateTimeUtil.formatSimpleyyyyMMdd(new Date());
+		RecognizedVO eventData = event.getEventData();
+		String key = eventData.getSourceId() + DateTimeUtil.formatSimpleyyyyMMdd(new Date());
 		if (cacheService.exist(CacheType.SuggestHistory, key)) { // 存在。。。
 			SuggestedHistory history = this.getSuggestedHistory(key);
-			history.getList().stream().filter(item -> item.getTargetId().equals(event.getEventData().getTargetId())).findAny().ifPresent(item -> {
+			history.getList().stream().filter(item -> item.getTargetId().equals(eventData.getTargetId())).findAny().ifPresent(item -> {
 				item.setStatus(1);
 				cacheService.put(CacheType.SuggestHistory, key, history, 1, TimeUnit.DAYS);
 			});
@@ -1535,7 +1536,11 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> event) {
+		if(event.isProcessed(getClass())) {
+			return;
+		}
 		if (event instanceof RecognizedCreateEvent) {
+			event.logDetails();
 			this.onRecognizedCreateEvent(RecognizedCreateEvent.class.cast(event));
 		}
 	}
@@ -1565,14 +1570,14 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			return new Page<>();
 		}
 		Long currentUserId = getCurrentUserId();
-		Long count = this.repository.getMemberCirclesCountV2(currentUserId, Arrays.asList(currentUserId), type, businessId);
+		Long count = this.repository.getMemberCirclesCountV2(currentUserId,null, type, businessId);
 		Page<WholeMemberDTO> page = new Page<WholeMemberDTO>();
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		page.setTotalCount(count);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / page.getPageSize() + 1) >= page.getPageNo()) {
 			// 查询分页数据
-			List<MemberCirclePO> suggestMemberList = this.repository.getMemberCirclesListV2(currentUserId, Arrays.asList(currentUserId), type, businessId,
+			List<MemberCirclePO> suggestMemberList = this.repository.getMemberCirclesListV2(currentUserId, null, type, businessId,
 					(pageNo - 1) * pageSize, pageSize);
 			List<Long> suggestMemberIdList = suggestMemberList.stream().map(item -> item.getMemberId()).collect(Collectors.toList());
 			List<WholeMemberDTO> memberList = this.getWholeMemberInfo(suggestMemberIdList);

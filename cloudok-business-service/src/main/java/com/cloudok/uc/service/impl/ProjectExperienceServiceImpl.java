@@ -75,6 +75,8 @@ public class ProjectExperienceServiceImpl extends AbstractService<ProjectExperie
 			if (!vo.getMemberId().equals(SecurityContextHelper.getCurrentUserId())) {
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
+		}else {
+			return 0;
 		}
 		int r = super.remove(pk);
 		SpringApplicationContext.publishEvent(MemberProfileEvent.delete(getCurrentUserId(),MemberProfileType.project,vo));

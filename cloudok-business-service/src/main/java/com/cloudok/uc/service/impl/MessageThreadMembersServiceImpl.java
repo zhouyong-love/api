@@ -31,7 +31,11 @@ public class MessageThreadMembersServiceImpl extends AbstractService<MessageThre
 
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> arg0) {
+		if(arg0.isProcessed(getClass())) {
+			return;
+		}
 		if(arg0 instanceof MessageSendEvent) {
+			arg0.logDetails();
 			this.onMessageSend(MessageSendEvent.class.cast(arg0).getEventData());
 		}
 		

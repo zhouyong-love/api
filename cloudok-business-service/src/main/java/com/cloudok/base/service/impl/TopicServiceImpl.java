@@ -23,6 +23,7 @@ import com.cloudok.bbs.event.PostUpdateEvent;
 import com.cloudok.bbs.mapper.PostMapper;
 import com.cloudok.bbs.mapping.PostMapping;
 import com.cloudok.bbs.po.PostPO;
+import com.cloudok.bbs.vo.PostVO;
 import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.query.QueryBuilder;
 import com.cloudok.core.service.AbstractService;
@@ -54,25 +55,33 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 	public TopicVO getDetails(Integer topicType, Long topicId) {
 		return this.get(QueryBuilder.create(TopicMapping.class).and(TopicMapping.TOPICTYPE, topicType).and(TopicMapping.TOPICID, topicId).end());
 	}
-
+	
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> event) {
+		if(event.isProcessed(getClass())) {
+			return;
+		}
 		// 用户数据更新，动态发布，标签新增都影响数据
 		// 0 动态标签 1 研究领域 2 行业 3 社团 4 个性 5状态标签 6 学校 7 专业
 		// 动态发布、修改、删除
 		if (event instanceof MemberProfileEvent) {
+			event.logDetails();
 			this.onMemberProfileEvent(MemberProfileEvent.class.cast(event));
 		}
 		if (event instanceof PostCreateEvent) {
+			event.logDetails();
 			this.onPostCreateEvent(PostCreateEvent.class.cast(event));
 		}
 		if (event instanceof PostUpdateEvent) {
+			event.logDetails();
 			this.onPostUpdateEvent(PostUpdateEvent.class.cast(event));
 		}
 		if (event instanceof PostDeleteEvent) {
+			event.logDetails();
 			this.onPostDeleteEvent(PostDeleteEvent.class.cast(event));
 		}
 		if (event instanceof TopicCreateEvent) {
+			event.logDetails();
 			TopicCreateEvent target = TopicCreateEvent.class.cast(event);
 			TopicInfo topicInfo = target.getEventData();
 			TopicVO topic = this.createOrGetTopic(topicInfo.getTopicType(), topicInfo.getTopicId(), topicInfo.getTopicName(), topicInfo.getTopicIcon());
@@ -86,10 +95,11 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 	}
 
 	private void onPostDeleteEvent(PostDeleteEvent event) {
-		Long topicId = event.getEventData().getTopicId();
-		String topicName = event.getEventData().getTopicName();
-		String topicIcon = event.getEventData().getTopicIcon();
-		Integer topicType = event.getEventData().getTopicType();
+		PostVO eventData = event.getEventData();
+		Long topicId = eventData.getTopicId();
+		String topicName = eventData.getTopicName();
+		String topicIcon = eventData.getTopicIcon();
+		Integer topicType = eventData.getTopicType();
 		TopicVO topic = this.createOrGetTopic(topicType, topicId, topicName, topicIcon);
 		PostPO post = this.getLatestPost(topic.getTopicType(), topic.getTopicId());
 		Timestamp lastUpdateTs  = post == null ? null : post.getCreateTs();
@@ -103,19 +113,20 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 	}
 
 	private void onPostUpdateEvent(PostUpdateEvent event) {
+		PostVO eventData = event.getEventData();
 		//更新了topic 才更新这个数据
-		if (!event.getEventData().getTopicId().equals(event.getEventData().getOldTopicId()) || !event.getEventData().getTopicType().equals(event.getEventData().getOldTopicType())) {
-			Long topicId = event.getEventData().getTopicId();
-			String topicName = event.getEventData().getTopicName();
-			String topicIcon = event.getEventData().getTopicIcon();
-			Integer topicType = event.getEventData().getTopicType();
+		if (!eventData.getTopicId().equals(eventData.getOldTopicId()) || !eventData.getTopicType().equals(eventData.getOldTopicType())) {
+			Long topicId = eventData.getTopicId();
+			String topicName = eventData.getTopicName();
+			String topicIcon = eventData.getTopicIcon();
+			Integer topicType = eventData.getTopicType();
 			TopicVO topic = this.createOrGetTopic(topicType, topicId, topicName, topicIcon);
-			if (event.getEventData().getCreateTs() == null) {
-				event.getEventData().setCreateTs(new Timestamp(System.currentTimeMillis()));
+			if (eventData.getCreateTs() == null) {
+				eventData.setCreateTs(new Timestamp(System.currentTimeMillis()));
 			}
-			this.repository.updatePostCount(topic.getId(), topicType, topicId, event.getEventData().getId(), event.getEventData().getCreateTs());
-			topicId = event.getEventData().getOldTopicId();
-			topicType = event.getEventData().getOldTopicType();
+			this.repository.updatePostCount(topic.getId(), topicType, topicId, eventData.getId(), eventData.getCreateTs());
+			topicId = eventData.getOldTopicId();
+			topicType = eventData.getOldTopicType();
 			topic = this.createOrGetTopic(topicType, topicId);
 			PostPO post = this.getLatestPost(topic.getTopicType(), topic.getTopicId());
 			Timestamp lastUpdateTs  = post == null ? null : post.getCreateTs();
@@ -131,15 +142,17 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 	}
 
 	private void onPostCreateEvent(PostCreateEvent event) {
-		Long topicId = event.getEventData().getTopicId();
-		String topicName = event.getEventData().getTopicName();
-		String topicIcon = event.getEventData().getTopicIcon();
-		Integer topicType = event.getEventData().getTopicType();
+		PostVO eventData = event.getEventData();
+		Long topicId = eventData.getTopicId();
+		String topicName = eventData.getTopicName();
+		String topicIcon = eventData.getTopicIcon();
+		Integer topicType = eventData.getTopicType();
 		TopicVO topic = this.createOrGetTopic(topicType, topicId, topicName, topicIcon);
-		if (event.getEventData().getCreateTs() == null) {
-			event.getEventData().setCreateTs(new Timestamp(System.currentTimeMillis()));
+		if (eventData.getCreateTs() == null) {
+			eventData.setCreateTs(new Timestamp(System.currentTimeMillis()));
 		}
-		this.repository.updatePostCount(topic.getId(), topicType, topicId, event.getEventData().getId(), event.getEventData().getCreateTs());
+		this.repository.updatePostCount(topic.getId(), topicType, topicId, eventData.getId(), eventData.getCreateTs());
+//		this.repository.updatePeersCount(topic.getId(), topicType, topicId);
 	}
 
 	private void onMemberProfileEvent(MemberProfileEvent event) {
@@ -183,13 +196,13 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 			MemberTagsVO oldTagObj = event.getOldObj() != null ? MemberTagsVO.class.cast(event.getOldObj()) : null;
 			Long newTagId = newTagObj.getTag().getId();
 			Long oldTagId = oldTagObj == null ? null : oldTagObj.getTag().getId();
-			if (TagCategory.personality.getValue().equals(newTagObj.getTag().getType())) {
+			if (TagCategory.personality.getValue().equals(newTagObj.getTag().getCategory())) {
 				this.onMemberProfileChange(BBSTopicType.personalityTag, event.getActionType(), newTagId, oldTagId);
 			}
-			if (TagCategory.statement.getValue().equals(newTagObj.getTag().getType())) {
+			if (TagCategory.statement.getValue().equals(newTagObj.getTag().getCategory())) {
 				this.onMemberProfileChange(BBSTopicType.statementTag, event.getActionType(), newTagId, oldTagId);
 			}
-			if (TagCategory.systemTopic.getValue().equals(newTagObj.getTag().getType())) {
+			if (TagCategory.systemTopic.getValue().equals(newTagObj.getTag().getCategory())) {
 				this.onMemberProfileChange(BBSTopicType.systemSuggestTag, event.getActionType(), newTagId, oldTagId);
 			}
 			break;
@@ -201,12 +214,12 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 
 	private void onMemberProfileChange(EnumInfo topicType, ActionType actionType, long newTopicId, Long oldTopicId) {
 		TopicVO newTopicVO = this.createOrGetTopic(topicType, newTopicId);
-		TopicVO oldTopicVO = this.createOrGetTopic(topicType, oldTopicId);
 		switch (actionType) {
 		case CREATE:
 			this.repository.updatePeersCount(newTopicVO.getId(), Integer.parseInt(topicType.getValue()), newTopicId);
 			break;
 		case UPDATE:
+			TopicVO oldTopicVO = this.createOrGetTopic(topicType, oldTopicId);
 			this.repository.updatePeersCount(newTopicVO.getId(), Integer.parseInt(topicType.getValue()), newTopicId);
 			this.repository.updatePeersCount(oldTopicVO.getId(), Integer.parseInt(topicType.getValue()), oldTopicId);
 			break;

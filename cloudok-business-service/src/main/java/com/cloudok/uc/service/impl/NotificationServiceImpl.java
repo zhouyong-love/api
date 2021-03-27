@@ -201,9 +201,13 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> event) {
-		executor.submit(() -> {
-			Long start = System.currentTimeMillis();
-			if (event instanceof CommentCreateEvent || event instanceof CommentDeleteEvent || event instanceof ThumbsUpCreateEvent || event instanceof ThumbsUpDeleteEvent) {
+		if(event.isProcessed(getClass())) {
+			return;
+		}
+		if (event instanceof CommentCreateEvent || event instanceof CommentDeleteEvent || event instanceof ThumbsUpCreateEvent || event instanceof ThumbsUpDeleteEvent) {
+			event.logDetails();
+			executor.submit(() -> {
+				Long start = System.currentTimeMillis();
 				if (event instanceof CommentCreateEvent) {
 					this.onCommentCreateEvent(CommentCreateEvent.class.cast(event));
 				}
@@ -217,9 +221,9 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 					this.onThumbsUpDeleteEvent(ThumbsUpDeleteEvent.class.cast(event));
 				}
 				log.debug("用户推荐评分处理，事件为={}，耗时={} mils", event.getClass().getSimpleName(), (System.currentTimeMillis() - start));
-			}
-
-		});
+			});
+		}
+		
 	}
 	@Override
 	public List<NotificationTotalVO> getTotal() {

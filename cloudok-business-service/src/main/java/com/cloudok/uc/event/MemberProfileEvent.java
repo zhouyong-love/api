@@ -35,8 +35,8 @@ public class MemberProfileEvent extends BusinessEvent<Long> {
 		return new MemberProfileEvent(memberId,ActionType.UPDATE,type,newObj,oldObj);
 	}
 
-	public static MemberProfileEvent delete(Long memberId, MemberProfileType type, Object oldObj) {
-		return new MemberProfileEvent(memberId,ActionType.CREATE,type,null,oldObj);
+	public static MemberProfileEvent delete(Long memberId, MemberProfileType type, Object deleteObj) {
+		return new MemberProfileEvent(memberId,ActionType.DELETE,type,deleteObj,null);
 	}
 
 	

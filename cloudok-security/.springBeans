@@ -7,7 +7,7 @@
 	</configSuffixes>
 	<enableImports><![CDATA[false]]></enableImports>
 	<configs>
-		<config>java:com.cloudok.security.SecurityConfig</config>
+		<config>java:com.cp.security.SecurityConfig</config>
 	</configs>
 	<autoconfigs>
 	</autoconfigs>

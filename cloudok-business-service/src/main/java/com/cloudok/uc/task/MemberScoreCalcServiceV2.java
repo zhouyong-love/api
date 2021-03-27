@@ -85,16 +85,17 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 		int pageNo = 1;
 		QueryBuilder builder = QueryBuilder.create(MemberMapping.class).sort(MemberMapping.ID).desc().enablePaging().page(pageNo, 50).end();
 		List<MemberVO> list = this.memberService.list(builder);
-		WholeMemberDTO owner = this.memberService.getWholeMemberInfo(cast.getEventData().getId());
+		MemberVO eventData = cast.getEventData();
+		WholeMemberDTO owner = this.memberService.getWholeMemberInfo(eventData.getId());
 		while(!CollectionUtils.isEmpty(list)) {
-			List<WholeMemberDTO> targetList = this.memberService.getWholeMemberInfo(list.stream().filter(item -> !item.getId().equals(cast.getEventData().getId()))
+			List<WholeMemberDTO> targetList = this.memberService.getWholeMemberInfo(list.stream().filter(item -> !item.getId().equals(eventData.getId()))
 					.map(item -> item.getId())
 					.collect(Collectors.toList()));
 			if(!CollectionUtils.isEmpty(targetList)) {
 				//1 我与所有人的变更
 				this.calcMemberScore(owner, targetList);
 				//只要计算被改的人 与 其他人的评分
-				targetList.stream().filter(item -> item.getId().equals(cast.getEventData().getId())).findAny().ifPresent(item ->{
+				targetList.stream().filter(item -> item.getId().equals(eventData.getId())).findAny().ifPresent(item ->{
 					//2 所有人与我的变更
 					this.calcMemberScore(item, Arrays.asList(owner));
 				});
@@ -315,27 +316,30 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 
 	@Override
 	public void onApplicationEvent(BusinessEvent<?> arg0) {
-		executor.submit(() -> {
-			Long start = System.currentTimeMillis();
-			if(
-					arg0 instanceof MemberScoreEvent
-					|| arg0 instanceof RecognizedCreateMemberScoreEvent
-					|| arg0 instanceof RecognizedCreateMemberScoreEvent
-					) {
-				if (arg0 instanceof MemberScoreEvent) {
-					this.onMemberScoreEvent(MemberScoreEvent.class.cast(arg0));
-				} 
-				if (arg0 instanceof RecognizedCreateMemberScoreEvent) {
-					this.onRecognizedCreateMemberScoreEvent(RecognizedCreateMemberScoreEvent.class.cast(arg0));
-				} 
-				if (arg0 instanceof RecognizedDeletedMemberScoreEvent) {
-					this.onRecognizedDeletedMemberScoreEvent(RecognizedDeletedMemberScoreEvent.class.cast(arg0));
-				} 
-				log.debug("用户推荐评分处理，事件为={}，耗时={} mils",arg0.getClass().getSimpleName(),(System.currentTimeMillis()-start));
-			}
-			
-			
-		});
+		if(arg0.isProcessed(getClass())) {
+			return;
+		}
+		if(
+				arg0 instanceof MemberScoreEvent
+				|| arg0 instanceof RecognizedCreateMemberScoreEvent
+				|| arg0 instanceof RecognizedCreateMemberScoreEvent
+				) {
+			arg0.logDetails();
+			executor.submit(() -> {
+				Long start = System.currentTimeMillis();
+					if (arg0 instanceof MemberScoreEvent) {
+						this.onMemberScoreEvent(MemberScoreEvent.class.cast(arg0));
+					} 
+					if (arg0 instanceof RecognizedCreateMemberScoreEvent) {
+						this.onRecognizedCreateMemberScoreEvent(RecognizedCreateMemberScoreEvent.class.cast(arg0));
+					} 
+					if (arg0 instanceof RecognizedDeletedMemberScoreEvent) {
+						this.onRecognizedDeletedMemberScoreEvent(RecognizedDeletedMemberScoreEvent.class.cast(arg0));
+					} 
+					log.debug("用户推荐评分处理，事件为={}，耗时={} mils",arg0.getClass().getSimpleName(),(System.currentTimeMillis()-start));
+			});
+		}
+	
 	}
 
 

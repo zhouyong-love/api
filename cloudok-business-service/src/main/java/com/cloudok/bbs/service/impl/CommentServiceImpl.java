@@ -120,6 +120,8 @@ public class CommentServiceImpl extends AbstractService<CommentVO, CommentPO> im
 					throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 				}
 			}
+		}else {
+			return 0;
 		}
 		Integer row = super.remove(pk);
 		SpringApplicationContext.publishEvent(new CommentDeleteEvent(vo));

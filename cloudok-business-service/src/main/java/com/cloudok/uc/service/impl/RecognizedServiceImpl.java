@@ -89,6 +89,8 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 			if (!vo.getSourceId().equals(SecurityContextHelper.getCurrentUserId())) {
 				throw new SystemException(CoreExceptionMessage.NO_PERMISSION);
 			}
+		}else {
+			return 0;
 		}
 		if(count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, vo.getSourceId()).and(RecognizedMapping.SOURCEID, vo.getTargetId()).end())>0) {
 			throw new SystemException("已互可，不能取消");

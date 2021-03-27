@@ -2,6 +2,8 @@ package com.cloudok.uc.service.impl;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
@@ -69,11 +71,16 @@ public class FirendServiceImpl extends AbstractService<FirendVO, FirendPO> imple
 	}
 
 	@Override
-	public void onApplicationEvent(BusinessEvent<?> arg0) {
-		if(arg0 instanceof RecognizedCreateEvent) {
-			this.recognized(RecognizedCreateEvent.class.cast(arg0).getEventData());
-		}else if(arg0 instanceof RecognizedDeleteEvent) {
-			this.unRecognized(RecognizedDeleteEvent.class.cast(arg0).getEventData());
+	public void onApplicationEvent(BusinessEvent<?> event) {
+		if(event.isProcessed(getClass())) {
+			return;
+		}
+		if(event instanceof RecognizedCreateEvent) {
+			event.logDetails();
+			this.recognized(RecognizedCreateEvent.class.cast(event).getEventData());
+		}else if(event instanceof RecognizedDeleteEvent) {
+			event.logDetails();
+			this.unRecognized(RecognizedDeleteEvent.class.cast(event).getEventData());
 		}
 		
 	}

@@ -64,6 +64,7 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 				d.setSn(1);
 			}
 		}
+		d.setIndustry(this.industryService.get(d.getIndustry().getId()));
 		InternshipExperienceVO v = super.create(d);
 		SpringApplicationContext.publishEvent(MemberProfileEvent.create(getCurrentUserId(),MemberProfileType.internship,d));
 		return v;
@@ -84,6 +85,7 @@ public class InternshipExperienceServiceImpl extends AbstractService<InternshipE
 		if(d.getSn() == null) {
 			d.setSn(vo.getSn());
 		}
+		d.setIndustry(this.industryService.get(d.getIndustry().getId()));
 		InternshipExperienceVO v = super.update(d);
 		SpringApplicationContext.publishEvent(MemberProfileEvent.update(getCurrentUserId(),MemberProfileType.internship,d,vo));
 		return v;

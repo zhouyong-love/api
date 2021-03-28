@@ -16,7 +16,7 @@
 	
 	<insert id="create" parameterType="com.cloudok.bbs.po.ThumbsUpPO">
 		insert into bbs_thumbs_up(business_type,business_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{businessType},#{businessId},#{status},#{statusTs},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		values(#{businessType},#{businessId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.bbs.po.ThumbsUpPO">

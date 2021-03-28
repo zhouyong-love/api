@@ -22,7 +22,7 @@
 	
 	<insert id="create" parameterType="com.cloudok.bbs.po.CommentPO">
 		insert into bbs_comment(content,post_id,path,parent_id,reply_to,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{content},#{postId},#{path},#{parentId},#{status},#{statusTs},#{replyTo},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		values(#{content},#{postId},#{path},#{parentId},#{replyTo},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.bbs.po.CommentPO">

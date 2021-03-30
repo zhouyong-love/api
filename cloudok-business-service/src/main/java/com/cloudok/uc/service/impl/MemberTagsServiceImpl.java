@@ -219,7 +219,7 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 		if(eventData.getOldTopicType()!=null) {
 			if(BBSTopicType.systemSuggestTag.getValue().equals(eventData.getOldTopicType().toString())) { //是系统推荐标签
 				//删除旧标签关联
-				this.removePostTag(eventData.getCreateBy(), eventData.getTopicId());
+				this.removePostTag(eventData.getCreateBy(), eventData.getOldTopicId());
 			}
 		}
 	}

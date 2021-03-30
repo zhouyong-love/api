@@ -134,6 +134,7 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		repository.updateByMember(this.convert2PO(vo));
 		vo.setOldTopicId(db.getTopicId());
 		vo.setOldTopicType(db.getTopicType());
+		vo.setCreateBy(db.getCreateBy());
 		BusinessEvent<?> event = new PostUpdateEvent(vo);
 		memberTagsService.onPostChange(event);
 		SpringApplicationContext.publishEvent(event);

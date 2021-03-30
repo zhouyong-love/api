@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -39,7 +38,7 @@ import com.cloudok.uc.vo.MemberTagsVO;
 import com.cloudok.uc.vo.SwitchSNRequest;
 
 @Service
-public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberTagsPO> implements MemberTagsService,ApplicationListener<BusinessEvent<?>>{
+public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberTagsPO> implements MemberTagsService{
 
 	@Autowired
 	private TagService tagService;
@@ -188,9 +187,11 @@ public class MemberTagsServiceImpl extends AbstractService<MemberTagsVO, MemberT
 		return true;
 	}
 
-
-	@Override
-	public void onApplicationEvent(BusinessEvent<?> event) {
+	/**
+	 * 这里有bug，事件消费顺序可能导致topic统计有问题，改成post发布后 先强制调用这个
+	 * @param event
+	 */
+	public void onPostChange(BusinessEvent<?> event) {
 		if(event.isProcessed(getClass())) {
 			return;
 		}

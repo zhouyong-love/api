@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.cloudok.core.event.BusinessEvent;
 import com.cloudok.core.service.IService;
 import com.cloudok.uc.po.MemberTagsPO;
 import com.cloudok.uc.vo.MemberTagsVO;
@@ -29,4 +30,9 @@ public interface MemberTagsService extends IService<MemberTagsVO, MemberTagsPO> 
 	@Deprecated
 	void sysnc(Long memberId,Long topicId);
 
+	/**
+	 * 强制先调用这个 再发布post事件，防止topic计数出现问题
+	 * @param event
+	 */
+	public void onPostChange(BusinessEvent<?> event);
 }

@@ -64,6 +64,7 @@ import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.dto.SimpleMemberInfo;
 import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.service.MemberService;
+import com.cloudok.uc.service.MemberTagsService;
 import com.cloudok.uc.service.NotificationService;
 import com.cloudok.util.StreamUtils;
 
@@ -101,6 +102,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 	// private SpecialismService specialismService;
 	@Autowired
 	private NotificationService notificationService;
+	
+	@Autowired
+	private MemberTagsService memberTagsService;
 
 	@Autowired
 	public PostServiceImpl(PostMapper repository) {
@@ -113,7 +117,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		vo.setCommentCount(0);
 		vo.setThumbsUpCount(0);
 		super.create(vo);
-		SpringApplicationContext.publishEvent(new PostCreateEvent(vo));
+		BusinessEvent<?> event = new PostCreateEvent(vo);
+		memberTagsService.onPostChange(event);
+		SpringApplicationContext.publishEvent(event);
 		return vo;
 	}
 
@@ -128,7 +134,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 		repository.updateByMember(this.convert2PO(vo));
 		vo.setOldTopicId(db.getTopicId());
 		vo.setOldTopicType(db.getTopicType());
-		SpringApplicationContext.publishEvent(new PostUpdateEvent(vo));
+		BusinessEvent<?> event = new PostUpdateEvent(vo);
+		memberTagsService.onPostChange(event);
+		SpringApplicationContext.publishEvent(event);
 		return vo;
 	}
 
@@ -842,7 +850,9 @@ public class PostServiceImpl extends AbstractService<PostVO, PostPO> implements 
 			return true;
 		}
 		this.remove(pk);
-		SpringApplicationContext.publishEvent(new PostDeleteEvent(vo));
+		BusinessEvent<?> event = new PostDeleteEvent(vo);
+		memberTagsService.onPostChange(event);
+		SpringApplicationContext.publishEvent(event);
 		this.commentService.removeByPostId(pk);
 		this.collectService.removeByPostId(pk);
 		this.thumbsUpService.removeByPostId(pk);

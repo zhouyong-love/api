@@ -110,6 +110,7 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 //			}
 //		}
 		this.repository.updatePostCount(topic.getId(), topicType, topicId, post == null ? null : post.getId(), lastUpdateTs);
+		this.repository.updatePeersCount(topic.getId(), topicType, topicId);
 	}
 
 	private void onPostUpdateEvent(PostUpdateEvent event) {
@@ -125,6 +126,7 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 				eventData.setCreateTs(new Timestamp(System.currentTimeMillis()));
 			}
 			this.repository.updatePostCount(topic.getId(), topicType, topicId, eventData.getId(), eventData.getCreateTs());
+			this.repository.updatePeersCount(topic.getId(), topicType, topicId);
 			topicId = eventData.getOldTopicId();
 			topicType = eventData.getOldTopicType();
 			topic = this.createOrGetTopic(topicType, topicId);
@@ -137,6 +139,7 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 //				}
 //			}
 			this.repository.updatePostCount(topic.getId(), topicType, topicId, post == null ? null : post.getId(), lastUpdateTs);
+			this.repository.updatePeersCount(topic.getId(), topicType, topicId);
 		}
 
 	}
@@ -152,7 +155,7 @@ public class TopicServiceImpl extends AbstractService<TopicVO, TopicPO> implemen
 			eventData.setCreateTs(new Timestamp(System.currentTimeMillis()));
 		}
 		this.repository.updatePostCount(topic.getId(), topicType, topicId, eventData.getId(), eventData.getCreateTs());
-//		this.repository.updatePeersCount(topic.getId(), topicType, topicId);
+		this.repository.updatePeersCount(topic.getId(), topicType, topicId);
 	}
 
 	private void onMemberProfileEvent(MemberProfileEvent event) {

@@ -55,7 +55,7 @@ public class DictApi {
 		return Response.buildSuccess();
 	}
 	
-	@PreAuthorize("isAuthenticated()")
+//	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/{dictCode}/values")
 	@ApiOperation(value = "拉取字典值列表(从缓存)", notes = "拉取字典值列表(从缓存)")
 	@Loggable(level=SysLogLevel.CORE)

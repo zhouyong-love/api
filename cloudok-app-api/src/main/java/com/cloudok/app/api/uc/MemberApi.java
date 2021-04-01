@@ -22,6 +22,7 @@ import com.cloudok.log.annotation.LogModule;
 import com.cloudok.log.annotation.Loggable;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.security.exception.SecurityExceptionMessage;
+import com.cloudok.uc.dto.SimpleMemberDTO;
 import com.cloudok.uc.service.MemberService;
 import com.cloudok.uc.vo.BindRequest;
 import com.cloudok.uc.vo.ChangePasswordRequest;
@@ -204,11 +205,13 @@ public class MemberApi {
 //		return Response.buildSuccess(memberService.link(id));
 //	}
 	
-	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/simpleInfo")
 	@ApiOperation(value="查询登录用户的简要信息",notes="查询登录用户的简要信息")
 	@Loggable
 	public Response simpleInfo() {
+		if(SecurityContextHelper.isLogin()) {
+			return Response.buildSuccess(SimpleMemberDTO.builder().build());
+		}
 		return Response.buildSuccess(memberService.getSimpleMemberInfo());
 	}
 	

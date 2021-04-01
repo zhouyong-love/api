@@ -278,6 +278,11 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 				break;
 			}
 			pageNo = pageNo + 1;
+			list = this.repository.select(QueryBuilder.create(NotificationMapping.class)
+					.and(NotificationMapping.BUSINESSTYPE,QueryOperator.IN, typeList)
+					.and(NotificationMapping.MEMBERID, getCurrentUserId())
+					.end().sort(NotificationMapping.CREATETIME).desc().enablePaging().page(pageNo, pageSize).end()
+					);
 		}
 		return idList;
 		

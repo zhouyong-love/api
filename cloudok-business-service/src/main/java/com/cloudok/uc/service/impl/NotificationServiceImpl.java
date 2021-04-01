@@ -277,6 +277,9 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 			if(idList.size()>=maxSize) {
 				break;
 			}
+			if(list.size()<pageSize) {
+				break;
+			}
 			pageNo = pageNo + 1;
 			list = this.repository.select(QueryBuilder.create(NotificationMapping.class)
 					.and(NotificationMapping.BUSINESSTYPE,QueryOperator.IN, typeList)

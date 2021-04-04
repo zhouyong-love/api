@@ -234,13 +234,13 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 		NotificationTotalVO  thumbsUp =  NotificationTotalVO.builder().businessType(2).totalCount(0).unReadCount(0).build();
 		if(!CollectionUtils.isEmpty(list)) {
 			list.stream().forEach(po -> {
-				if(po.getBusinessType().equals(1) || po.getBusinessType().equals(2)) {
+				if(po.getBusinessType().equals(1) || po.getBusinessType().equals(3)) {
 					comment.setTotalCount(comment.getTotalCount()+po.getCount());
 					if(po.getStatus().equals(0)) {
 						comment.setUnReadCount(po.getCount()+comment.getUnReadCount());
 					}
 				}
-				if(po.getBusinessType().equals(3)) {
+				if(po.getBusinessType().equals(2)) {
 					thumbsUp.setTotalCount(thumbsUp.getTotalCount()+po.getCount());
 					if(po.getStatus().equals(0)) {
 						thumbsUp.setUnReadCount(po.getCount()+thumbsUp.getUnReadCount());
@@ -248,10 +248,10 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 				}
 			});
 			if(comment.getTotalCount()>0) {
-				comment.setLatestMemberList(this.memberService.getSimpleMemberInfo(this.getLatestMember(getCurrentUserId(), Arrays.asList(1,2), 3)));
+				comment.setLatestMemberList(this.memberService.getSimpleMemberInfo(this.getLatestMember(getCurrentUserId(), Arrays.asList(1,3), 3)));
 			}
 			if(thumbsUp.getTotalCount()>0) {
-				thumbsUp.setLatestMemberList(this.memberService.getSimpleMemberInfo(this.getLatestMember(getCurrentUserId(), Arrays.asList(3), 3)));
+				thumbsUp.setLatestMemberList(this.memberService.getSimpleMemberInfo(this.getLatestMember(getCurrentUserId(), Arrays.asList(2), 3)));
 			}
 			result.add(comment);
 			result.add(thumbsUp);

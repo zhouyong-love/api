@@ -14,4 +14,6 @@ public class CacheType {
 	public static final CacheNameSpace RI = new CacheNameSpace("uc", "RI");
 	
 	public static final CacheNameSpace SuggestHistory = new CacheNameSpace("uc", "suggest");
+	
+	public static final CacheNameSpace SuggestStream = new CacheNameSpace("uc", "sgs");
 }

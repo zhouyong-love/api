@@ -273,6 +273,7 @@
 		<result property="tag" column="tag" /> 
 		<result property="specialism" column="specialism" /> 
 		<result property="school" column="school" /> 
+		<result property="recognized" column="recognized" /> 
 	</resultMap>
 	
 	<update id="markAsSuggested" parameterType="Map">
@@ -285,9 +286,9 @@
 	</update>
 	
 	<insert id="createScoreList" parameterType="List">
-		insert into uc_member_suggest (id,suggest_ts,update_ts,owner_id,target_id,score,industry,tag,specialism,school) values
+		insert into uc_member_suggest (id,suggest_ts,update_ts,owner_id,target_id,score,industry,tag,specialism,school,kab,recognized) values
 		<foreach collection="list"   item="item" separator=",">
-			(#{item.id},null,CURRENT_TIMESTAMP(),#{item.ownerId},#{item.targetId},#{item.score},#{item.industry},#{item.tag},#{item.specialism},#{item.school})
+			(#{item.id},null,CURRENT_TIMESTAMP(),#{item.ownerId},#{item.targetId},#{item.score},#{item.industry},#{item.tag},#{item.specialism},#{item.school},1,#{item.recognized})
 		</foreach>
 	
 	</insert>	 
@@ -299,7 +300,8 @@
          	industry=#{industry},
          	tag=#{tag},
          	specialism=#{specialism},
-         	school=#{school}
+         	school=#{school},
+         	recognized = #{recognized}
         where id  = #{id}
 	</update> 
 	
@@ -310,6 +312,14 @@
         </foreach>
          and score>-100 
 	</select> 
+	
+	<select id="getScoreByOwnerIdAndTargetId" resultMap="scoreMap">
+		select * from uc_member_suggest where owner_id =#{currentUserId} and target_id in
+        <foreach collection="idList" index="index" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+	</select> 
+	
 	
 	<select id="getUnSuggestList" resultMap="scoreMap">
 		select * from uc_member_suggest where owner_id = #{currentUserId}  and score>-100  and suggest_ts is null  limit 0,100
@@ -470,5 +480,23 @@
 		and u.deleted=false
 	</select>
 	
-
+	<update id="updateKAB" parameterType="Map">
+		update uc_member_suggest set kab=kab*0.85,suggest_ts = CURRENT_TIMESTAMP() where owner_id = #{currentUserId} and target_id in 
+			<foreach collection="memberIdList" close=")" item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+	</update>
+	
+	<select id="getSuggestV3Count" parameterType="map" resultType="Long">
+		select count(1) from uc_member_suggest where owner_id = #{currentUserId}  and score>-100 
+	</select>
+	<select id="getSuggestV3List" parameterType="map" resultMap="scoreMap">
+		select  t.id,t.suggest_ts,t.update_ts,t.owner_id,t.target_id,(t.score+m.wi) * t.kab as score,t.specialism,t.industry,t.tag,t.school,t.kab,t.recognized 
+			from uc_member_suggest t 
+			inner join uc_member m on t.target_id=m.id and  t.owner_id = #{currentUserId} and m.deleted=false  and t.score>-100  
+		order by recognized asc, (t.score+m.wi) * t.kab desc, t.target_id desc limit #{offset},#{pageSize}
+	</select>
+	<select id="getShouldFxixedRecognizedSize" resultType="Long">
+		SELECT count(1) FROM uc_member_suggest t where t.recognized is null and t.score>-100
+	</select>
 </mapper>

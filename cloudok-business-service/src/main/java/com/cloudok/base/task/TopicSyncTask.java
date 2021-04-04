@@ -103,7 +103,7 @@ public class TopicSyncTask  {
 			SpringApplicationContext.publishEvent(new TopicCreateEvent(TopicInfo.builder()
 					.forceUpate(true)
 					.topicId(vo.getId())
-					.topicName(vo.getName())
+					.topicName(vo.getAbbreviation())
 					.topicType(Integer.parseInt(BBSTopicType.school.getValue()))
 					.build())
 			);

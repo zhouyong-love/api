@@ -1,5 +1,6 @@
 package com.cloudok.uc.po;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import lombok.Data;
@@ -16,12 +17,13 @@ public class MemberSuggestScore {
 	private Integer tag;
 	private Integer school;
 	private Double score;
-	
+	private BigDecimal kab;
+	private Integer recognized;
 	
 	public MemberSuggestScore() {
 		
 	}
-	public MemberSuggestScore(Long ownerId,Long targetId,Double score,Integer school,Integer specialism,Integer industry,Integer tag) {
+	public MemberSuggestScore(Long ownerId,Long targetId,Double score,Integer school,Integer specialism,Integer industry,Integer tag,Integer recognized) {
 		this.ownerId = ownerId;
 		this.targetId  = targetId;
 		this.score = score == null ? 0 : score;
@@ -29,6 +31,7 @@ public class MemberSuggestScore {
 		this.specialism = specialism;
 		this.industry = industry;
 		this.tag = tag;
+		this.recognized = recognized;
 	}
 	public void addScore(Double score) {
 		if(score == null) {

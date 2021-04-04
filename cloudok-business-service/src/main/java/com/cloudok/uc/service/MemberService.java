@@ -94,4 +94,6 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	Page<WholeMemberDTO> getMemberCirclesV2(Integer type, Long businessId, Integer pageNo, Integer pageSize);
 
+	Page<WholeMemberDTO>  suggestV3(String threadId, Integer pageNo, Integer pageSize);
+
 }

@@ -61,16 +61,24 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 			} catch (InterruptedException e) {
 			}
 //			 this.calcAll();
+			this.fixedData();
 		}) .start();
 	}
 	
+	//修复下数据
+	private void fixedData() {
+		if(this.repository.getShouldFxixedRecognizedSize().compareTo(0L)>0 ) {
+			 this.calcAll();		
+		}
+		
+	}
 	public void initMemberScoreOnCreate(Long memberId) {
 		int pageIndex = 1;
 		List<MemberPO> memberList = repository.select(QueryBuilder.create(MemberMapping.class).sort(MemberMapping.ID).desc().enablePaging().page(pageIndex, 50).end());
 		while(!CollectionUtils.isEmpty(memberList)) {
 			List<MemberSuggestScore> list =	memberList.stream().filter(item -> !item.getId().equals(memberId))
 			.map(item ->  {
-				MemberSuggestScore s = new MemberSuggestScore(memberId,item.getId(),item.getWi(),0,0,0,0);
+				MemberSuggestScore s = new MemberSuggestScore(memberId,item.getId(),item.getWi(),0,0,0,0,0);
 				s.setId(SnowflakePrimaryKeyGenerator.SEQUENCE.next());
 				return s;
 			})
@@ -109,8 +117,15 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 
 	//认可事件发生变更，只要计算两个人的值就可以
 	private void onRecognizedDeletedMemberScoreEvent(RecognizedDeletedMemberScoreEvent cast) {
-		List<MemberSuggestScore> list = this.repository.getScoreByOwnerId(Arrays.asList(cast.getEventData().getTargetId()));
-		list.stream().filter(item -> item.getTargetId().equals(cast.getEventData().getSourceId())).findAny().ifPresent(item ->{
+		//A->B 
+		List<MemberSuggestScore> list = this.repository.getScoreByOwnerIdAndTargetId(cast.getEventData().getSourceId(),Arrays.asList(cast.getEventData().getTargetId()));
+		list.stream().filter(item -> item.getTargetId().equals(cast.getEventData().getTargetId())).findAny().ifPresent(item ->{
+			item.setRecognized(0);
+			this.repository.updateScore(item);
+		});
+		//B->A  w(A,B)=w(A,B)-30
+		List<MemberSuggestScore> list2 = this.repository.getScoreByOwnerIdAndTargetId(cast.getEventData().getTargetId(),Arrays.asList(cast.getEventData().getSourceId()));
+		list2.stream().filter(item -> item.getTargetId().equals(cast.getEventData().getSourceId())).findAny().ifPresent(item ->{
 			double s = item.getScore() == null ? 0 : item.getScore().doubleValue();
 			item.setScore(s-30);
 			this.repository.updateScore(item);
@@ -118,13 +133,19 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 	}
 	//认可事件发生变更，只要计算两个人的值就可以
 	private void onRecognizedCreateMemberScoreEvent(RecognizedCreateMemberScoreEvent cast) {
-		List<MemberSuggestScore> list = this.repository.getScoreByOwnerId(Arrays.asList(cast.getEventData().getTargetId()));
-		list.stream().filter(item -> item.getTargetId().equals(cast.getEventData().getSourceId())).findAny().ifPresent(item ->{
+		//A->B
+		List<MemberSuggestScore> list = this.repository.getScoreByOwnerIdAndTargetId(cast.getEventData().getSourceId(),Arrays.asList(cast.getEventData().getTargetId()));
+		list.stream().filter(item -> item.getTargetId().equals(cast.getEventData().getTargetId())).findAny().ifPresent(item ->{
+			item.setRecognized(1);
+			this.repository.updateScore(item);
+		});
+		//B->A  w(A,B)=w(A,B)+30
+		List<MemberSuggestScore> list2 = this.repository.getScoreByOwnerIdAndTargetId(cast.getEventData().getTargetId(),Arrays.asList(cast.getEventData().getSourceId()));
+		list2.stream().filter(item -> item.getTargetId().equals(cast.getEventData().getSourceId())).findAny().ifPresent(item ->{
 			double s = item.getScore() == null ? 0 : item.getScore().doubleValue();
 			item.setScore(s+30);
 			this.repository.updateScore(item);
 		});
-		
 	}
 
 	private List<WholeMemberDTO> getAllMemberList(){
@@ -152,11 +173,12 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 	//https://shimo.im/docs/kRYKX9PJJGycPWwT
 	private void calcMemberScore(WholeMemberDTO owner,List<WholeMemberDTO> allList) {
 		List<RecognizedVO> recognizedVOList = recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, owner.getId()).end());
+		List<RecognizedVO> myRecognizedVOList = recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, owner.getId()).end());
 		List<WholeMemberDTO> otherList = allList.stream().filter(item -> !item.getId().equals(owner.getId())).collect(Collectors.toList());
 		List<MemberSuggestScore> scoreList  = new ArrayList<MemberSuggestScore>();
 		if(!CollectionUtils.isEmpty(otherList)) {
 			otherList.stream().forEach(item ->{
-			MemberSuggestScore score = new MemberSuggestScore(owner.getId(),item.getId(),0.0,0,0,0,0);
+			MemberSuggestScore score = new MemberSuggestScore(owner.getId(),item.getId(),0.0,0,0,0,0,0);
 			scoreList.add(score);
 			List<EducationExperienceVO> eduList = owner.getEducationList();
 			List<EducationExperienceVO> othersEduList = item.getEducationList();
@@ -270,6 +292,12 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 			if(!CollectionUtils.isEmpty(recognizedVOList)) {
 				recognizedVOList.stream().filter(r -> r.getSourceId().equals(item.getId())).findAny().ifPresent(r->{
 					score.addScore(30.0);
+				});
+			}
+			//A关注了B
+			if(!CollectionUtils.isEmpty(myRecognizedVOList)) {
+				myRecognizedVOList.stream().filter(r -> r.getTargetId().equals(item.getId())).findAny().ifPresent(r->{
+					score.setRecognized(1);
 				});
 			}
 //			推送机制：

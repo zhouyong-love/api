@@ -19,6 +19,8 @@ public class PageCondition<Q extends QueryBuilder> implements Serializable {
 	
 	private int pageNo=1;
 	
+	private static final int maxPageSzie = 200; //最大一次不超过200
+	
 	public boolean isEnable() {
 		return enable;
 	}
@@ -41,7 +43,7 @@ public class PageCondition<Q extends QueryBuilder> implements Serializable {
 		if(pageSize<=0) {
 			pageSize=10;
 		}
-		this.pageSize=pageSize;
+		this.pageSize= Math.min(pageSize, maxPageSzie);
 		if(pageNo<=0) {
 			this.pageNo=1;
 		}else {
@@ -59,7 +61,7 @@ public class PageCondition<Q extends QueryBuilder> implements Serializable {
 		if(p<=0) {
 			p=10;
 		}
-		this.pageSize=p;
+		this.pageSize=Math.min(pageSize, maxPageSzie);
 		return this;
 	}
 	

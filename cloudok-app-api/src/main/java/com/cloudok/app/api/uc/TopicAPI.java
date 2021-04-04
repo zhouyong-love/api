@@ -76,4 +76,11 @@ public class TopicAPI {
 			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
 		return Response.buildSuccess(memberTopicService.discover(pageNo,pageSize));
 	} 
+	
+	@GetMapping
+	@ApiOperation(value="人脉--云圈推荐标签",notes="人脉--云圈推荐标签")
+	@Loggable
+	public Response getSuggestTopics() {
+		return Response.buildSuccess(memberTopicService.getSuggestTopics());
+	} 
 }

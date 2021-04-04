@@ -218,8 +218,7 @@ public class QueryBuilder {
 			String paramName = param[0];
 			QueryOperator operator =QueryOperator.EQ;
 			try {
-				operator = param.length > 1 ? QueryOperator.valueOf(param[1].toUpperCase())
-						: QueryOperator.EQ;
+				operator = param.length > 1 ? QueryOperator.valueOf(param[1].toUpperCase()) : QueryOperator.EQ;
 			} catch (Exception e) {
 				throw new SystemException(CoreExceptionMessage.QUERYOPEAR_ERR);
 			}

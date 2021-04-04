@@ -209,7 +209,7 @@ public class MemberApi {
 	@ApiOperation(value="查询登录用户的简要信息",notes="查询登录用户的简要信息")
 	@Loggable
 	public Response simpleInfo() {
-		if(SecurityContextHelper.isLogin()) {
+		if(!SecurityContextHelper.isLogin()) {
 			return Response.buildSuccess(SimpleMemberDTO.builder().build());
 		}
 		return Response.buildSuccess(memberService.getSimpleMemberInfo());
@@ -254,6 +254,16 @@ public class MemberApi {
 			@RequestParam(name = "filterType", required=false,defaultValue="0") Integer filterType,
 			@RequestParam(name = "refresh", required=false,defaultValue="false") Boolean refresh) {
 		return Response.buildSuccess(memberService.suggestV2(filterType,refresh));
+	}
+	
+	@GetMapping("/suggestV3")
+	@ApiOperation(value="推荐member列表--流式拉取",notes="推荐用户列表，流式拉取换一个流就换一个threadId，threadId--点击上方按钮的时候生成一次,或者重新进入页面也生成一次，下拉刷新也可以刷新一次")
+	@Loggable
+	public Response suggestV3(
+			@RequestParam(name = "threadId", required=false) String threadId,
+			@RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10",required=false) Integer pageSize) {
+		return Response.buildSuccess(memberService.suggestV3(threadId,pageNo,pageSize));
 	}
 	
 	@PreAuthorize("isAuthenticated()")

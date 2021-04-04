@@ -1220,6 +1220,84 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			});
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Page<WholeMemberDTO> suggestV3(String threadId, Integer pageNo, Integer pageSize) {
+		pageNo = pageNo < 1 ? 1 : pageNo;
+		if(StringUtils.isEmpty(threadId)) {
+			throw new SystemException("threadId不能为空", CoreExceptionMessage.PARAMETER_ERR);
+		}
+		if(!SecurityContextHelper.isLogin()) { 
+			return getDefaultMemberList(pageNo,pageSize);
+		}
+		Long currentUserId = getCurrentUserId();
+		String cachedThreadId = cache.get(CacheType.SuggestStream, currentUserId.toString(),String.class);
+		if(cachedThreadId == null) {
+			cache.put(CacheType.SuggestStream, currentUserId.toString(),threadId);
+		}else {
+			if(!cachedThreadId.equals(threadId)) {
+				cache.put(CacheType.SuggestStream, currentUserId.toString(),threadId);
+				List<Long> suggestMemberIdList = (List<Long>)cache.get(CacheType.SuggestStream,currentUserId+cachedThreadId,List.class);
+				this.updateKAB(currentUserId,suggestMemberIdList);
+			}
+		}
+		Page<WholeMemberDTO> result = new Page<WholeMemberDTO>();
+		List<Long> suggestMemberIdList = (List<Long>)cache.get(CacheType.SuggestStream,currentUserId+threadId,List.class);
+		if(CollectionUtils.isEmpty(suggestMemberIdList)) {
+			suggestMemberIdList = new ArrayList<Long>();
+		}
+		Long count = this.repository.getSuggestV3Count(currentUserId);
+		List<MemberSuggestScore> suggestList  = this.repository.getSuggestV3List(currentUserId,(pageNo-1)*pageSize,pageSize);
+		if(!CollectionUtils.isEmpty(suggestList)) {
+			result.setData(this.getWholeMemberInfo(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList())));
+		
+			suggestMemberIdList.addAll(suggestList.stream().map(item -> item.getTargetId()).collect(Collectors.toList()));
+			cache.put(CacheType.SuggestStream,currentUserId+threadId,suggestMemberIdList);
+			
+			//回填下分数
+			result.getData().stream().forEach(item -> {
+				suggestList.stream().filter(s -> s.getTargetId().equals(item.getId())).findAny().ifPresent(s ->{
+					item.setScore(s.getScore());
+				});
+			});
+			
+			List<RecognizedVO> recoginzedList = this.recognizedService.list(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.SOURCEID, currentUserId)
+					.and(RecognizedMapping.TARGETID, QueryOperator.IN, result.getData().stream().map(item -> item.getId()).collect(Collectors.toList())).end()
+					.or(RecognizedMapping.TARGETID, currentUserId)
+					.and(RecognizedMapping.SOURCEID, QueryOperator.IN, result.getData().stream().map(item -> item.getId()).collect(Collectors.toList())).end());
+			if (!CollectionUtils.isEmpty(recoginzedList)) {
+				result.getData().stream().forEach(member -> {
+					recoginzedList.stream().filter(item -> item.getSourceId().equals(currentUserId) && item.getTargetId().equals(member.getId())).findAny().ifPresent(item -> {
+						member.setTo(true);
+					});
+					recoginzedList.stream().filter(item -> item.getTargetId().equals(currentUserId) && item.getSourceId().equals(member.getId())).findAny().ifPresent(item -> {
+						member.setFrom(true);
+					});
+				});
+			}
+			result.setData(this.filter(result.getData()));
+		}
+		 
+		result.setPageNo(pageNo);
+		result.setPageSize(pageSize);
+		result.setTotalCount(count);
+		return result;
+	}
+
+	private void updateKAB(Long currentUserId, List<Long> suggestMemberIdList) {
+		if(!CollectionUtils.isEmpty(suggestMemberIdList)) {
+			this.repository.updateKAB(currentUserId,suggestMemberIdList.stream().distinct().collect(Collectors.toList()));
+		}
+	}
+
+	private Page<WholeMemberDTO> getDefaultMemberList(Integer pageNo, Integer pageSize) {
+		Page<MemberVO> page = this.page(QueryBuilder.create(MemberMapping.class).and(MemberMapping.WI, QueryOperator.GTE,0).end().sort(MemberMapping.WI).desc().enablePaging().page(pageNo, pageSize).end());
+		Page<WholeMemberDTO> result = new Page<WholeMemberDTO>();
+		BeanUtils.copyProperties(page, result);
+		result.setData(this.getWholeMemberInfoByVOList(page.getData()));
+		return result;
+	}
 
 	@Override
 	public SuggestResult suggestV2(Integer filterType, Boolean refresh) {

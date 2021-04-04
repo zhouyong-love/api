@@ -57,6 +57,8 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	 void updateScore(MemberSuggestScore score);
 	 
 	 List<MemberSuggestScore> getScoreByOwnerId(@Param("idList") List<Long> idList);
+	 
+	 List<MemberSuggestScore> getScoreByOwnerIdAndTargetId(@Param("currentUserId") Long currentUserId,@Param("idList") List<Long> idList);
 
 	 @Deprecated
 	 List<MemberSuggestScore> getLastestSuggest(@Param("currentUserId") Long currentUserId,@Param("date")  String date, @Param("size") int size);
@@ -99,6 +101,17 @@ public interface MemberMapper extends IMapper<MemberPO>{
 			@Param("businessId") Long businessId,
 			@Param("offset") Integer offset,
 			@Param("pageSize") Integer pageSize);
+
+	void updateKAB(@Param("currentUserId") Long currentUserId, @Param("memberIdList") List<Long> suggestMemberIdList);
+
+	Long getSuggestV3Count(@Param("currentUserId") Long currentUserId);
+	
+	List<MemberSuggestScore> getSuggestV3List(
+			@Param("currentUserId") Long currentUserId,
+			@Param("offset") Integer offset,
+			@Param("pageSize") Integer pageSize);
+
+	Long getShouldFxixedRecognizedSize();
 	
  
 }

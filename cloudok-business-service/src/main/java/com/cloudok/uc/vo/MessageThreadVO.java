@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import com.cloudok.core.vo.VO;
-import com.cloudok.uc.dto.SimpleMemberInfo;
+import com.cloudok.uc.dto.WholeMemberDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,7 +36,7 @@ public class MessageThreadVO extends VO {
 	/**
 	 * 参与者
 	 */
-	private List<SimpleMemberInfo> memberList;
+	private List<WholeMemberDTO> memberList;
 	
 	/**
 	 * 最新消息

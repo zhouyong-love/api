@@ -29,6 +29,7 @@ import com.cloudok.enums.UCMessageThreadType;
 import com.cloudok.enums.UCMessageType;
 import com.cloudok.security.SecurityContextHelper;
 import com.cloudok.uc.dto.SimpleMemberInfo;
+import com.cloudok.uc.dto.WholeMemberDTO;
 import com.cloudok.uc.event.MessageSendEvent;
 import com.cloudok.uc.event.RecognizedCreateEvent;
 import com.cloudok.uc.event.RecognizedDeleteEvent;
@@ -45,7 +46,6 @@ import com.cloudok.uc.service.MessageService;
 import com.cloudok.uc.service.MessageThreadMembersService;
 import com.cloudok.uc.service.MessageThreadService;
 import com.cloudok.uc.service.RecognizedService;
-import com.cloudok.uc.vo.EducationExperienceVO;
 import com.cloudok.uc.vo.MessageThreadGroup;
 import com.cloudok.uc.vo.MessageThreadGroupItem;
 import com.cloudok.uc.vo.MessageThreadMembersVO;
@@ -354,47 +354,48 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 					.list(QueryBuilder.create(MessageThreadMembersMapping.class).and(MessageThreadMembersMapping.THREADID, QueryOperator.IN, threadIdList).end());
 			if (!CollectionUtils.isEmpty(tempList)) {
 				List<Long> memberIdList = tempList.stream().map(item -> item.getMemberId()).distinct().collect(Collectors.toList());
-				List<SimpleMemberInfo> simpleMemberInfoList = memberService.getSimpleMemberInfo(memberIdList);
+				List<WholeMemberDTO> simpleMemberInfoList = memberService.getWholeMemberInfo(memberIdList);
 				Map<Long, List<MessageThreadMembersVO>> map = tempList.stream().collect(Collectors.groupingBy(MessageThreadMembersVO::getThreadId));
 				list.stream().forEach(item -> {
 					List<MessageThreadMembersVO> memberList = map.get(item.getId());
 					if (!CollectionUtils.isEmpty(memberList)) {
 						item.setMemberList(memberList.stream().map(m -> {
-							Optional<SimpleMemberInfo> opt = simpleMemberInfoList.stream().filter(a -> a.getId().equals(m.getMemberId())).findAny();
+							Optional<WholeMemberDTO> opt = simpleMemberInfoList.stream().filter(a -> a.getId().equals(m.getMemberId())).findAny();
 							return opt.isPresent() ? opt.get() : null;
-						}).distinct().collect(Collectors.toList()));
+						}).collect(Collectors.toList()));
+						
 					}
 					// 匿名聊天不保留memberId
-					if (UCMessageThreadType.anonymousInteraction.getValue().equals(item.getType()) && !CollectionUtils.isEmpty(item.getMemberList())) {
-						if(!CollectionUtils.isEmpty(item.getLatestMessageList())) {
-							item.getLatestMessageList().stream().filter(m ->UCMessageType.interaction.getValue().equals(m.getType()) ).findAny().ifPresent(m ->{
-								m.setCreateBy(null);
-								m.setUpdateBy(null);
-								m.setMemberId(null);
-							});
-						}
-						item.setCreateBy(null);
-						item.setUpdateBy(null);
-						List<SimpleMemberInfo> mlist = new ArrayList<SimpleMemberInfo>();
-						// 隐藏头像，图片
-						item.getMemberList().stream().forEach(m -> {
-							// 干掉留言人的头像，id，昵称
-							if (!m.getId().equals(item.getOwnerId()) && !m.getId().equals(getCurrentUserId())) {
-								SimpleMemberInfo s = new SimpleMemberInfo();
-								if (m.getEducation() != null) {
-									EducationExperienceVO edu = new EducationExperienceVO();
-									BeanUtils.copyProperties(m.getEducation(), edu);
-									edu.setCreateBy(null);
-									edu.setUpdateBy(null);
-									s.setEducation(edu);
-								}
-								mlist.add(s);
-							} else {
-								mlist.add(m);
-							}
-						});
-						item.setMemberList(mlist);
-					}
+//					if (UCMessageThreadType.anonymousInteraction.getValue().equals(item.getType()) && !CollectionUtils.isEmpty(item.getMemberList())) {
+//						if(!CollectionUtils.isEmpty(item.getLatestMessageList())) {
+//							item.getLatestMessageList().stream().filter(m ->UCMessageType.interaction.getValue().equals(m.getType()) ).findAny().ifPresent(m ->{
+//								m.setCreateBy(null);
+//								m.setUpdateBy(null);
+//								m.setMemberId(null);
+//							});
+//						}
+//						item.setCreateBy(null);
+//						item.setUpdateBy(null);
+//						List<SimpleMemberInfo> mlist = new ArrayList<SimpleMemberInfo>();
+//						// 隐藏头像，图片
+//						item.getMemberList().stream().forEach(m -> {
+//							// 干掉留言人的头像，id，昵称
+//							if (!m.getId().equals(item.getOwnerId()) && !m.getId().equals(getCurrentUserId())) {
+//								SimpleMemberInfo s = new SimpleMemberInfo();
+//								if (m.getEducation() != null) {
+//									EducationExperienceVO edu = new EducationExperienceVO();
+//									BeanUtils.copyProperties(m.getEducation(), edu);
+//									edu.setCreateBy(null);
+//									edu.setUpdateBy(null);
+//									s.setEducation(edu);
+//								}
+//								mlist.add(s);
+//							} else {
+//								mlist.add(m);
+//							}
+//						});
+//						item.setMemberList(mlist);
+//					}
 				});
 			}
 		}

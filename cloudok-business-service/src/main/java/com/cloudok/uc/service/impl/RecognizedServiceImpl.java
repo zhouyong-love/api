@@ -48,6 +48,9 @@ public class RecognizedServiceImpl extends AbstractService<RecognizedVO, Recogni
 	
 	@Override
 	public RecognizedTotalDTO recognized(RecognizedVO vo) {
+		if(vo.getTargetId().equals(getCurrentUserId())) {
+			throw new SystemException(CloudOKExceptionMessage.RECOGNIZED_SELF);
+		}
 		this.create(vo);
 		return RecognizedTotalDTO.builder().friendCount(firendService.count(QueryBuilder.create(FirendMapping.class).and(FirendMapping.SOURCEID, getCurrentUserId()).end()))
 				.fromCount(recognizedService.count(QueryBuilder.create(RecognizedMapping.class).and(RecognizedMapping.TARGETID, getCurrentUserId()).end()))

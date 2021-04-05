@@ -1,0 +1,1 @@
+update base_topic t set t.topic_name = (select t2.abbreviation from base_school t2 where t2.id= t.topic_id)  where topic_type=6;

@@ -49,6 +49,8 @@ public class CloudOKExceptionMessage extends ExceptionMessage{
 
 	public static final CloudOKExceptionMessage INCOMPLETE_USER_INFORMATION =new CloudOKExceptionMessage(200,"BUS.INCOMPLETE_USER_INFORMATION", "用户信息不完整");
 
+	public static final CloudOKExceptionMessage RECOGNIZED_SELF =new CloudOKExceptionMessage(200,"BUS.RECOGNIZED_SELF", "不能认可自己");
+
 	
 	public static CoreExceptionMessage build(String code, String message) {
 		return new CoreExceptionMessage(code,message);

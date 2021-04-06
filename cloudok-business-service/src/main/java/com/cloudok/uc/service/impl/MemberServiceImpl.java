@@ -1279,12 +1279,14 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 			SecureRandom sr = new SecureRandom();
 			List<WholeMemberDTO> list = this.filter(result.getData());
 			//二次随机，随机要求已经关注的 和 未关注的分开
-			List<WholeMemberDTO> myRecoginzedList = list.stream().filter(item -> !item.isTo())
+			List<WholeMemberDTO> myRecoginzedList = list.stream().filter(item -> item.isTo())
 					.map(item -> Pair.of(item, sr.nextInt())).sorted((a,b)->a.getRight().compareTo(b.getRight())).map(item -> item.getLeft())
 					.collect(Collectors.toList());
-			List<WholeMemberDTO> myUnRecoginzedList = list.stream()
+			
+			List<WholeMemberDTO> myUnRecoginzedList = list.stream().filter(item -> !item.isTo())
 					.map(item -> Pair.of(item, sr.nextInt())).sorted((a,b)->a.getRight().compareTo(b.getRight())).map(item -> item.getLeft())
-					.filter(item -> !item.isTo()).collect(Collectors.toList());
+					.collect(Collectors.toList());
+			 
 			List<WholeMemberDTO> resultList  =  new ArrayList<WholeMemberDTO>();
 			resultList.addAll(myUnRecoginzedList);
 			resultList.addAll(myRecoginzedList);

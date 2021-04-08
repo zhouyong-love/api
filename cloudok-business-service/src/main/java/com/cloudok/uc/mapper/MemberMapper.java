@@ -113,5 +113,6 @@ public interface MemberMapper extends IMapper<MemberPO>{
 
 	Long getShouldFxixedRecognizedSize();
 	
+	Long getSuggestTotal();
  
 }

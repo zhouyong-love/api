@@ -309,8 +309,7 @@
 		select * from uc_member_suggest where owner_id in
         <foreach collection="idList" index="index" item="item" separator="," open="(" close=")">
             #{item}
-        </foreach>
-         and score>-100 
+        </foreach> 
 	</select> 
 	
 	<select id="getScoreByOwnerIdAndTargetId" resultMap="scoreMap">
@@ -498,5 +497,8 @@
 	</select>
 	<select id="getShouldFxixedRecognizedSize" resultType="Long">
 		SELECT count(1) FROM uc_member_suggest t where t.recognized is null and t.score>-100
+	</select>
+	<select id="getSuggestTotal" resultType="Long">
+		SELECT count(1) FROM uc_member_suggest t
 	</select>
 </mapper>

@@ -67,10 +67,14 @@ public class MemberScoreCalcServiceV2 implements ApplicationListener<BusinessEve
 	
 	//修复下数据
 	private void fixedData() {
-		if(this.repository.getShouldFxixedRecognizedSize().compareTo(0L)>0 ) {
-			 this.calcAll();		
+		Long total = this.repository.getSuggestTotal();
+		if(total == null || total.equals(0L)) {
+			this.calcAll();
+		}else {
+			if(this.repository.getShouldFxixedRecognizedSize().compareTo(0L)>0 ) {
+				 this.calcAll();		
+			}
 		}
-		
 	}
 	public void initMemberScoreOnCreate(Long memberId) {
 		int pageIndex = 1;

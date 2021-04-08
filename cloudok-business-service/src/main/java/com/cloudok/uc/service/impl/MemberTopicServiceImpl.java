@@ -210,33 +210,28 @@ public class MemberTopicServiceImpl extends AbstractService<MemberTopicVO, Membe
 			resultList.add(getDefaultIndustryTopic());
 		}
 		// 标签
+		List<TopicVO> suggestTopicList = this.topicService.list(QueryBuilder.create(TopicMapping.class)
+				.and(TopicMapping.TOPICTYPE, QueryOperator.IN,Arrays.asList(BBSTopicType.statementTag.getValue(), BBSTopicType.personalityTag.getValue(), BBSTopicType.systemSuggestTag.getValue()))
+				.and(TopicMapping.TOPICICON, QueryOperator.NE, "").end().sort(TopicMapping.PEERCOUNT).desc().enablePaging().page(1, 10).end());
+		
 		List<MemberTagsVO> tagsList = memberTagsService.getByMember(currentUserId);
 		List<Long> tagIdList = new ArrayList<Long>();
 		if (!CollectionUtils.isEmpty(tagsList)) {
-			List<Pair<Long, Integer>> avaiableTagList = tagsList.stream().filter(item -> item.getType().toString().equals(TaggedType.CUSTOM.getValue()))
-					.filter(item -> item.getTag().getType().equals(TagType.SYSTEM.getValue())).map(item -> item.getTag().getId()).map(item -> Pair.of(item, sr.nextInt()))
-					.distinct().collect(Collectors.toList());
-			avaiableTagList.stream().sorted((a, b) -> a.getRight().compareTo(b.getRight())).limit(3).forEach(item -> {
-				tagIdList.add(item.getLeft());
-			});
-			if (!CollectionUtils.isEmpty(tagIdList)) {
-				List<TopicVO> tagList = this.topicService.list(QueryBuilder.create(TopicMapping.class)
-						.and(TopicMapping.TOPICTYPE, QueryOperator.IN,
-								Arrays.asList(BBSTopicType.statementTag.getValue(), BBSTopicType.personalityTag.getValue(), BBSTopicType.systemSuggestTag.getValue()))
-						.and(TopicMapping.TOPICID, QueryOperator.IN, tagIdList).end());
-				resultList.addAll(tagList);
-			}
-
+			tagIdList.addAll(tagsList.stream().filter(item -> item.getType().toString().equals(TaggedType.CUSTOM.getValue()))
+			.filter(item -> item.getTag().getType().equals(TagType.SYSTEM.getValue())).map(item -> item.getTag().getId()).distinct().collect(Collectors.toList()));
 		}
-		if (resultList.size() < 6) {
-			List<TopicVO> tagList = this.topicService.list(QueryBuilder.create(TopicMapping.class)
-					.and(TopicMapping.TOPICTYPE, QueryOperator.IN,
-							Arrays.asList(BBSTopicType.statementTag.getValue(), BBSTopicType.personalityTag.getValue(), BBSTopicType.systemSuggestTag.getValue()))
-					.and(TopicMapping.TOPICICON, QueryOperator.NE, "").end().sort(TopicMapping.PEERCOUNT).desc().enablePaging().page(1, 10).end());
-			List<TopicVO> list = tagList.stream().filter(item -> tagIdList.contains(item.getTopicId())).map(item -> Pair.of(item, sr.nextInt()))
-					.sorted((a, b) -> a.getRight().compareTo(b.getRight())).limit(6 - resultList.size()).map(item -> item.getLeft()).collect(Collectors.toList());
-			resultList.addAll(list);
+		List<Long> top10TagIdList = suggestTopicList.stream().map(item -> item.getTopicId()).distinct().collect(Collectors.toList());
+		tagIdList = tagIdList.stream().filter(item -> !top10TagIdList.contains(item)).collect(Collectors.toList());
+		if(!CollectionUtils.isEmpty(tagIdList)) {
+			List<TopicVO> myTagList = this.topicService.list(QueryBuilder.create(TopicMapping.class)
+					.and(TopicMapping.TOPICTYPE, QueryOperator.IN,Arrays.asList(BBSTopicType.statementTag.getValue(), BBSTopicType.personalityTag.getValue(), BBSTopicType.systemSuggestTag.getValue()))
+					.and(TopicMapping.TOPICID, QueryOperator.IN, tagIdList).end());
+			suggestTopicList.addAll(myTagList);
 		}
+		
+		List<TopicVO> list = suggestTopicList.stream().map(item -> Pair.of(item, sr.nextInt()))
+				.sorted((a, b) -> a.getRight().compareTo(b.getRight())).limit(3).map(item -> item.getLeft()).collect(Collectors.toList());
+		resultList.addAll(list);
 		return resultList;
 	}
 

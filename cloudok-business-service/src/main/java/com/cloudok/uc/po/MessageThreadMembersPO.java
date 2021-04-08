@@ -18,5 +18,5 @@ public class MessageThreadMembersPO extends PO {
 	
 	private Long lastPosition;
 	
-	
+	private Integer unRead;
 }

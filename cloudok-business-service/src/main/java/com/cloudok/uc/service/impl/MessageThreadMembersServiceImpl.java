@@ -3,6 +3,8 @@ package com.cloudok.uc.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -19,7 +21,7 @@ import com.cloudok.uc.vo.MessageThreadMembersVO;
 import com.cloudok.uc.vo.MessageVO;
 
 @Service
-public class MessageThreadMembersServiceImpl extends AbstractService<MessageThreadMembersVO, MessageThreadMembersPO> implements MessageThreadMembersService,ApplicationListener<BusinessEvent<?>>{
+public class MessageThreadMembersServiceImpl extends AbstractService<MessageThreadMembersVO, MessageThreadMembersPO> implements MessageThreadMembersService,ApplicationListener<BusinessEvent<?>>,ApplicationRunner{
 
 	@Autowired
 	private MessageThreadMembersMapper repository;
@@ -40,16 +42,32 @@ public class MessageThreadMembersServiceImpl extends AbstractService<MessageThre
 		}
 		
 	}
+	
+	public void fixUnReadCount() {
+		List<MessageThreadMembersVO> vos = this.list(QueryBuilder.create(MessageThreadMembersMapping.class));
+		vos.forEach(item->{
+			MessageThreadMembersVO merge = new MessageThreadMembersVO();
+			merge.setId(item.getId());
+			merge.setUnRead(repository.getUnReadMessageCount(item.getMemberId(), item.getThreadId(), item.getLastPosition()));
+			this.merge(merge);
+		});
+	}
 	//更新最新读取位置
 	private void onMessageSend(MessageVO eventData) {
-		MessageThreadMembersVO vo = this.get(QueryBuilder.create(MessageThreadMembersMapping.class).and(MessageThreadMembersMapping.THREADID, eventData.getThreadId())
-				.and(MessageThreadMembersMapping.MEMBERID, eventData.getMemberId()).end());
-		if(vo != null) {
+		List<MessageThreadMembersVO> vos = this.list(QueryBuilder.create(MessageThreadMembersMapping.class).and(MessageThreadMembersMapping.THREADID, eventData.getThreadId())
+				.end());
+		vos.forEach(item->{
 			MessageThreadMembersVO merge = new MessageThreadMembersVO();
-			merge.setId(vo.getId());
-			merge.setLastPosition(eventData.getId());
+			merge.setId(item.getId());
+			if(item.getMemberId().equals( eventData.getMemberId())) {
+				merge.setLastPosition(eventData.getId());
+				merge.setUnRead(0);
+			}else {
+				merge.setUnRead(repository.getUnReadMessageCount(item.getMemberId(), item.getThreadId(), item.getLastPosition()));
+			}
 			this.merge(merge);
-		}
+		});
+			
 	}
 
 	@Override
@@ -57,5 +75,10 @@ public class MessageThreadMembersServiceImpl extends AbstractService<MessageThre
 		if(!CollectionUtils.isEmpty(readList)) {
 			repository.batchRead(readList);
 		}
+	}
+
+	@Override
+	public void run(ApplicationArguments args) throws Exception {
+		//fixUnReadCount();
 	}
 }

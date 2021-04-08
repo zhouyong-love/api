@@ -196,4 +196,19 @@
 		  </if>
 	</select>
 	
+	<select id="discoverCount" resultType="long">
+		select count(1) from bbs_post t
+		left join uc_recognized t1 on t.create_by = t1.target_id and t1.source_id = #{currentUserId} and t1.deleted=false
+		where (t1.id is not null or t.thumbs_up_count>=3) and t.deleted=false
+	</select>
+	
+	<select id="discover" resultMap="postMap">
+		select 
+		<include refid="columns"></include>
+		 from bbs_post t
+		left join uc_recognized t1 on t.create_by = t1.target_id and t1.source_id = #{currentUserId} and t1.deleted=false
+		where (t1.id is not null or t.thumbs_up_count>=3) and t.deleted=false
+		 order by t.create_ts desc
+		  limit #{offset},#{pageSize}
+	</select>
 </mapper>

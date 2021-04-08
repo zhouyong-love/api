@@ -24,5 +24,7 @@ public class MessageThreadMembersVO extends VO {
 	
 	private Long lastPosition;
 	
+	private Integer unRead;
+	
 	
 }

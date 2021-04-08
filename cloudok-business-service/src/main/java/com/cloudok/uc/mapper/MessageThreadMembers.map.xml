@@ -10,4 +10,9 @@
 	        where member_id = #{item.memberId} and thread_id= #{item.threadId}
 	    </foreach>      
 	</update>
+	
+	<select id="getUnReadMessageCount" resultType="int">
+		select count(1) from  uc_message m 
+			where m.deleted=false and m.member_id != #{memberId} and m.thread_id=#{threadId} and  m.id > #{lastPointId} 
+	</select>
 </mapper>

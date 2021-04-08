@@ -240,14 +240,14 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		page.setPageSize(pageSize);
 		if (page.getTotalCount() > 0 && (page.getTotalCount() / pageSize + 1) >= pageNo) {
 			List<MessageThreadVO> list = this.getMessageThread(repository.searchChatMessageThreads(memberId, (pageNo - 1) * pageSize, pageSize), 2);
-			List<UnReadCount> countList = this.repository.getUnReadMessages(memberId, list.stream().map(item -> item.getId()).distinct().collect(Collectors.toList()));
-			if (!CollectionUtils.isEmpty(countList) && !CollectionUtils.isEmpty(list)) {
-				list.stream().forEach(item -> {
-					countList.stream().filter(a -> item.getId().equals(a.getThreadId())).findAny().ifPresent(a -> {
-						item.setUnReadCount(a.getCount());
-					});
-				});
-			}
+			//List<UnReadCount> countList = this.repository.getUnReadMessages(memberId, list.stream().map(item -> item.getId()).distinct().collect(Collectors.toList()));
+//			if (!CollectionUtils.isEmpty(countList) && !CollectionUtils.isEmpty(list)) {
+//				list.stream().forEach(item -> {
+//					countList.stream().filter(a -> item.getId().equals(a.getThreadId())).findAny().ifPresent(a -> {
+//						item.setUnReadCount(a.getCount());
+//					});
+//				});
+//			}
 			this.fillThreadInfo(list, read);
 			page.setData(list);
 		}
@@ -359,6 +359,9 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 				list.stream().forEach(item -> {
 					List<MessageThreadMembersVO> memberList = map.get(item.getId());
 					if (!CollectionUtils.isEmpty(memberList)) {
+						memberList.stream().filter(m->m.getMemberId().equals(getCurrentUserId())).findAny().ifPresent(m->{
+							item.setUnReadCount( m.getUnRead());
+						});
 						item.setMemberList(memberList.stream().map(m -> {
 							Optional<WholeMemberDTO> opt = simpleMemberInfoList.stream().filter(a -> a.getId().equals(m.getMemberId())).findAny();
 							return opt.isPresent() ? opt.get() : null;
@@ -466,6 +469,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		mtmv.setId(messageThreadMembersService.list(QueryBuilder.create(MessageThreadMembersMapping.class).and(MessageThreadMembersMapping.THREADID, message.getThreadId())
 				.and(MessageThreadMembersMapping.MEMBERID, getCurrentUserId()).end()).get(0).getId());
 		mtmv.setLastPosition(messageId);
+		mtmv.setUnRead(0);
 		messageThreadMembersService.merge(mtmv);
 	}
 

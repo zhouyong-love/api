@@ -10,19 +10,22 @@
 		
 		<result property="lastPosition" column="last_position"/>
 		
+		<result property="unRead" column="un_read"/>
+		
+		
 	</resultMap>
 
 	<sql id="columns">
-		t.thread_id,t.last_position,t.member_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.thread_id,t.last_position,t.member_id,t.un_read,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.uc.po.MessageThreadMembersPO">
-		insert into uc_message_thread_members(thread_id,last_position,member_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{threadId},#{lastPosition},#{memberId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into uc_message_thread_members(thread_id,last_position,member_id,un_read,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{threadId},#{lastPosition},#{memberId},#{unRead},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.uc.po.MessageThreadMembersPO">
-		update uc_message_thread_members set thread_id=#{threadId},member_id=#{memberId},last_position=#{lastPosition},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update uc_message_thread_members set un_read =#{unRead}, thread_id=#{threadId},member_id=#{memberId},last_position=#{lastPosition},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -32,6 +35,7 @@
 		update uc_message_thread_members set 
 			
 			<if test="threadId != null ">thread_id = #{threadId},</if>
+			<if test="unRead != null ">un_read = #{unRead},</if>
 
 			<if test="memberId != null ">member_id = #{memberId},</if>
 			

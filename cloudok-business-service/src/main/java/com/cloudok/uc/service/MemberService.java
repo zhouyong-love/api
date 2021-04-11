@@ -96,4 +96,12 @@ public interface MemberService extends IService<MemberVO,MemberPO>{
 
 	Page<WholeMemberDTO>  suggestV3(String threadId, Integer pageNo, Integer pageSize);
 
+	TokenVO authByMember(MemberVO member);
+
+	void bindOpenId(Long currentUserId, String openid);
+
+	void unbindOpenId(Long currentUserId);
+
+	TokenVO loginOrCreateByPhone(String phoneNumber);
+
 }

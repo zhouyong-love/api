@@ -1745,4 +1745,35 @@ public class MemberServiceImpl extends AbstractService<MemberVO, MemberPO> imple
 		return page;
 	}
 
+	@Override
+	public TokenVO authByMember(MemberVO member) {
+		cacheService.evict(CacheType.Member, member.getId().toString());
+		User user = this.loadUserInfo(member.getId(), member);
+		TokenVO token = TokenVO.build(JWTUtil.genToken(user, TokenType.ACCESS), JWTUtil.genToken(user, TokenType.REFRESH), user);
+		return token;
+	}
+
+	@Override
+	public void bindOpenId(Long currentUserId, String openid) {
+		this.repository.resetOtherMemberOpenId(openid);
+		this.repository.bindOpenId(currentUserId,openid);
+	}
+
+	@Override
+	public void unbindOpenId(Long currentUserId) {
+		this.repository.unbindOpenId(currentUserId);
+	}
+
+	@Override
+	public TokenVO loginOrCreateByPhone(String phoneNumber) {
+		MemberVO member = this.get(QueryBuilder.create(MemberMapping.class).and(MemberMapping.PHONE, phoneNumber).end());
+		if(member == null) {
+			member = new MemberVO();
+			member.setPhone(phoneNumber);
+			this.create(member);
+			member = this.get(member.getId());
+		}
+		return this.authByMember(member);
+	}
+
 }

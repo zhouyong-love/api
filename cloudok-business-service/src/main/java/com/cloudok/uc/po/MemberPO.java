@@ -52,4 +52,6 @@ public class MemberPO extends PO {
 	private Double ti;
 	
 	private Timestamp profileUpdateTs;
+	
+	private String openId;
 }

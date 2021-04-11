@@ -64,6 +64,8 @@ public class MemberVO extends VO {
 	
 	private Timestamp profileUpdateTs;
 	
+	private String openId;
+	
 	public MemberVO(Long id) {
 		this.setId(id);
 	}

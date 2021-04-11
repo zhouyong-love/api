@@ -51,6 +51,12 @@ public class CloudOKExceptionMessage extends ExceptionMessage{
 
 	public static final CloudOKExceptionMessage RECOGNIZED_SELF =new CloudOKExceptionMessage(200,"BUS.RECOGNIZED_SELF", "不能认可自己");
 
+	public static final CloudOKExceptionMessage PARSE_WEIXIN_CODE_ERROR =new CloudOKExceptionMessage("BUS.PARSE_WEIXIN_CODE_ERROR", "解析微信code异常");
+	
+	public static final CloudOKExceptionMessage PARSE_WEIXIN_USER_INFO_ERROR =new CloudOKExceptionMessage("BUS.PARSE_WEIXIN_USER_INFO_ERROR", "解密用户信息失败");
+	
+	public static final CloudOKExceptionMessage PARSE_WEIXIN_PHONE_ERROR =new CloudOKExceptionMessage("BUS.PARSE_WEIXIN_PHONE_ERROR", "解密用户手机号失败");
+
 	
 	public static CoreExceptionMessage build(String code, String message) {
 		return new CoreExceptionMessage(code,message);

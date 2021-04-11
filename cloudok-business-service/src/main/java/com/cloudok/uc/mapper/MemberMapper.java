@@ -114,5 +114,11 @@ public interface MemberMapper extends IMapper<MemberPO>{
 	Long getShouldFxixedRecognizedSize();
 	
 	Long getSuggestTotal();
+
+	void resetOtherMemberOpenId(@Param("openId")String openid);
+
+	void bindOpenId(@Param("currentUserId")Long currentUserId,@Param("openId") String openid);
+
+	void unbindOpenId(@Param("currentUserId")Long currentUserId);
  
 }

@@ -501,4 +501,14 @@
 	<select id="getSuggestTotal" resultType="Long">
 		SELECT count(1) FROM uc_member_suggest t
 	</select>
+	
+	<update id="resetOtherMemberOpenId" parameterType="Map">
+		update uc_member set open_id=null where open_id=#{openId}
+	</update>
+	<update id="bindOpenId" parameterType="Map">
+		update uc_member set open_id=#{openId} where id=#{currentUserId}
+	</update>
+	<update id="unbindOpenId" parameterType="Map">
+		update uc_member set open_id=null where id=#{currentUserId}
+	</update>
 </mapper>

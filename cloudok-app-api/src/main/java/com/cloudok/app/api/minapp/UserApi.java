@@ -14,10 +14,13 @@ import com.cloudok.core.vo.Response;
 import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.log.annotation.Loggable;
 import com.cloudok.minapp.service.IMinAppService;
+import com.cloudok.minapp.vo.Code2SessionResult;
 import com.cloudok.minapp.vo.CodeRequest;
 import com.cloudok.minapp.vo.InfoRequest;
+import com.cloudok.minapp.vo.LoginWithPhoneResult;
 import com.cloudok.minapp.vo.PhoneRequest;
 import com.cloudok.security.SecurityContextHelper;
+import com.cloudok.uc.vo.MemberVO;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,7 +37,7 @@ public class UserApi {
 	 * 登陆接口
 	 */
 	@PostMapping("/code2session")
-	@ApiOperation(value = "通过code获取openId", notes = "通过code获取openId，如果openId存在，返回登录token等信息")
+	@ApiOperation(value = "通过code获取openId", notes = "通过code获取openId，如果openId存在，返回登录token等信息",response=Code2SessionResult.class)
 	@Loggable
 	public Response code2session(@RequestBody CodeRequest codeRequest) {
 		if (codeRequest == null || StringUtils.isEmpty(codeRequest.getCode())) {
@@ -47,7 +50,7 @@ public class UserApi {
 	 * 自动绑定
 	 */
 	@PostMapping("/bind")
-	@ApiOperation(value = "自动绑定当前openId", notes = "当用户使用其他手机号登录成功的时候，获取微信login的code后 自动绑定openId与当前用户")
+	@ApiOperation(value = "自动绑定当前openId", notes = "当用户使用其他手机号登录成功的时候，获取微信login的code后 自动绑定openId与当前用户",response=Code2SessionResult.class)
 	@PreAuthorize("isFullyAuthenticated()")
 	@Loggable
 	public Response bind(@RequestBody CodeRequest codeRequest) {
@@ -72,7 +75,7 @@ public class UserApi {
 	 *  提交用户信息
 	 */
 	@PostMapping("/myinfo")
-	@ApiOperation(value = "提交微信用户信息", notes = "提交微信用户信息")
+	@ApiOperation(value = "提交微信用户信息", notes = "提交微信用户信息",response=MemberVO.class)
 	@PreAuthorize("isFullyAuthenticated()")
 	@Loggable
 	public Response submitMyInfo(@RequestBody InfoRequest infoRequest) {
@@ -85,7 +88,7 @@ public class UserApi {
 	 * </pre>
 	 */
 	@PostMapping("/phone")
-	@ApiOperation(value = "提交微信用户手机信息", notes = "提交微信用户手机信息,如果手机号不存在，则创建用户，如果存在则自动登录匹配用户 返回token等信息")
+	@ApiOperation(value = "提交微信用户手机信息", notes = "提交微信用户手机信息,如果手机号不存在，则创建用户，如果存在则自动登录匹配用户 返回token等信息",response=LoginWithPhoneResult.class)
 	@Loggable
 	public Response loginWithPhone(@RequestBody PhoneRequest phoneRequest) {
 		return Response.buildSuccess(this.minAppService.loginWithPhone(phoneRequest));

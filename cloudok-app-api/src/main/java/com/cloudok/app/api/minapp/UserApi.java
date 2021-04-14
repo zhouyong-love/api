@@ -16,7 +16,7 @@ import com.cloudok.log.annotation.Loggable;
 import com.cloudok.minapp.service.IMinAppService;
 import com.cloudok.minapp.vo.Code2SessionResult;
 import com.cloudok.minapp.vo.CodeRequest;
-import com.cloudok.minapp.vo.InfoRequest;
+import com.cloudok.minapp.vo.InfoRequestV2;
 import com.cloudok.minapp.vo.LoginWithPhoneResult;
 import com.cloudok.minapp.vo.PhoneRequest;
 import com.cloudok.security.SecurityContextHelper;
@@ -71,6 +71,17 @@ public class UserApi {
 		return Response.buildSuccess(minAppService.unbind(SecurityContextHelper.getCurrentUserId()));
 	}
 	
+//	/**
+//	 *  提交用户信息
+//	 */
+//	@PostMapping("/myinfo")
+//	@ApiOperation(value = "提交微信用户信息", notes = "提交微信用户信息",response=MemberVO.class)
+//	@PreAuthorize("isFullyAuthenticated()")
+//	@Loggable
+//	public Response submitMyInfo(@RequestBody InfoRequest infoRequest) {
+//		return Response.buildSuccess(minAppService.submitMyInfo(infoRequest));
+//	}
+	
 	/**
 	 *  提交用户信息
 	 */
@@ -78,8 +89,8 @@ public class UserApi {
 	@ApiOperation(value = "提交微信用户信息", notes = "提交微信用户信息",response=MemberVO.class)
 	@PreAuthorize("isFullyAuthenticated()")
 	@Loggable
-	public Response submitMyInfo(@RequestBody InfoRequest infoRequest) {
-		return Response.buildSuccess(minAppService.submitMyInfo(infoRequest));
+	public Response submitMyInfoV2(@RequestBody InfoRequestV2 infoRequest) {
+		return Response.buildSuccess(minAppService.submitMyInfoV2(infoRequest));
 	}
 	
 	/**

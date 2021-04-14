@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.cloudok.base.attach.io.AttachRWHandle;
 import com.cloudok.base.attach.service.AttachService;
@@ -24,6 +25,7 @@ import com.cloudok.exception.CloudOKExceptionMessage;
 import com.cloudok.minapp.service.IMinAppService;
 import com.cloudok.minapp.vo.Code2SessionResult;
 import com.cloudok.minapp.vo.InfoRequest;
+import com.cloudok.minapp.vo.InfoRequestV2;
 import com.cloudok.minapp.vo.LoginWithPhoneResult;
 import com.cloudok.minapp.vo.PhoneRequest;
 import com.cloudok.security.SecurityContextHelper;
@@ -104,6 +106,33 @@ public class MinAppServiceImpl implements IMinAppService {
 		SpringApplicationContext.publishEvent(MemberProfileEvent.update(db.getId(),MemberProfileType.base,member,db));
 		return member;
 	}
+	@Override
+	public MemberVO submitMyInfoV2(InfoRequestV2 infoRequest) {
+		MemberVO db = this.memberService.get(SecurityContextHelper.getCurrentUserId());
+		MemberVO member = new MemberVO();
+		member.setId(db.getId());
+		switch (infoRequest.getGender()) {
+			case "0":
+				break;
+			case "1":
+				member.setSex("0");
+				break;
+			case "2":
+				member.setSex("1");
+				break;
+			default:
+				break;
+		}
+		member.setNickName(infoRequest.getNickName());
+		AttachVO attach = this.downloadImage(infoRequest.getAvatarUrl(), member.getId());
+		if (attach != null) {
+			member.setAvatar(attach.getId());
+		}
+		this.memberService.merge(member);
+		member = this.memberService.get(member.getId());
+		SpringApplicationContext.publishEvent(MemberProfileEvent.update(db.getId(),MemberProfileType.base,member,db));
+		return member;
+	}
 
 	private AttachVO downloadImage(String avatarUrl, Long userId) {
 		URL url = null;
@@ -165,6 +194,9 @@ public class MinAppServiceImpl implements IMinAppService {
 		WxMaPhoneNumberInfo phoneNoInfo = wxService.getUserService().getPhoneNoInfo(phoneRequest.getSessionKey(), phoneRequest.getEncryptedData(), phoneRequest.getIv());
 		LoginWithPhoneResult result = new LoginWithPhoneResult();
 		TokenVO token = this.memberService.loginOrCreateByPhone(phoneNoInfo.getPhoneNumber());
+		if(!StringUtils.isEmpty(phoneRequest.getOpenId())) {
+			memberService.bindOpenId(token.getUserInfo().getId(), phoneRequest.getOpenId());
+		}
 		result.setToken(token);
 		result.setOpenId(phoneRequest.getOpenId());
 		result.setPhone(phoneNoInfo.getPhoneNumber());

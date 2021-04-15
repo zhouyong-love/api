@@ -157,7 +157,7 @@ public class MinAppServiceImpl implements IMinAppService {
 				os.write(bs, 0, len);
 			}
 			os.flush();
-			avo = AttachRWHandle.upload(file, "rbacAttachConfig", "image", file.getName(), Collections.emptyMap());
+			avo = AttachRWHandle.upload(file, "avatar", "image", file.getName(), Collections.emptyMap());
 			AttachRWHandle.used(avo.getId(), userId, "");
 
 			AttachVO m = new AttachVO();

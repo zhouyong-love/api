@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudok.core.exception.SystemException;
 import com.cloudok.core.vo.Response;
 import com.cloudok.exception.CloudOKExceptionMessage;
+import com.cloudok.log.annotation.LogModule;
 import com.cloudok.log.annotation.Loggable;
 import com.cloudok.minapp.service.IMinAppService;
 import com.cloudok.minapp.vo.Code2SessionResult;
@@ -28,6 +29,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController("minapp-user-api")
 @RequestMapping("/v1/minapp/user")
 @Api(tags = "小程序用户API")
+@LogModule
 public class UserApi {
 
 	@Autowired

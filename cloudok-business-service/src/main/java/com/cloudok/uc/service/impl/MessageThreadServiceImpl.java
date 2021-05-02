@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.cloudok.uc.service.*;
+import com.cloudok.uc.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -40,18 +42,6 @@ import com.cloudok.uc.mapping.RecognizedMapping;
 import com.cloudok.uc.po.MessageThreadGroupPO;
 import com.cloudok.uc.po.MessageThreadPO;
 import com.cloudok.uc.po.UnReadCount;
-import com.cloudok.uc.service.FirendService;
-import com.cloudok.uc.service.MemberService;
-import com.cloudok.uc.service.MessageService;
-import com.cloudok.uc.service.MessageThreadMembersService;
-import com.cloudok.uc.service.MessageThreadService;
-import com.cloudok.uc.service.RecognizedService;
-import com.cloudok.uc.vo.MessageThreadGroup;
-import com.cloudok.uc.vo.MessageThreadGroupItem;
-import com.cloudok.uc.vo.MessageThreadMembersVO;
-import com.cloudok.uc.vo.MessageThreadVO;
-import com.cloudok.uc.vo.MessageVO;
-import com.cloudok.uc.vo.RecognizedVO;
 
 @Service
 public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, MessageThreadPO> implements MessageThreadService, ApplicationListener<BusinessEvent<?>> {
@@ -73,6 +63,9 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 
 	@Autowired
 	private FirendService firendService;
+
+	@Autowired
+	private NotificationService notificationService;
 
 	@Autowired
 	public MessageThreadServiceImpl(MessageThreadMapper repository) {
@@ -410,6 +403,7 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 				mtmv.setLastPosition(lastMessageId);
 				mtmv.setMemberId(SecurityContextHelper.getCurrentUserId());
 				mtmv.setThreadId(item.getId());
+				mtmv.setUnRead(1);
 				readList.add(mtmv);
 			});
 			this.messageThreadMembersService.batchRead(readList);
@@ -475,7 +469,8 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 
 	@Override
 	public Integer getLatestMessageCount(Long currentUserId) {
-		return this.repository.getLatestMessageCount(currentUserId);
+		Integer notificationUnReadCount = notificationService.getUnReadCount();
+		return this.repository.getLatestMessageCount(currentUserId) + notificationUnReadCount;
 	}
 
 	// viewType=1 我收到的 viewType=2 回复我的
@@ -560,5 +555,4 @@ public class MessageThreadServiceImpl extends AbstractService<MessageThreadVO, M
 		}
 		return group;
 	}
-
 }

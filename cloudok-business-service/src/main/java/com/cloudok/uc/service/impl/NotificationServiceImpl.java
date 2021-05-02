@@ -51,7 +51,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class NotificationServiceImpl extends AbstractService<NotificationVO, NotificationPO> implements ApplicationListener<BusinessEvent<?>>, NotificationService {
 
-	private ExecutorService executor = Executors.newFixedThreadPool(10); // 最多同时8个线程并行
+	// 最多同时8个线程并行
+	private ExecutorService executor = Executors.newFixedThreadPool(10);
 
 	@Autowired
 	private PostMapper postMapper;
@@ -335,5 +336,11 @@ public class NotificationServiceImpl extends AbstractService<NotificationVO, Not
 			return page;
 	}
 
-	
+	@Override
+	public Integer getUnReadCount() {
+		Integer readTotal = this.repository.getReadTotal(getCurrentUserId());
+		return readTotal;
+	}
+
+
 }

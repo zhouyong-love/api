@@ -20,4 +20,7 @@ public interface NotificationService extends IService<NotificationVO,Notificatio
 	List<NotificationTotalVO> getTotal();
 
 	Page<BBSNotificationVO> getNotificationList(Integer type, Integer pageNo, Integer pageSize);
+
+	//查询未读评论和点赞消息总数
+	Integer getUnReadCount();
 }

@@ -43,5 +43,10 @@
 		where t.deleted=false and t.member_id=#{memberId}
 		 group by t.business_type,t.status
 	</select>
+
+	<select id="getReadTotal" parameterType="Map" resultType="Integer">
+		SELECT count(1) FROM cloudok.uc_notification t
+		where t.deleted=false and t.status = 0 and t.member_id=#{memberId}
+	</select>
 	
 </mapper>

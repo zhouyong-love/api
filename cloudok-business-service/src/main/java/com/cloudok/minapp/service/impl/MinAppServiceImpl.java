@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -188,38 +187,46 @@ public class MinAppServiceImpl implements IMinAppService {
 		return avo;
 	}
 
-	@Override
-	public LoginWithPhoneResult loginWithPhone(PhoneRequest phoneRequest) {
-		// 解密
-		WxMaPhoneNumberInfo phoneNoInfo = wxService.getUserService().getPhoneNoInfo(phoneRequest.getSessionKey(), phoneRequest.getEncryptedData(), phoneRequest.getIv());
-		LoginWithPhoneResult result = new LoginWithPhoneResult();
-		TokenVO token = this.memberService.loginOrCreateByPhone(phoneNoInfo.getPhoneNumber());
-		if(!StringUtils.isEmpty(phoneRequest.getOpenId())) {
-			memberService.bindOpenId(token.getUserInfo().getId(), phoneRequest.getOpenId());
-		}
-		result.setToken(token);
-		result.setOpenId(phoneRequest.getOpenId());
-		result.setPhone(phoneNoInfo.getPhoneNumber());
-		return result;
-	}
+    @Override
+    public LoginWithPhoneResult loginWithPhone(PhoneRequest phoneRequest) {
+        WxMaJscode2SessionResult session = null;
+        try {
+            session = wxService.getUserService().getSessionInfo(phoneRequest.getCode());
+        } catch (WxErrorException e) {
+            throw new SystemException(CloudOKExceptionMessage.PARSE_WEIXIN_CODE_ERROR);
+        }
+        // 解密
+        WxMaPhoneNumberInfo phoneNoInfo = wxService.getUserService().getPhoneNoInfo(session.getSessionKey(), phoneRequest.getEncryptedData(), phoneRequest.getIv());
+        LoginWithPhoneResult result = new LoginWithPhoneResult();
+        TokenVO token = null;
+        if (phoneNoInfo.getPhoneNumber() != null) {
+            token = this.memberService.loginOrCreateByPhone(phoneNoInfo.getPhoneNumber());
+            if (!StringUtils.isEmpty(session.getOpenid())) {
+                memberService.bindOpenId(token.getUserInfo().getId(), session.getOpenid());
+            }
+        }
+        result.setToken(token);
+        result.setOpenId(session.getOpenid());
+        result.setPhone(phoneNoInfo.getPhoneNumber());
+        return result;
+    }
 
-	@Override
-	public Code2SessionResult bind(String code) {
-		Code2SessionResult result = new Code2SessionResult();
-		try {
-			WxMaJscode2SessionResult session = wxService.getUserService().getSessionInfo(code);
-			result.setCode2SessionResult(session);
-			memberService.bindOpenId(SecurityContextHelper.getCurrentUserId(), session.getOpenid());
-		} catch (WxErrorException e) {
-			throw new SystemException(CloudOKExceptionMessage.PARSE_WEIXIN_CODE_ERROR);
-		}
-		return result;
-	}
+    @Override
+    public Code2SessionResult bind(String code) {
+        Code2SessionResult result = new Code2SessionResult();
+        try {
+            WxMaJscode2SessionResult session = wxService.getUserService().getSessionInfo(code);
+            result.setCode2SessionResult(session);
+            memberService.bindOpenId(SecurityContextHelper.getCurrentUserId(), session.getOpenid());
+        } catch (WxErrorException e) {
+            throw new SystemException(CloudOKExceptionMessage.PARSE_WEIXIN_CODE_ERROR);
+        }
+        return result;
+    }
 
-	@Override
-	public Boolean unbind(Long currentUserId) {
-		memberService.unbindOpenId(SecurityContextHelper.getCurrentUserId());
-		return true;
-	}
-
+    @Override
+    public Boolean unbind(Long currentUserId) {
+        memberService.unbindOpenId(SecurityContextHelper.getCurrentUserId());
+        return true;
+    }
 }

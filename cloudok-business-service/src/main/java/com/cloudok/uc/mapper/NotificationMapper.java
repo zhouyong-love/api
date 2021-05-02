@@ -12,14 +12,15 @@ public interface NotificationMapper extends IMapper<NotificationPO>{
 
 	void removeByPostId(@Param("postId") Long postId);
 
-	void deleteByBusinessId(@Param("businessId") Long businessId,@Param("businessType") String businessType);
+	void deleteByBusinessId(@Param("businessId") Long businessId, @Param("businessType") String businessType);
 
-	void markAsRead(@Param("memberId")Long memberId,@Param("businessTypeList") List<String> businessTypeList);
+	void markAsRead(@Param("memberId") Long memberId, @Param("businessTypeList") List<String> businessTypeList);
 
 	void markAsReadByIdList(@Param("idList") List<Long> idList);
 
 	List<NotificationTotalPO> getTotal(@Param("memberId") Long currentUserId);
 
-
+	// 新增查询所有未读
+    Integer getReadTotal(@Param("memberId") Long currentUserId);
 
 }

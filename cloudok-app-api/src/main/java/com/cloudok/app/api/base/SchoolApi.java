@@ -4,9 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.cloudok.base.mapping.SchoolMapping;
 import com.cloudok.base.service.SchoolService;
@@ -33,5 +31,15 @@ public class SchoolApi {
 	@Loggable
 	public Response search(HttpServletRequest request) {
 		return Response.buildSuccess(schoolService.list(QueryBuilder.create(SchoolMapping.class).with(request).sort(SchoolMapping.SN).asc()));
+	}
+
+	@PreAuthorize("isFullyAuthenticated()")
+	@GetMapping("/search")
+	@ApiOperation(value = "根据关键字模糊查", notes = "根据关键字模糊查")
+	@Loggable
+	public Response searchSchool(@RequestParam(name = "keywords", required=true) String keywords,
+								 @RequestParam(name = "pageNo", defaultValue = "1",required=false) Integer pageNo,
+								 @RequestParam(name = "pageSize", defaultValue = "100",required=false) Integer pageSize) {
+		return Response.buildSuccess(schoolService.searchSchool(keywords,pageNo,pageSize));
 	}
 }

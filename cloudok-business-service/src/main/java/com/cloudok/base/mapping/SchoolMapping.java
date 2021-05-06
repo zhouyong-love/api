@@ -15,4 +15,6 @@ public class SchoolMapping extends Mapping {
 	
 	public static final Mapping SN = new Mapping("sn", "t.sn");
 
+	public static final Mapping AREAID = new Mapping("areaId","t.area_id");
+
 }

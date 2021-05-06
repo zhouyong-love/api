@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudok.base.mapper.SchoolMapper">
-	
+    <select id="listByArea"
+            resultMap="schoolMap">
+        select
+        <include refid="columns"></include>
+        from base_school  t
+        <where>
+            t.area_id = #{areaId}
+        </where>
+        order by t.sn asc
+    </select>
 </mapper>

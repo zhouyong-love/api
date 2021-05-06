@@ -12,20 +12,21 @@
 		
 		<result property="sn" column="sn"/>
 		
-		
+		<result property="areaId" column="area_id"/>
+
 	</resultMap>
 
 	<sql id="columns">
-		t.name,t.email_postfix,t.abbreviation,t.sn,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
+		t.name,t.email_postfix,t.abbreviation,t.sn,t.area_id,<include refid="com.cloudok.core.mybatis.BaseMapper.baseColumns"/>
 	</sql>
 	
 	<insert id="create" parameterType="com.cloudok.base.po.SchoolPO">
-		insert into base_school(name,email_postfix,abbreviation,sn,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
-		values(#{name},#{emailPostfix},#{abbreviation},#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
+		insert into base_school(name,email_postfix,abbreviation,sn,area_id,<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumns"/>)
+		values(#{name},#{emailPostfix},#{abbreviation},#{sn},#{areaId},<include refid="com.cloudok.core.mybatis.BaseMapper.insertBaseColumnsValue"/>)
 	</insert>
 	
 	<update id="update" parameterType="com.cloudok.base.po.SchoolPO">
-		update base_school set name=#{name},email_postfix=#{emailPostfix},abbreviation=#{abbreviation},sn=#{sn},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
+		update base_school set name=#{name},email_postfix=#{emailPostfix},abbreviation=#{abbreviation},sn=#{sn},area_id=#{areaId},<include refid="com.cloudok.core.mybatis.BaseMapper.updateBaseColumns"/>
 		<where>
 			<include refid="com.cloudok.core.mybatis.BaseMapper.byId"/>
 		</where>
@@ -39,6 +40,8 @@
 			<if test="abbreviation != null ">abbreviation = #{abbreviation},</if>
 			
 			<if test="sn != null ">sn = #{sn},</if>
+
+		    <if test="areaId != null ">area_id = #{areaId},</if>
 			
 			<if test="emailPostfix != null ">email_postfix = #{emailPostfix},</if>
 			
